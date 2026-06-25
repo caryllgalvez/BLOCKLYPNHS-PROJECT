@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Tickets · BlockLearn Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f0f6f3; color: #1d4639; }
+        :root {
+            --green-deep: #1a6b4f;
+            --green-main: #268e6c;
+            --green-soft: #e2f3ed;
+            --gold-warm: #f0b84d;
+            --stone: #7f9e92;
+            --border-fresh: #e2ede8;
+            --card-white: #ffffff;
+            --shadow-light: 0 8px 24px rgba(26, 107, 79, 0.06);
+            --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
+        }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(#d4e6df 0.6px, transparent 0.6px), linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px); background-size: 42px 42px; opacity: 0.3; pointer-events: none; z-index: 0; }
+
+        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(170deg, #1a4e3d, #1a6048);
+            color: #e2f0ea;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,250,200,0.08);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar.collapsed { transform: translateX(-280px); }
+
+        .sidebar-logo {
+            padding: 1.5rem 1.5rem 1.2rem;
+            border-bottom: 1px solid rgba(255,245,200,0.10);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sidebar-logo-left { display: flex; align-items: center; gap: 12px; }
+        .sidebar-toggle-btn {
+            background: rgba(255,255,255,0.10);
+            border: none;
+            color: #e2f0ea;
+            font-size: 1.2rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .sidebar-toggle-btn:hover { background: rgba(255,255,255,0.20); }
+        .sidebar-logo h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
+        .sidebar-logo h2 span { color: var(--gold-warm); }
+        .sidebar-logo p { font-size: 0.65rem; opacity: 0.6; margin: 2px 0 0 0; }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 1rem; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            color: #cde6df;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .nav-link-custom i { width: 22px; font-size: 1rem; }
+        .nav-link-custom:hover { background: rgba(255,245,210,0.10); color: white; }
+        .nav-link-custom.active { background: var(--gold-warm); color: #1a4235; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+        .sidebar-footer { padding: 1.2rem 1.5rem; border-top: 1px solid rgba(255,245,200,0.10); margin-top: auto; }
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #d2ede4;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 40px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        .logout-btn:hover { background: #c9513a; color: white; }
+
+        .sidebar-restore-btn {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--green-main);
+            color: white;
+            border: none;
+            border-radius: 0 12px 12px 0;
+            padding: 16px 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 16px rgba(26, 107, 79, 0.20);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .sidebar-restore-btn.visible { opacity: 1; pointer-events: auto; }
+        .sidebar-restore-btn:hover { background: var(--green-deep); padding-right: 14px; }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 28px 36px;
+            transition: margin-left 0.3s ease;
+        }
+        .main-content.expanded { margin-left: 0; }
+
+        .top-bar {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 0.8rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-fresh);
+            box-shadow: var(--shadow-light);
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 12px; }
+        .mobile-hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #1a463a;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .mobile-hamburger:hover { background: var(--green-soft); }
+
+        .page-title { font-size: 1.3rem; font-weight: 700; color: #1a463a; letter-spacing: -0.3px; margin: 0; }
+        .page-title i { color: var(--gold-warm); margin-right: 10px; }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(38,142,108,0.25);
+            flex-shrink: 0;
+        }
+
+        .card-panel {
+            background: var(--card-white);
+            border-radius: 24px;
+            border: 1px solid var(--border-fresh);
+            padding: 1.5rem 1.8rem;
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-main), var(--gold-warm));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .card-panel:hover::after { opacity: 1; }
+
+        .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #1a463a; }
+        .section-title i { color: var(--green-main); margin-right: 8px; }
+
+        /* Ticket Styles */
+        .ticket-status {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .ticket-status.pending { background: #fef3c7; color: #b45309; }
+        .ticket-status.in_progress { background: #dbeafe; color: #1d4ed8; }
+        .ticket-status.resolved { background: #d1fae5; color: #065f46; }
+        .ticket-status.closed { background: #e5e7eb; color: #4b5563; }
+        
+        .ticket-priority {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .ticket-priority.low { background: #e5e7eb; color: #4b5563; }
+        .ticket-priority.medium { background: #fef3c7; color: #b45309; }
+        .ticket-priority.high { background: #fee2e2; color: #dc2626; }
+
+        .ticket-card {
+            background: var(--card-white);
+            border: 1px solid var(--border-fresh);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 0.8rem;
+        }
+        .ticket-card:hover {
+            border-color: var(--green-main);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+        .ticket-card.high-priority { border-left: 4px solid #dc2626; }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border-radius: 40px;
+            border: 2px solid var(--border-fresh);
+            background: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--stone);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--green-main); color: var(--green-main); }
+        .filter-btn.active { background: var(--green-main); border-color: var(--green-main); color: white; }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1.5px solid var(--border-fresh);
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            background: white;
+        }
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(38,142,108,0.10);
+        }
+        select.form-control-custom {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237f9e92' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+
+        .btn-primary-custom {
+            background: var(--green-deep);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 700;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+        .btn-primary-custom:hover { background: #0f553f; transform: translateY(-2px); }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--green-deep);
+            border: 2px solid var(--green-deep);
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+        .btn-outline-custom:hover { background: var(--green-deep); color: white; }
+
+        .modal-custom .modal-content {
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .modal-header-custom {
+            background: linear-gradient(125deg, var(--green-deep), #1e8260);
+            color: white;
+            padding: 1rem 1.8rem;
+            border: none;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-280px);
+                border-radius: 0 20px 20px 0;
+                width: 280px;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            .top-bar {
+                padding: 0.8rem 1.2rem;
+                flex-wrap: wrap;
+            }
+            .mobile-hamburger { display: block; }
+            .sidebar-toggle-btn { display: none; }
+            .sidebar-restore-btn { display: none; }
+            .page-title { font-size: 1.1rem; }
+            .sidebar-overlay.active { display: block; }
+        }
+        @media (max-width: 576px) {
+            .top-bar { flex-wrap: wrap; gap: 8px; }
+            .top-bar-left { flex: 1; }
+            .user-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
+            .card-panel { padding: 1rem; }
+            .ticket-card { padding: 0.8rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <button class="sidebar-restore-btn" id="sidebarRestoreBtn" onclick="toggleSidebar()" title="Show Sidebar">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <div id="sharedSidebar">Loading sidebar...</div>
+    <script>
+        (function(){
+            fetch('/static/snippets/sidebar_teacher.html')
+                .then(r => r.text())
+                .then(html => {
+                    const container = document.getElementById('sharedSidebar');
+                    if (container) container.outerHTML = html;
+                })
+                .catch(() => {
+                    const container = document.getElementById('sharedSidebar');
+                    if (container) container.innerHTML = '<p style="padding:1rem;color:#c2412c;">Failed to load sidebar.</p>';
+                });
+        })();
+    </script>
+
+    <main class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="mobile-hamburger" onclick="toggleSidebar()" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="page-title"><i class="fas fa-ticket-alt"></i>Support Tickets</h2>
+            </div>
+            <div class="user-avatar"><i class="fas fa-user"></i></div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card-panel mb-4">
+            <div class="section-title"><i class="fas fa-chart-simple"></i>Ticket Overview</div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:1rem;">
+                <div style="text-align:center; background:var(--green-soft); border-radius:16px; padding:0.8rem;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#b45309;" id="statPending">0</div>
+                    <div style="font-size:0.65rem; color:var(--stone);">Pending</div>
+                </div>
+                <div style="text-align:center; background:var(--green-soft); border-radius:16px; padding:0.8rem;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#1d4ed8;" id="statInProgress">0</div>
+                    <div style="font-size:0.65rem; color:var(--stone);">In Progress</div>
+                </div>
+                <div style="text-align:center; background:var(--green-soft); border-radius:16px; padding:0.8rem;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#065f46;" id="statResolved">0</div>
+                    <div style="font-size:0.65rem; color:var(--stone);">Resolved</div>
+                </div>
+                <div style="text-align:center; background:var(--green-soft); border-radius:16px; padding:0.8rem;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#4b5563;" id="statTotal">0</div>
+                    <div style="font-size:0.65rem; color:var(--stone);">Total</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card-panel mb-4">
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="filter-btn active" data-filter="all" onclick="filterTickets('all')">All</button>
+                <button class="filter-btn" data-filter="pending" onclick="filterTickets('pending')">Pending</button>
+                <button class="filter-btn" data-filter="in_progress" onclick="filterTickets('in_progress')">In Progress</button>
+                <button class="filter-btn" data-filter="resolved" onclick="filterTickets('resolved')">Resolved</button>
+                <button class="filter-btn" data-filter="closed" onclick="filterTickets('closed')">Closed</button>
+            </div>
+        </div>
+
+        <!-- Ticket List -->
+        <div class="card-panel">
+            <div class="section-title"><i class="fas fa-list"></i>Tickets</div>
+            <div id="ticketList">
+                <p style="font-size:0.85rem; color:var(--stone); text-align:center; padding:2rem 0;">
+                    <i class="fas fa-spinner fa-spin me-2"></i>Loading tickets...
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Ticket Detail Modal -->
+<div class="modal fade modal-custom" id="ticketModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header-custom">
+                <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Ticket Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding:1.8rem; background:#fefef9;">
+                <div id="ticketDetailContent">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/tickets.js"></script>
+<script>
+    let isSidebarOpen = true;
+    let currentFilter = 'all';
+    let allTickets = [];
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const mainContent = document.getElementById('mainContent');
+        const restoreBtn = document.getElementById('sidebarRestoreBtn');
+
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        } else {
+            isSidebarOpen = !isSidebarOpen;
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+
+            if (!isSidebarOpen) {
+                restoreBtn.classList.add('visible');
+            } else {
+                restoreBtn.classList.remove('visible');
+            }
+        }
+    }
+
+    function loadTicketStats() {
+        fetch('/get_ticket_count')
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    document.getElementById('statPending').textContent = d.pending || 0;
+                    document.getElementById('statInProgress').textContent = d.in_progress || 0;
+                    document.getElementById('statResolved').textContent = d.resolved || 0;
+                    document.getElementById('statTotal').textContent = d.total || 0;
+                }
+            })
+            .catch(err => console.error('Error loading stats:', err));
+    }
+
+    function loadTickets(filter) {
+        const url = filter && filter !== 'all' ? '/get_tickets?status=' + filter : '/get_tickets';
+        
+        fetch(url)
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    allTickets = d.tickets || [];
+                    renderTickets(allTickets);
+                }
+            })
+            .catch(err => console.error('Error loading tickets:', err));
+    }
+
+    function renderTickets(tickets) {
+        const list = document.getElementById('ticketList');
+        
+        if (tickets.length === 0) {
+            list.innerHTML = `
+                <p style="font-size:0.85rem; color:var(--stone); text-align:center; padding:2rem 0;">
+                    <i class="fas fa-inbox me-2"></i>No tickets found.
+                </p>
+            `;
+            return;
+        }
+
+        list.innerHTML = tickets.map(t => {
+            const statusClass = t.status || 'pending';
+            const priorityClass = t.priority || 'medium';
+            const statusLabel = statusClass.replace('_', ' ').toUpperCase();
+            const highPriority = t.priority === 'high' ? 'high-priority' : '';
+            
+            return `
+                <div class="ticket-card ${highPriority}" onclick="viewTicket(${t.id})">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <div style="font-weight:600; font-size:0.95rem; color:#1a463a;">
+                                ${escapeHtml(t.subject)}
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--stone); margin-top:4px;">
+                                <i class="fas fa-user me-1"></i>${escapeHtml(t.student_username || t.student_name || 'Student')}
+                            </div>
+                            <div style="font-size:0.75rem; color:var(--stone); margin-top:2px;">
+                                ${escapeHtml(t.message.substring(0, 100))}${t.message.length > 100 ? '...' : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0;">
+                            <span class="ticket-status ${statusClass}">${statusLabel}</span>
+                            <span class="ticket-priority ${priorityClass}">${t.priority || 'medium'}</span>
+                        </div>
+                    </div>
+                    <!-- removed extra metadata -->
+                </div>
+            `;
+        }).join('');
+    }
+
+    function viewTicket(ticketId) {
+        const ticket = allTickets.find(t => t.id === ticketId);
+        if (!ticket) return;
+
+        const statusClass = ticket.status || 'pending';
+        const priorityClass = ticket.priority || 'medium';
+        const statusLabel = statusClass.replace('_', ' ').toUpperCase();
+
+        const content = document.getElementById('ticketDetailContent');
+        content.innerHTML = `
+            <div style="margin-bottom:1.2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <h5 style="font-weight:700; color:#1a463a; margin:0;">${escapeHtml(ticket.subject)}</h5>
+                    <div style="display:flex; gap:6px;">
+                        <span class="ticket-status ${statusClass}">${statusLabel}</span>
+                        <span class="ticket-priority ${priorityClass}">${ticket.priority || 'medium'}</span>
+                    </div>
+                </div>
+                <div style="font-size:0.8rem; color:var(--stone); margin-top:6px;">
+                    <i class="fas fa-user me-1"></i>${escapeHtml(ticket.student_username || ticket.student_name || 'Student')}
+                </div>
+            </div>
+
+            <div style="background:var(--green-soft); border-radius:12px; padding:1rem; margin-bottom:1.2rem;">
+                <div style="font-weight:600; font-size:0.85rem; color:#1a463a; margin-bottom:4px;">Message:</div>
+                <div style="font-size:0.9rem; color:#1a463a; white-space:pre-wrap;">${escapeHtml(ticket.message)}</div>
+            </div>
+
+            <hr style="border-color:var(--border-fresh);">
+
+            <form id="ticketResponseForm">
+                <div class="mb-3">
+                    <label style="font-weight:600; font-size:0.8rem; color:#425145; display:block; margin-bottom:4px;">Update Status</label>
+                    <select class="form-control-custom" id="ticketStatusSelect">
+                        <option value="pending" ${ticket.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                        <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>Closed</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn-primary-custom" onclick="updateTicket(${ticket.id})">
+                        <i class="fas fa-save me-2"></i>Update Ticket
+                    </button>
+                    <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </form>
+        `;
+
+        const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+        modal.show();
+    }
+
+    function updateTicket(ticketId) {
+        const status = document.getElementById('ticketStatusSelect').value;
+
+        fetch('/update_ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket_id: ticketId, status })
+        })
+        .then(r => r.json())
+        .then(d => {
+                if (d.success) {
+                    if (window.showToast) showToast('Ticket updated successfully!', 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
+                    if (modal) modal.hide();
+                    loadTickets(currentFilter);
+                    loadTicketStats();
+                } else {
+                    if (window.showToast) showToast('Error: ' + (d.message || 'Failed to update'), 'error');
+                }
+        })
+        .catch(err => { if (window.showToast) showToast('Error updating ticket: ' + (err.message||''), 'error'); });
+    }
+
+    function filterTickets(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        loadTickets(filter);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTicketStats();
+        loadTickets('all');
+        setInterval(loadTicketStats, 30000);
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const hamburgerBtn = document.querySelector('.mobile-hamburger');
+
+            if (sidebar && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

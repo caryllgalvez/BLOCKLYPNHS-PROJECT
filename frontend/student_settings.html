@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings · BlockLearn Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f0f6f3; color: #1d4639; }
+        
+        :root {
+            --green-deep: #1a6b4f;
+            --green-main: #268e6c;
+            --green-soft: #e2f3ed;
+            --green-pale: #d4ece2;
+            --gold-warm: #f0b84d;
+            --stone: #7f9e92;
+            --border-fresh: #e2ede8;
+            --card-white: #ffffff;
+            --shadow-light: 0 8px 24px rgba(26, 107, 79, 0.06);
+            --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 72px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(#d4e6df 0.6px, transparent 0.6px),
+                linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px);
+            background-size: 42px 42px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(170deg, #1a4e3d, #1a6048);
+            color: #e2f0ea;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid rgba(255,250,200,0.08);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+            z-index: 1000;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar.expanded {
+            width: var(--sidebar-width);
+        }
+
+        /* Hide text when collapsed */
+        .sidebar.collapsed .nav-link-custom span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link-custom {
+            justify-content: center;
+            padding: 0.7rem 0.5rem;
+        }
+
+        .sidebar.collapsed .sidebar-logo h2 {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-logo p {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            justify-content: center;
+            padding: 1rem 0.5rem;
+        }
+
+        .sidebar.collapsed .logout-btn span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .sidebar.collapsed .logout-btn {
+            justify-content: center;
+            padding: 8px 0.5rem;
+        }
+
+        .sidebar.collapsed .nav-link-custom i {
+            font-size: 1.3rem;
+        }
+
+        /* Show text when expanded */
+        .sidebar.expanded .nav-link-custom span {
+            opacity: 1;
+            width: auto;
+            display: inline;
+        }
+
+        .sidebar.expanded .nav-link-custom {
+            justify-content: flex-start;
+            padding: 0.7rem 1rem;
+        }
+
+        .sidebar.expanded .sidebar-logo h2 {
+            opacity: 1;
+            width: auto;
+            display: block;
+        }
+
+        .sidebar.expanded .sidebar-logo p {
+            opacity: 1;
+            width: auto;
+            display: block;
+        }
+
+        .sidebar.expanded .sidebar-logo {
+            justify-content: space-between;
+            padding: 1rem 1.2rem;
+        }
+
+        .sidebar.expanded .logout-btn span {
+            opacity: 1;
+            width: auto;
+            display: inline;
+        }
+
+        .sidebar.expanded .logout-btn {
+            justify-content: flex-start;
+            padding: 8px 12px;
+        }
+
+        .sidebar.expanded .nav-link-custom i {
+            font-size: 1rem;
+        }
+
+        /* Sidebar Logo */
+        .sidebar-logo {
+            border-bottom: 1px solid rgba(255,245,200,0.10);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            gap: 12px;
+            overflow: hidden;
+            padding: 1rem 1.2rem;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar-logo h2 span {
+            color: var(--gold-warm);
+        }
+
+        .sidebar-logo p {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin: 2px 0 0 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar-logo-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        /* Toggle Button - changes between X and Hamburger */
+        .sidebar-toggle-btn {
+            background: rgba(255,255,255,0.10);
+            border: none;
+            color: #e2f0ea;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: rotate(90deg);
+        }
+
+        .sidebar.collapsed .sidebar-toggle-btn .icon-x {
+            display: none;
+        }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-bars {
+            display: inline-block;
+        }
+
+        .sidebar.expanded .sidebar-toggle-btn .icon-x {
+            display: inline-block;
+        }
+        .sidebar.expanded .sidebar-toggle-btn .icon-bars {
+            display: none;
+        }
+
+        /* Nav items */
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            color: #cde6df;
+            text-decoration: none;
+            border-radius: 12px 0 0 12px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+            margin-right: -1px;
+            white-space: nowrap;
+        }
+
+        .nav-link-custom i {
+            width: 22px;
+            font-size: 1rem;
+            flex-shrink: 0;
+            text-align: center;
+            transition: font-size 0.3s ease;
+        }
+
+        .nav-link-custom span {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-custom:hover {
+            background: rgba(255,245,210,0.10);
+            color: white;
+        }
+
+        /* Active Tab - Curved Outside */
+        .nav-link-custom.active {
+            background: var(--card-white);
+            color: #1a4235;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 12px 0 0 12px;
+            position: relative;
+        }
+
+        .nav-link-custom.active::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .nav-link-custom.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        /* Sidebar Nav */
+        .sidebar-nav {
+            flex: 1;
+            padding: 1.5rem 0.5rem;
+        }
+
+        .nav-item {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            padding: 1.2rem 0.5rem;
+            border-top: 1px solid rgba(255,245,200,0.10);
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #d2ede4;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .logout-btn i {
+            flex-shrink: 0;
+            width: 22px;
+            text-align: center;
+        }
+
+        .logout-btn span {
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c9513a;
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 28px 36px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 0.8rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-fresh);
+            box-shadow: var(--shadow-light);
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a463a;
+            letter-spacing: -0.3px;
+            margin: 0;
+        }
+
+        .page-title i {
+            color: var(--gold-warm);
+            margin-right: 10px;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(38,142,108,0.25);
+            flex-shrink: 0;
+        }
+
+        /* Full Width Card Panel - no grid, full width */
+        .card-panel {
+            background: var(--card-white);
+            border-radius: 24px;
+            border: 1px solid var(--border-fresh);
+            padding: 1.5rem 1.8rem;
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+            max-width: 100%;
+            width: 100%;
+        }
+        .card-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-main), var(--gold-warm));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .card-panel:hover::after { opacity: 1; }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a463a;
+        }
+        .section-title i { color: var(--green-main); margin-right: 8px; }
+
+        .form-label-custom {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            color: #425145;
+            font-size: 0.8rem;
+        }
+        .form-control-custom {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1.5px solid var(--border-fresh);
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            background: white;
+        }
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(38,142,108,0.10);
+        }
+        select.form-control-custom {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237f9e92' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+
+        .btn-primary-custom {
+            background: var(--green-deep);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+        .btn-primary-custom:hover {
+            background: #0f553f;
+            transform: translateY(-2px);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid #eff5f1;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            color: var(--stone);
+            font-size: 0.85rem;
+        }
+        .info-value {
+            font-weight: 700;
+            color: #1a463a;
+            font-size: 0.85rem;
+        }
+
+        /* Ticket Styles */
+        .ticket-status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .ticket-status.pending { background: #fef3c7; color: #b45309; }
+        .ticket-status.in_progress { background: #dbeafe; color: #1d4ed8; }
+        .ticket-status.resolved { background: #d1fae5; color: #065f46; }
+        .ticket-status.closed { background: #e5e7eb; color: #4b5563; }
+        
+        .ticket-priority {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 40px;
+            font-size: 0.55rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .ticket-priority.low { background: #e5e7eb; color: #4b5563; }
+        .ticket-priority.medium { background: #fef3c7; color: #b45309; }
+        .ticket-priority.high { background: #fee2e2; color: #dc2626; }
+
+        /* Toast */
+        .alert-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+            border-left: 4px solid var(--green-main);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+        .alert-toast.error { border-left-color: #c2412c; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+            }
+            .main-content {
+                margin-left: var(--sidebar-collapsed-width);
+                padding: 16px;
+            }
+            .main-content.expanded {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+            .top-bar {
+                padding: 0.8rem 1.2rem;
+                flex-wrap: wrap;
+            }
+            .page-title { font-size: 1.1rem; }
+            .card-panel { padding: 1rem; }
+        }
+        @media (max-width: 576px) {
+            .main-content { padding: 12px; }
+            .top-bar { flex-wrap: wrap; gap: 8px; }
+            .top-bar-right { margin-left: auto; }
+            .user-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
+            .card-panel { padding: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar expanded" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-left">
+                <h2>Block<span>Learn</span></h2>
+                <p>PNHS · ICT Studio</p>
+            </div>
+            <button class="sidebar-toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i class="fas fa-times icon-x"></i>
+                <i class="fas fa-bars icon-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/student_dashboard" class="nav-link-custom">
+                    <i class="fas fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/student_activities" class="nav-link-custom">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <span>Activities</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/student_progress" class="nav-link-custom">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Progress</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/student_achievements" class="nav-link-custom">
+                    <i class="fas fa-medal"></i>
+                    <span>Achievements</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/student_profile" class="nav-link-custom">
+                    <i class="fas fa-circle-user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/student_settings" class="nav-link-custom active">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sign out</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <h2 class="page-title"><i class="fas fa-sliders-h"></i>Settings</h2>
+            </div>
+            <div class="top-bar-right">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+            </div>
+        </div>
+
+        <!-- Full Width Card Panel -->
+        <div class="card-panel">
+            <div class="section-title"><i class="fas fa-user-cog"></i>Account Settings</div>
+            <div class="info-row">
+                <span class="info-label">LRN</span>
+                <span class="info-value" id="settingsLrn">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Grade Level</span>
+                <span class="info-value" id="settingsGrade">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value" id="settingsEmailDisplay">-</span>
+            </div>
+
+            <form id="studentSettingsForm" class="mt-4">
+                <div class="mb-3">
+                    <label class="form-label-custom">Grade Level</label>
+                    <select class="form-control-custom" id="editGradeLevel">
+                        <option value="Grade 11">Grade 11</option>
+                        <option value="Grade 12">Grade 12</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-custom">Email Address</label>
+                    <input type="email" class="form-control-custom" id="editEmail" placeholder="student@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-custom">Current Password</label>
+                    <input type="password" class="form-control-custom" id="currentPassword" placeholder="Enter current password">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-custom">New Password</label>
+                    <input type="password" class="form-control-custom" id="newPassword" placeholder="Enter new password (min 6 chars)">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label-custom">Confirm New Password</label>
+                    <input type="password" class="form-control-custom" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+                <button type="button" class="btn-primary-custom" onclick="updateProfile()">
+                    <i class="fas fa-save me-2"></i>Save Settings
+                </button>
+            </form>
+
+            <!-- ====== TICKET SECTION ====== -->
+            <div class="mt-4 pt-3" style="border-top: 1px solid var(--border-fresh);">
+                <div class="section-title" style="font-size:0.95rem;margin-bottom:0.8rem;">
+                    <i class="fas fa-ticket-alt" style="color:var(--green-main);"></i>Support Tickets
+                </div>
+                
+                <!-- Ticket Form -->
+                <div class="ticket-form">
+                    <p style="font-size:0.8rem;color:var(--stone);margin-bottom:0.8rem;">
+                        Having trouble with an activity or feature? Submit a ticket and the teacher will assist you.
+                    </p>
+                    <form id="ticketForm">
+                        <div class="mb-3">
+                            <label class="form-label-custom">Subject</label>
+                            <input type="text" class="form-control-custom" id="ticketSubject" 
+                                   placeholder="Brief description of your issue" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-custom">Message</label>
+                            <textarea class="form-control-custom" id="ticketMessage" rows="3" 
+                                      placeholder="Describe your problem in detail..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-custom">Priority</label>
+                            <select class="form-control-custom" id="ticketPriority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-primary-custom" onclick="submitTicket()" style="padding:8px 18px;font-size:0.8rem;">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Ticket
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Ticket History -->
+                <div class="ticket-history mt-3">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                        <h6 style="font-weight:700;margin:0;font-size:0.85rem;color:#1a463a;">
+                            <i class="fas fa-history me-2" style="color:var(--green-main);"></i>My Tickets
+                        </h6>
+                        <span style="background:var(--green-soft);padding:1px 10px;border-radius:40px;font-size:0.6rem;font-weight:600;color:var(--green-deep);">
+                            <span id="ticketCount">0</span> total
+                        </span>
+                    </div>
+                    <div id="ticketList">
+                        <p style="font-size:0.8rem;padding:0.8rem 0;text-align:center;color:var(--stone);margin:0;">
+                            <i class="fas fa-inbox me-2"></i>No tickets submitted yet.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/tickets.js"></script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    let isSidebarExpanded = true;
+
+    function toggleSidebar() {
+        isSidebarExpanded = !isSidebarExpanded;
+        if (isSidebarExpanded) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        } else {
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+    }
+
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            isSidebarExpanded = false;
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        } else {
+            isSidebarExpanded = true;
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        }
+    }
+
+    function showToast(message, type) {
+        const existing = document.querySelector('.alert-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'alert-toast' + (type === 'error' ? ' error' : '');
+        toast.innerHTML = `
+            <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}" style="color: ${type === 'error' ? '#c2412c' : '#1c7e54'};"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ==================== SETTINGS FUNCTIONS ====================
+
+    function loadSettings() {
+        fetch('/student_profile_data')
+            .then(r => r.json())
+            .then(d => {
+                if (!d.success) return;
+                document.getElementById('settingsLrn').innerText = d.lrn || '-';
+                document.getElementById('settingsGrade').innerText = d.grade_level || '-';
+                document.getElementById('settingsEmailDisplay').innerText = d.email || '-';
+                document.getElementById('editGradeLevel').value = d.grade_level || 'Grade 11';
+                document.getElementById('editEmail').value = d.email || '';
+            });
+    }
+
+    function updateProfile() {
+        const grade_level = document.getElementById('editGradeLevel').value;
+        const email = document.getElementById('editEmail').value.trim();
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showToast('Please enter a valid email address', 'error');
+            return;
+        }
+
+        if ((currentPassword || newPassword || confirmPassword) && (!currentPassword || !newPassword || !confirmPassword)) {
+            showToast('Fill all password fields to change your password', 'error');
+            return;
+        }
+
+        if (newPassword && newPassword.length < 6) {
+            showToast('New password must be at least 6 characters', 'error');
+            return;
+        }
+
+        if (newPassword && newPassword !== confirmPassword) {
+            showToast('New passwords do not match', 'error');
+            return;
+        }
+
+        const payload = { grade_level, email };
+        if (currentPassword && newPassword) {
+            payload.current_password = currentPassword;
+            payload.new_password = newPassword;
+        }
+
+        fetch('/update_profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                showToast('Settings updated successfully!');
+                loadSettings();
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            } else {
+                showToast(d.message || 'Update failed', 'error');
+            }
+        })
+        .catch(() => showToast('Update failed. Please try again.', 'error'));
+    }
+
+    // ==================== INITIALIZATION ====================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        checkSidebarState();
+        loadSettings();
+        // Load tickets after settings
+        setTimeout(loadStudentTickets, 600);
+    });
+
+    window.addEventListener('resize', function() {
+        checkSidebarState();
+    });
+</script>
+</body>
+</html>
+```

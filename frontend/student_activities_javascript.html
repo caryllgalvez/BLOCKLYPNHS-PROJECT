@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Activities · BlockLearn Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Same styles as before ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f0f6f3; line-height: 1.5; }
+        
+        :root {
+            --green-deep: #1a6b4f;
+            --green-main: #268e6c;
+            --green-soft: #e2f3ed;
+            --green-pale: #d4ece2;
+            --gold-warm: #f0b84d;
+            --stone: #7f9e92;
+            --border-fresh: #e2ede8;
+            --card-white: #ffffff;
+            --shadow-light: 0 8px 24px rgba(26, 107, 79, 0.06);
+            --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 72px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(#d4e6df 0.6px, transparent 0.6px),
+                linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px);
+            background-size: 42px 42px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(170deg, #1a4e3d, #1a6048);
+            color: #e2f0ea;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid rgba(255,250,200,0.08);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+            z-index: 1000;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+        .sidebar.expanded { width: var(--sidebar-width); }
+
+        .sidebar.collapsed .nav-link-custom span { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.7rem 0.5rem; }
+        .sidebar.collapsed .sidebar-logo h2 { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .sidebar-logo p { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logout-btn span { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .logout-btn { justify-content: center; padding: 8px 0.5rem; }
+        .sidebar.collapsed .nav-link-custom i { font-size: 1.3rem; }
+
+        .sidebar.expanded .nav-link-custom span { opacity: 1; width: auto; display: inline; }
+        .sidebar.expanded .nav-link-custom { justify-content: flex-start; padding: 0.7rem 1rem; }
+        .sidebar.expanded .sidebar-logo h2 { opacity: 1; width: auto; display: block; }
+        .sidebar.expanded .sidebar-logo p { opacity: 1; width: auto; display: block; }
+        .sidebar.expanded .sidebar-logo { justify-content: space-between; padding: 1rem 1.2rem; }
+        .sidebar.expanded .logout-btn span { opacity: 1; width: auto; display: inline; }
+        .sidebar.expanded .logout-btn { justify-content: flex-start; padding: 8px 12px; }
+        .sidebar.expanded .nav-link-custom i { font-size: 1rem; }
+
+        .sidebar-logo {
+            border-bottom: 1px solid rgba(255,245,200,0.10);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            gap: 12px;
+            overflow: hidden;
+            padding: 1rem 1.2rem;
+        }
+
+        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo h2 span { color: var(--gold-warm); }
+        .sidebar-logo p { font-size: 0.6rem; opacity: 0.6; margin: 2px 0 0 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo-left { display: flex; flex-direction: column; align-items: flex-start; transition: all 0.3s ease; }
+
+        .sidebar-toggle-btn {
+            background: rgba(255,255,255,0.10);
+            border: none;
+            color: #e2f0ea;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle-btn:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-x { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-bars { display: inline-block; }
+        .sidebar.expanded .sidebar-toggle-btn .icon-x { display: inline-block; }
+        .sidebar.expanded .sidebar-toggle-btn .icon-bars { display: none; }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            color: #cde6df;
+            text-decoration: none;
+            border-radius: 12px 0 0 12px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+            margin-right: -1px;
+            white-space: nowrap;
+        }
+
+        .nav-link-custom i { width: 22px; font-size: 1rem; flex-shrink: 0; text-align: center; transition: font-size 0.3s ease; }
+        .nav-link-custom span { transition: all 0.3s ease; }
+        .nav-link-custom:hover { background: rgba(255,245,210,0.10); color: white; }
+
+        .nav-link-custom.active {
+            background: var(--card-white);
+            color: #1a4235;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 12px 0 0 12px;
+            position: relative;
+        }
+
+        .nav-link-custom.active::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .nav-link-custom.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 0.5rem; }
+        .nav-item { position: relative; margin-bottom: 4px; }
+        .sidebar-footer { padding: 1.2rem 0.5rem; border-top: 1px solid rgba(255,245,200,0.10); margin-top: auto; }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #d2ede4;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .logout-btn i { flex-shrink: 0; width: 22px; text-align: center; }
+        .logout-btn span { transition: all 0.3s ease; }
+        .logout-btn:hover { background: #c9513a; color: white; }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 28px 36px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 0.8rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-fresh);
+            box-shadow: var(--shadow-light);
+        }
+
+        .top-bar-left { display: flex; align-items: center; gap: 12px; }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a463a;
+            letter-spacing: -0.3px;
+            margin: 0;
+        }
+
+        .page-title i { color: var(--gold-warm); margin-right: 10px; }
+
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(38,142,108,0.25);
+            flex-shrink: 0;
+        }
+
+        /* Language Tabs */
+        .language-tabs {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .lang-tab {
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            background: var(--card-white);
+            border: 2px solid var(--border-fresh);
+            color: var(--stone);
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .lang-tab:hover { border-color: var(--green-main); color: var(--green-main); }
+        .lang-tab.active { background: var(--green-main); border-color: var(--green-main); color: white; }
+
+        /* Activity Cards */
+        .activity-card {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-fresh);
+            box-shadow: var(--shadow-light);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .activity-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-main), var(--gold-warm));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--green-main);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .activity-card:hover::after { opacity: 1; }
+
+        .difficulty-badge {
+            font-size: 0.65rem;
+            padding: 3px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+
+        .easy { background: #d1fae5; color: #065f46; }
+        .medium { background: #fef3c7; color: #b45309; }
+        .hard { background: #fee2e2; color: #991b1b; }
+
+        .status-badge {
+            font-size: 0.65rem;
+            padding: 3px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+
+        .activity-card h6 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 12px 0 6px;
+            color: #1c4a3a;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: var(--gold-warm);
+            color: #1a4235;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .blocks-available {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .block-pill {
+            background: var(--green-soft);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--green-deep);
+        }
+
+        .free-play-card {
+            border: 2px dashed var(--green-main);
+            background: var(--green-soft);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .free-play-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--gold-warm);
+        }
+
+        /* Instructions Modal */
+        .instructions-btn {
+            background: var(--green-soft);
+            border: none;
+            border-radius: 20px;
+            padding: 2px 12px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--green-deep);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .instructions-btn:hover {
+            background: var(--green-main);
+            color: white;
+        }
+
+        .instructions-modal .modal-content {
+            border-radius: 24px;
+            border: none;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .instructions-modal .modal-header {
+            border-bottom: 2px solid var(--green-soft);
+            padding: 1.5rem;
+        }
+
+        .instructions-modal .modal-header h5 {
+            font-weight: 700;
+            color: var(--green-deep);
+        }
+
+        .instructions-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .instructions-modal .modal-body ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions-modal .modal-body ol li {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .instructions-modal .modal-body .block-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .instructions-modal .modal-body .block-list span {
+            background: var(--green-soft);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--green-deep);
+        }
+
+        .instructions-modal .modal-footer {
+            border-top: 2px solid var(--green-soft);
+            padding: 1rem 1.5rem;
+        }
+
+        .btn-start-activity {
+            background: var(--green-main);
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-start-activity:hover {
+            background: var(--green-deep);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile menu button */
+        .mobile-hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #1a463a;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .mobile-hamburger:hover { background: var(--green-soft); }
+
+        @media (max-width: 768px) {
+            .mobile-hamburger { display: block; }
+            .sidebar-toggle-btn { display: none; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: var(--sidebar-collapsed-width); }
+            .main-content {
+                margin-left: var(--sidebar-collapsed-width);
+                padding: 16px;
+            }
+            .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+            .top-bar { padding: 0.8rem 1.2rem; flex-wrap: wrap; }
+            .page-title { font-size: 1rem; }
+            .language-tabs { gap: 0.5rem; }
+            .lang-tab { font-size: 0.7rem; padding: 0.4rem 1rem; }
+            .activity-card { padding: 1rem; }
+        }
+
+        @media (max-width: 576px) {
+            .main-content { padding: 12px; }
+            .top-bar { flex-wrap: wrap; gap: 8px; }
+            .top-bar-right { margin-left: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar expanded" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-left">
+                <h2>Block<span>Learn</span></h2>
+                <p>PNHS · ICT Studio</p>
+            </div>
+            <button class="sidebar-toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i class="fas fa-times icon-x"></i>
+                <i class="fas fa-bars icon-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span>Python</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom active"><i class="fab fa-js"></i><span>JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom"><i class="fab fa-html5"></i><span>HTML</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span>Progress</span></a></div>
+            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span>Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span>Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i><span>Settings</span></a></div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Sign out</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="mobile-hamburger" onclick="toggleSidebar()" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="page-title"><i class="fab fa-js"></i>JavaScript Activities</h2>
+            </div>
+            <div class="top-bar-right">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+            </div>
+        </div>
+
+        <div class="language-tabs">
+            <a href="/student_activities" class="lang-tab"><i class="fab fa-python me-1"></i> Python</a>
+            <a href="/student_activities_javascript" class="lang-tab active"><i class="fab fa-js me-1"></i> JavaScript</a>
+            <a href="/student_activities_html" class="lang-tab"><i class="fab fa-html5 me-1"></i> HTML/CSS</a>
+        </div>
+
+        <!-- ===== EASY ACTIVITIES ===== -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="fas fa-seedling" style="font-size:1.5rem; color:#10b981;"></i>
+                <h5 class="fw-bold mb-0" style="color:#065f46;">Easy Level</h5>
+                <span class="badge bg-light text-dark ms-2">2 activities</span>
+            </div>
+            <div class="row g-4">
+                <!-- Activity 1: Hello World -->
+                <div class="col-md-4">
+                    <div class="activity-card" onclick="window.location.href='/student_playground_javascript?activity=hello-world'">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge easy">Easy</span>
+                            <span class="status-badge status-pending" id="status-helloworld">Not Started</span>
+                        </div>
+                        <h6>💛 Hello World <span class="step-badge">Step 1</span></h6>
+                        <p class="small text-muted">Log "Hello, World!" to the browser console</p>
+                        <div class="blocks-available">
+                            <span class="block-pill"><i class="fas fa-terminal"></i> CONSOLE</span>
+                            <span class="block-pill"><i class="fas fa-font"></i> TEXT</span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>5 min</span>
+                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>100 pts</span>
+                            </div>
+                            <button class="instructions-btn" onclick="event.stopPropagation(); showInstructions('hello-world')">
+                                <i class="fas fa-info-circle me-1"></i> Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 2: Personal Greeting -->
+                <div class="col-md-4">
+                    <div class="activity-card" onclick="window.location.href='/student_playground_javascript?activity=greeting'">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge easy">Easy</span>
+                            <span class="status-badge status-pending" id="status-greeting">Not Started</span>
+                        </div>
+                        <h6>💛 Personal Greeting <span class="step-badge">Step 2</span></h6>
+                        <p class="small text-muted">Ask for name and greet with a personalized message</p>
+                        <div class="blocks-available">
+                            <span class="block-pill"><i class="fas fa-terminal"></i> CONSOLE</span>
+                            <span class="block-pill"><i class="fas fa-user"></i> PROMPT</span>
+                            <span class="block-pill"><i class="fas fa-cube"></i> VARIABLE</span>
+                            <span class="block-pill"><i class="fas fa-link"></i> CONCAT</span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>7 min</span>
+                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>100 pts</span>
+                            </div>
+                            <button class="instructions-btn" onclick="event.stopPropagation(); showInstructions('greeting')">
+                                <i class="fas fa-info-circle me-1"></i> Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MEDIUM ACTIVITIES ===== -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="fas fa-chart-line" style="font-size:1.5rem; color:#f59e0b;"></i>
+                <h5 class="fw-bold mb-0" style="color:#b45309;">Medium Level</h5>
+                <span class="badge bg-light text-dark ms-2">2 activities</span>
+            </div>
+            <div class="row g-4">
+                <!-- Activity 3: Calculator -->
+                <div class="col-md-4">
+                    <div class="activity-card" onclick="window.location.href='/student_playground_javascript?activity=calculator'">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge medium">Medium</span>
+                            <span class="status-badge status-pending" id="status-calculator">Not Started</span>
+                        </div>
+                        <h6>💛 Calculator <span class="step-badge">Step 3</span></h6>
+                        <p class="small text-muted">Add two numbers and display the result</p>
+                        <div class="blocks-available">
+                            <span class="block-pill"><i class="fas fa-terminal"></i> CONSOLE</span>
+                            <span class="block-pill"><i class="fas fa-calculator"></i> MATH</span>
+                            <span class="block-pill"><i class="fas fa-hashtag"></i> NUMBER</span>
+                            <span class="block-pill"><i class="fas fa-cube"></i> VARIABLE</span>
+                            <span class="block-pill"><i class="fas fa-link"></i> CONCAT</span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>10 min</span>
+                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>150 pts</span>
+                            </div>
+                            <button class="instructions-btn" onclick="event.stopPropagation(); showInstructions('calculator')">
+                                <i class="fas fa-info-circle me-1"></i> Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 4: Temperature Converter -->
+                <div class="col-md-4">
+                    <div class="activity-card" onclick="window.location.href='/student_playground_javascript?activity=temperature'">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge medium">Medium</span>
+                            <span class="status-badge status-pending" id="status-temperature">Not Started</span>
+                        </div>
+                        <h6>💛 Temperature Converter <span class="step-badge">Step 4</span></h6>
+                        <p class="small text-muted">Convert Celsius to Fahrenheit</p>
+                        <div class="blocks-available">
+                            <span class="block-pill"><i class="fas fa-terminal"></i> CONSOLE</span>
+                            <span class="block-pill"><i class="fas fa-calculator"></i> MATH</span>
+                            <span class="block-pill"><i class="fas fa-hashtag"></i> NUMBER</span>
+                            <span class="block-pill"><i class="fas fa-cube"></i> VARIABLE</span>
+                            <span class="block-pill"><i class="fas fa-link"></i> CONCAT</span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>10 min</span>
+                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>150 pts</span>
+                            </div>
+                            <button class="instructions-btn" onclick="event.stopPropagation(); showInstructions('temperature')">
+                                <i class="fas fa-info-circle me-1"></i> Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== HARD ACTIVITIES ===== -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="fas fa-trophy" style="font-size:1.5rem; color:#ef4444;"></i>
+                <h5 class="fw-bold mb-0" style="color:#991b1b;">Hard Level</h5>
+                <span class="badge bg-light text-dark ms-2">1 activity</span>
+            </div>
+            <div class="row g-4">
+                <!-- Activity 5: Number Guessing -->
+                <div class="col-md-4">
+                    <div class="activity-card" onclick="window.location.href='/student_playground_javascript?activity=number-guessing'">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge hard">Hard</span>
+                            <span class="status-badge status-pending" id="status-numberguessing">Not Started</span>
+                        </div>
+                        <h6>💛 Number Guessing Game <span class="step-badge">Step 5</span></h6>
+                        <p class="small text-muted">Guess a random number between 1-100</p>
+                        <div class="blocks-available">
+                            <span class="block-pill"><i class="fas fa-terminal"></i> CONSOLE</span>
+                            <span class="block-pill"><i class="fas fa-user"></i> PROMPT</span>
+                            <span class="block-pill"><i class="fas fa-cube"></i> VARIABLE</span>
+                            <span class="block-pill"><i class="fas fa-link"></i> CONCAT</span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>15 min</span>
+                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>200 pts</span>
+                            </div>
+                            <button class="instructions-btn" onclick="event.stopPropagation(); showInstructions('number-guessing')">
+                                <i class="fas fa-info-circle me-1"></i> Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Free Play Card -->
+        <div class="mt-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="/student_playground_javascript?activity=free-play" class="activity-card free-play-card">
+                        <div class="text-center py-2">
+                            <div style="font-size:2.5rem; margin-bottom:0.5rem;">🎯</div>
+                            <h6 style="font-weight:700; color:var(--green-deep);">Free Play</h6>
+                            <p class="small text-muted">Build anything you want with all JavaScript blocks</p>
+                            <span class="badge" style="background:var(--gold-warm); color:#1a4235; padding:4px 14px; border-radius:40px; font-size:0.7rem;">
+                                <i class="fas fa-play me-1"></i>Free Play
+                            </span>
+                            <span class="card-arrow" style="display:inline-block; margin-top:8px; color:var(--green-main); font-size:0.85rem;">
+                                Launch <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ===== INSTRUCTIONS MODAL ===== -->
+<div class="modal fade instructions-modal" id="instructionsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"><i class="fas fa-info-circle me-2" style="color:var(--gold-warm);"></i>Activity Instructions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically inserted -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:40px;">Close</button>
+                <a href="#" class="btn-start-activity" id="startActivityBtn">
+                    <i class="fas fa-rocket me-2"></i>Start Activity
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    let isSidebarExpanded = true;
+
+    function toggleSidebar() {
+        isSidebarExpanded = !isSidebarExpanded;
+        if (isSidebarExpanded) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        } else {
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+    }
+
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            isSidebarExpanded = false;
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        } else {
+            isSidebarExpanded = true;
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        }
+    }
+
+    // ===== INSTRUCTIONS DATA - ALIGNED WITH PLAYGROUND =====
+    const instructionsData = {
+        'hello-world': {
+            title: '💛 Hello World',
+            difficulty: 'Easy',
+            steps: [
+                'Find the <strong>console.log</strong> block in the BASIC category (🟨).',
+                'Drag the <strong>console.log</strong> block to the workspace.',
+                'Find the <strong>TEXT</strong> block in the BASIC category (🟨).',
+                'Drag the <strong>TEXT</strong> block and attach it inside the console.log block.',
+                'Click on the TEXT block and type: <strong>"Hello, World!"</strong>',
+                'Click the <strong>RUN CODE</strong> button to see the output!'
+            ],
+            blocks: ['console.log', 'TEXT'],
+            expected: 'Hello, World!',
+            startUrl: '/student_playground_javascript?activity=hello-world'
+        },
+        'greeting': {
+            title: '💛 Personal Greeting',
+            difficulty: 'Easy',
+            steps: [
+                'From the ADVANCED category (🟪), drag <strong>var myVar =</strong> and change "myVar" to <strong>userName</strong>.',
+                'Attach a <strong>prompt</strong> block and type: <strong>"Enter your name:"</strong>',
+                'From BASIC category (🟨), drag a <strong>console.log</strong> block below the variable.',
+                'Inside console.log, add a <strong>concat</strong> block from ADVANCED (🟪).',
+                'Add a TEXT block with <strong>"Hello, "</strong> and a <strong>variable_get</strong> for <strong>userName</strong>.',
+                'Click <strong>RUN CODE</strong> to test it!'
+            ],
+            blocks: ['var', 'prompt', 'console.log', 'concat', 'TEXT', 'variable_get'],
+            expected: 'Hello, [your name]!',
+            startUrl: '/student_playground_javascript?activity=greeting'
+        },
+        'calculator': {
+            title: '💛 Calculator',
+            difficulty: 'Medium',
+            steps: [
+                'From ADVANCED (🟪), create <strong>num1</strong> variable and set it to <strong>5</strong> using MATH (🟩) number block.',
+                'Create <strong>num2</strong> variable and set it to <strong>10</strong>.',
+                'Create <strong>sum</strong> variable and use <strong>math_operation (ADD)</strong> to add num1 and num2.',
+                'From BASIC (🟨), add a <strong>console.log</strong> block.',
+                'Inside console.log, use <strong>concat</strong> to combine <strong>"The sum is: "</strong> with the <strong>sum</strong> variable.',
+                'Click <strong>RUN CODE</strong> to see the result!'
+            ],
+            blocks: ['var', 'math_number', 'math_operation', 'console.log', 'concat', 'variable_get'],
+            expected: 'The sum is: 15',
+            startUrl: '/student_playground_javascript?activity=calculator'
+        },
+        'temperature': {
+            title: '💛 Temperature Converter',
+            difficulty: 'Medium',
+            steps: [
+                'From ADVANCED (🟪), create <strong>celsius</strong> variable and set it to <strong>32</strong>.',
+                'Create <strong>fahrenheit</strong> variable using formula: <strong>(celsius × 9) + 160</strong>',
+                'Use <strong>math_operation (MULTIPLY)</strong> for celsius × 9, then <strong>ADD</strong> 160.',
+                'From BASIC (🟨), add a <strong>console.log</strong> block.',
+                'Use <strong>concat</strong> to show: <strong>"°C = "</strong> + celsius + <strong>" = "</strong> + fahrenheit + <strong>"°F"</strong>',
+                'Click <strong>RUN CODE</strong> to test with different temperatures!'
+            ],
+            blocks: ['var', 'math_number', 'math_operation', 'console.log', 'concat', 'variable_get'],
+            expected: '32°C = 89.6°F',
+            startUrl: '/student_playground_javascript?activity=temperature'
+        },
+        'number-guessing': {
+            title: '💛 Number Guessing Game',
+            difficulty: 'Hard',
+            steps: [
+                'From ADVANCED (🟪), create <strong>secretNumber</strong> variable and set it to <strong>42</strong>.',
+                'Create <strong>guess</strong> variable using <strong>prompt</strong> to ask: <strong>"Guess a number 1-100:"</strong>',
+                'From BASIC (🟨), add a <strong>console.log</strong> block to display: <strong>"Your guess: " + guess</strong>',
+                '🏆 <strong>CHALLENGE:</strong> Can you add an IF-ELSE to check if the guess is correct?',
+                'If correct, log: <strong>"You guessed correctly! 🎉"</strong>',
+                'If wrong, log: <strong>"Try again! 💪"</strong>',
+                'Click <strong>RUN CODE</strong> to play the game!'
+            ],
+            blocks: ['var', 'prompt', 'console.log', 'concat', 'variable_get'],
+            expected: 'Your guess: [number]',
+            startUrl: '/student_playground_javascript?activity=number-guessing'
+        }
+    };
+
+    // ===== SHOW INSTRUCTIONS =====
+    function showInstructions(activityId) {
+        const data = instructionsData[activityId];
+        if (!data) return;
+
+        const modal = new bootstrap.Modal(document.getElementById('instructionsModal'));
+        const modalBody = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
+        const startBtn = document.getElementById('startActivityBtn');
+
+        // Set title
+        modalTitle.innerHTML = `<i class="fas fa-info-circle me-2" style="color:var(--gold-warm);"></i>${data.title}`;
+
+        // Build instructions HTML
+        let html = `
+            <div class="mb-3">
+                <span class="difficulty-badge ${data.difficulty.toLowerCase()}">${data.difficulty}</span>
+                <span class="badge bg-light text-dark ms-2"><i class="far fa-clock me-1"></i>${data.difficulty === 'Easy' ? '5-7' : data.difficulty === 'Medium' ? '10' : '15'} min</span>
+            </div>
+            <h6 class="fw-bold mb-3"><i class="fas fa-list-ol me-2" style="color:var(--green-main);"></i>Step-by-Step Instructions:</h6>
+            <ol>
+        `;
+
+        data.steps.forEach(step => {
+            html += `<li>${step}</li>`;
+        });
+
+        html += `
+            </ol>
+            <div class="mt-3 p-3" style="background:var(--green-light); border-radius:16px;">
+                <h6 class="fw-bold mb-2"><i class="fas fa-cubes me-2" style="color:var(--green-main);"></i>Blocks You\'ll Need:</h6>
+                <div class="block-list">
+        `;
+
+        data.blocks.forEach(block => {
+            html += `<span><i class="fas fa-cube me-1"></i>${block}</span>`;
+        });
+
+        html += `
+                </div>
+            </div>
+            <div class="mt-3 p-3" style="background:#fef3c7; border-radius:16px;">
+                <h6 class="fw-bold mb-2"><i class="fas fa-bullseye me-2" style="color:#b45309;"></i>Expected Output:</h6>
+                <code style="background:#1e2f2a; color:#bbf0e0; padding:8px 12px; border-radius:8px; display:block;">${data.expected}</code>
+            </div>
+        `;
+
+        modalBody.innerHTML = html;
+        startBtn.href = data.startUrl;
+        modal.show();
+    }
+
+    // ===== LOAD ACTIVITY STATUSES =====
+    function loadActivityStatuses() {
+        fetch('/get_activities')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.activities) {
+                    data.activities.forEach(act => {
+                        const statusMap = {
+                            'Hello World': 'status-helloworld',
+                            'Personal Greeting': 'status-greeting',
+                            'Calculator': 'status-calculator',
+                            'Temperature Converter': 'status-temperature',
+                            'Number Guessing Game': 'status-numberguessing'
+                        };
+                        
+                        const statusId = statusMap[act.name];
+                        if (statusId) {
+                            const statusSpan = document.getElementById(statusId);
+                            if (statusSpan) {
+                                if (act.completed) {
+                                    statusSpan.textContent = '✓ Completed';
+                                    statusSpan.className = 'status-badge status-completed';
+                                } else {
+                                    statusSpan.textContent = 'Not Started';
+                                    statusSpan.className = 'status-badge status-pending';
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(e => console.error('Error loading statuses:', e));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        checkSidebarState();
+        loadActivityStatuses();
+    });
+
+    window.addEventListener('resize', function() {
+        checkSidebarState();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Activities · BlockLearn Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Same styles as student_activities.html -->
+    <style>
+        /* Copy all styles from student_activities.html here */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f2f8f5; line-height: 1.5; }
+        :root { --green-deep: #1a6b4f; --green-main: #268e6c; --green-soft: #e2f3ed; --green-pale: #d4ece2; --gold-warm: #f0b84d; --gold-light: #fff3e0; --slate-dark: #2a4a3f; --stone: #7f9e92; --border-fresh: #e2ede8; --card-white: #ffffff; --shadow-light: 0 12px 28px -10px rgba(26, 107, 79, 0.08); --shadow-hover: 0 24px 42px -14px rgba(26, 107, 79, 0.18); }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(#d4e6df 0.6px, transparent 0.6px), linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px); background-size: 42px 42px; opacity: 0.35; pointer-events: none; z-index: 0; }
+        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+        .sidebar { width: 280px; background: linear-gradient(170deg, #1c4e3d, #1a6048); color: #e2f0ea; display: flex; flex-direction: column; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(255,250,200,0.12); box-shadow: 6px 0 20px rgba(0,0,0,0.04); }
+        .sidebar-logo { padding: 2rem 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,245,200,0.15); text-align: center; }
+        .sidebar-logo h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .sidebar-logo h2 span { color: var(--gold-warm); }
+        .sidebar-logo p { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
+        .sidebar-nav { flex: 1; padding: 1.5rem 1rem; }
+        .nav-item { margin-bottom: 6px; }
+        .nav-link-custom { display: flex; align-items: center; gap: 14px; padding: 0.75rem 1rem; color: #cde6df; text-decoration: none; border-radius: 16px; transition: all 0.2s; font-size: 0.9rem; font-weight: 500; }
+        .nav-link-custom i { width: 24px; font-size: 1.1rem; }
+        .nav-link-custom:hover { background: rgba(255,245,210,0.12); color: white; }
+        .nav-link-custom.active { background: var(--gold-warm); color: #1a4235; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .sidebar-footer { padding: 1.5rem; border-top: 1px solid rgba(255,245,200,0.12); margin-top: auto; }
+        .logout-btn { display: flex; align-items: center; gap: 12px; color: #d2ede4; text-decoration: none; padding: 10px 12px; border-radius: 40px; transition: 0.2s; }
+        .logout-btn:hover { background: #c9513a; color: white; }
+        .main-content { flex: 1; margin-left: 280px; padding: 28px 36px; }
+        .top-bar { background: var(--card-white); border-radius: 32px; padding: 1rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-fresh); box-shadow: var(--shadow-light); }
+        .page-title { font-size: 1.5rem; font-weight: 700; color: #1a463a; letter-spacing: -0.3px; }
+        .user-avatar { width: 46px; height: 46px; background: linear-gradient(135deg, var(--green-main), var(--green-deep)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--green-pale); }
+        .section-header i { font-size: 1.4rem; }
+        .section-header h5 { font-size: 1.1rem; font-weight: 700; margin: 0; color: #2a5b49; }
+        .activity-card { background: var(--card-white); border-radius: 28px; padding: 1.3rem; cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-fresh); box-shadow: var(--shadow-light); height: 100%; }
+        .activity-card:hover { transform: translateY(-6px); border-color: var(--green-main); box-shadow: var(--shadow-hover); }
+        .difficulty-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; font-weight: 600; }
+        .easy { background: #e0f5e8; color: #1c7e54; }
+        .medium { background: #ffefd6; color: #d97706; }
+        .hard { background: #ffe6e5; color: #c2412c; }
+        .status-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; font-weight: 600; }
+        .status-completed { background: #e0f5e8; color: #1c7e54; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .activity-card h6 { font-size: 1rem; font-weight: 700; margin: 12px 0 6px; color: #1c4a3a; }
+        .instruction-modal .modal-content { border-radius: 32px; overflow: hidden; border: none; box-shadow: 0 30px 50px -20px rgba(0,0,0,0.3); }
+        .modal-header-custom { background: linear-gradient(125deg, var(--green-deep), #1e8260); color: white; padding: 1.5rem 2rem; border: none; }
+        .modal-body-custom { padding: 1.8rem; background: #fefef9; }
+        .instruction-steps { background: var(--green-soft); border-radius: 24px; padding: 1.5rem; margin: 1.25rem 0; }
+        .step-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(38,142,108,0.2); }
+        .step-number { width: 30px; height: 30px; background: var(--green-main); color: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+        .code-tip { background: #1e2f2a; color: #bdf0e0; padding: 0.9rem 1.2rem; border-radius: 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; margin-top: 12px; }
+        .btn-start { background: var(--green-deep); color: white; border: none; padding: 12px 28px; border-radius: 60px; font-weight: 700; width: 100%; transition: 0.2s; }
+        .btn-start:hover { background: #0f553f; transform: translateY(-2px); }
+        .language-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .lang-tab { padding: 0.6rem 1.5rem; border-radius: 40px; background: var(--card-white); border: 2px solid var(--border-fresh); color: var(--stone); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .lang-tab:hover { border-color: var(--green-main); color: var(--green-main); }
+        .lang-tab.active { background: var(--green-main); border-color: var(--green-main); color: white; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); position: fixed; z-index: 1000; transition: transform 0.25s ease; width: 260px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 20px; } .top-bar { flex-direction: column; align-items: flex-start; gap: 12px; } }
+        .mobile-menu-btn { position: fixed; bottom: 24px; right: 24px; background: var(--green-deep); color: white; border: none; width: 52px; height: 52px; border-radius: 30px; z-index: 1001; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>Block<span>Learn</span></h2>
+            <p>PNHS · ICT Studio</p>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-user"></i> Overview</a></div>
+            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i> Activities</a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i> Progress</a></div>
+            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i> Achievements</a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i> Profile</a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i> Settings</a></div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sign out</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <h2 class="page-title"><i class="fas fa-cubes me-2" style="color:var(--gold-warm)"></i>Coding Activities</h2>
+            <div class="user-avatar"><i class="fas fa-user"></i></div>
+        </div>
+
+        <div class="language-tabs">
+            <a href="/student_activities" class="lang-tab"><i class="fab fa-python me-1"></i> Python</a>
+            <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js me-1"></i> JavaScript</a>
+            <a href="/student_activities_html" class="lang-tab active"><i class="fab fa-html5 me-1"></i> HTML/CSS</a>
+        </div>
+
+        <div class="mb-4">
+            <div class="section-header">
+                <i class="fab fa-html5" style="color:#E34F26;"></i>
+                <h5>HTML/CSS Activities</h5>
+                <span class="badge bg-light text-dark ms-2">2 activities</span>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="activity-card" data-activity="Create Heading" data-difficulty="easy" data-language="html">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge easy">Easy</span>
+                            <span class="status-badge status-pending" id="status-heading">Not Started</span>
+                        </div>
+                        <h6>🎨 Create Heading</h6>
+                        <p class="small text-muted">Create an H1 heading with your text</p>
+                        <div class="mt-3">
+                            <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>5 min</span>
+                            <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>100 pts</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="activity-card" data-activity="Create Paragraph" data-difficulty="easy" data-language="html">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="difficulty-badge easy">Easy</span>
+                            <span class="status-badge status-pending" id="status-paragraph">Not Started</span>
+                        </div>
+                        <h6>🎨 Create Paragraph</h6>
+                        <p class="small text-muted">Create a paragraph with custom text</p>
+                        <div class="mt-3">
+                            <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>5 min</span>
+                            <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>100 pts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Instruction Modal -->
+<div class="modal fade instruction-modal" id="instructionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header-custom">
+                <h4 class="mb-0"><i class="fas fa-lightbulb me-2"></i><span id="modalTitle">Activity Instructions</span></h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-custom">
+                <div id="modalContent"></div>
+                <button class="btn-start mt-4" id="startActivityBtn" onclick="startSelectedActivity()">
+                    <i class="fas fa-play me-2"></i>Start Activity
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="mobile-menu-btn d-md-none" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+    <i class="fas fa-bars"></i>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let selectedActivity = null;
+    let modal = null;
+
+    const activityInstructions = {
+        'Create Heading': {
+            title: '🎨 Create Heading - HTML Headers',
+            description: 'Learn to create headings in HTML (H1 to H6).',
+            steps: [
+                'Drag a <strong>HEADING</strong> (H1) block',
+                'Drag a <strong>TEXT</strong> block and connect it inside',
+                'Type: <code>"BlockLearn"</code> in the text block',
+                'Click <strong>RUN CODE</strong> to see your heading',
+                'Submit when you see the large heading text'
+            ],
+            codeExample: '<h1>BlockLearn</h1>',
+            expectedOutput: '<h1>BlockLearn</h1>',
+            tips: 'H1 is the largest heading, H6 is the smallest!'
+        },
+        'Create Paragraph': {
+            title: '🎨 Create Paragraph - HTML Text',
+            description: 'Create paragraphs using the HTML p tag.',
+            steps: [
+                'Drag a <strong>PARAGRAPH</strong> block',
+                'Drag a <strong>TEXT</strong> block and connect it inside',
+                'Type: <code>"Learning HTML is fun!"</code>',
+                'Click <strong>RUN CODE</strong> to see your paragraph',
+                'Submit when you see the text formatted as a paragraph'
+            ],
+            codeExample: '<p>Learning HTML is fun!</p>',
+            expectedOutput: '<p>Learning HTML is fun!</p>',
+            tips: 'Paragraphs automatically add spacing before and after the text!'
+        }
+    };
+
+    function loadActivityStatuses() {
+        fetch('/get_activities')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.activities) {
+                    data.activities.forEach(act => {
+                        const statusMap = {
+                            'Create Heading': 'status-heading',
+                            'Create Paragraph': 'status-paragraph'
+                        };
+                        
+                        const statusId = statusMap[act.name];
+                        if (statusId) {
+                            const statusSpan = document.getElementById(statusId);
+                            if (statusSpan) {
+                                if (act.completed) {
+                                    statusSpan.textContent = '✓ Completed';
+                                    statusSpan.className = 'status-badge status-completed';
+                                } else {
+                                    statusSpan.textContent = 'Not Started';
+                                    statusSpan.className = 'status-badge status-pending';
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(e => console.error('Error loading statuses:', e));
+    }
+
+    function showInstructions(activityName) {
+        selectedActivity = activityName;
+        const inst = activityInstructions[activityName];
+        
+        if (inst) {
+            document.getElementById('modalTitle').innerHTML = inst.title;
+            document.getElementById('modalContent').innerHTML = `
+                <p class="text-muted mb-3">${inst.description}</p>
+                <div class="instruction-steps">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-list-ol me-2" style="color:#1e6f5c"></i>Step-by-Step Guide:</h6>
+                    ${inst.steps.map((step, idx) => `
+                        <div class="step-item">
+                            <div class="step-number">${idx + 1}</div>
+                            <div class="step-text">${step}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="mb-3">
+                    <h6 class="fw-bold"><i class="fas fa-code me-2" style="color:var(--gold-warm)"></i>Example Code:</h6>
+                    <div class="code-tip">
+                        <code>${inst.codeExample}</code>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6 class="fw-bold"><i class="fas fa-bullseye me-2" style="color:#1c7e54"></i>Expected Output:</h6>
+                    <div class="code-tip" style="background:#eef3f1; color:#1a2e35;">
+                        <code>${inst.expectedOutput}</code>
+                    </div>
+                </div>
+                <div class="alert" style="background:var(--green-soft); border:none; border-radius:20px;">
+                    <i class="fas fa-lightbulb me-2" style="color:var(--gold-warm)"></i>
+                    <strong>💡 Tip:</strong> ${inst.tips}
+                </div>
+            `;
+            modal = new bootstrap.Modal(document.getElementById('instructionModal'));
+            modal.show();
+        }
+    }
+
+    function startSelectedActivity() {
+        if (selectedActivity) {
+            modal.hide();
+            window.location.href = `/student_dashboard?activity=${encodeURIComponent(selectedActivity)}`;
+        }
+    }
+
+    document.querySelectorAll('.activity-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            const activityName = card.getAttribute('data-activity');
+            if (activityName) showInstructions(activityName);
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadActivityStatuses();
+    });
+</script>
+</body>
+</html>

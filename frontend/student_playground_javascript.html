@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Playground · BlockLearn Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blockly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blocks/javascript.min.js"></script>
+    <style>
+        /* Your existing styles here */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f0f6f3; line-height: 1.5; }
+        
+        :root {
+            --green-dark: #1a6b4f;
+            --green-main: #268e6c;
+            --green-light: #e2f3ed;
+            --gold-warm: #f0b84d;
+            --slate: #2a4a3f;
+            --gray-mist: #7f9e92;
+            --border-soft: #e2ede8;
+            --card-white: #ffffff;
+            --shadow-sm: 0 8px 24px rgba(26, 107, 79, 0.06);
+            --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 72px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(#d4e6df 0.6px, transparent 0.6px),
+                linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px);
+            background-size: 42px 42px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(170deg, #1a4e3d, #1a6048);
+            color: #e2f0ea;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid rgba(255,250,200,0.08);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+            z-index: 1000;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+        .sidebar.expanded { width: var(--sidebar-width); }
+
+        .sidebar.collapsed .nav-link-custom span { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.7rem 0.5rem; }
+        .sidebar.collapsed .sidebar-logo h2 { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .sidebar-logo p { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logout-btn span { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .logout-btn { justify-content: center; padding: 8px 0.5rem; }
+        .sidebar.collapsed .nav-link-custom i { font-size: 1.3rem; }
+
+        .sidebar.expanded .nav-link-custom span { opacity: 1; width: auto; display: inline; }
+        .sidebar.expanded .nav-link-custom { justify-content: flex-start; padding: 0.7rem 1rem; }
+        .sidebar.expanded .sidebar-logo h2 { opacity: 1; width: auto; display: block; }
+        .sidebar.expanded .sidebar-logo p { opacity: 1; width: auto; display: block; }
+        .sidebar.expanded .sidebar-logo { justify-content: space-between; padding: 1rem 1.2rem; }
+        .sidebar.expanded .logout-btn span { opacity: 1; width: auto; display: inline; }
+        .sidebar.expanded .logout-btn { justify-content: flex-start; padding: 8px 12px; }
+        .sidebar.expanded .nav-link-custom i { font-size: 1rem; }
+
+        .sidebar-logo {
+            border-bottom: 1px solid rgba(255,245,200,0.10);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            gap: 12px;
+            overflow: hidden;
+            padding: 1rem 1.2rem;
+        }
+
+        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo h2 span { color: var(--gold-warm); }
+        .sidebar-logo p { font-size: 0.6rem; opacity: 0.6; margin: 2px 0 0 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo-left { display: flex; flex-direction: column; align-items: flex-start; transition: all 0.3s ease; }
+
+        .sidebar-toggle-btn {
+            background: rgba(255,255,255,0.10);
+            border: none;
+            color: #e2f0ea;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle-btn:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-x { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-bars { display: inline-block; }
+        .sidebar.expanded .sidebar-toggle-btn .icon-x { display: inline-block; }
+        .sidebar.expanded .sidebar-toggle-btn .icon-bars { display: none; }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            color: #cde6df;
+            text-decoration: none;
+            border-radius: 12px 0 0 12px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+            margin-right: -1px;
+            white-space: nowrap;
+        }
+
+        .nav-link-custom i { width: 22px; font-size: 1rem; flex-shrink: 0; text-align: center; transition: font-size 0.3s ease; }
+        .nav-link-custom span { transition: all 0.3s ease; }
+        .nav-link-custom:hover { background: rgba(255,245,210,0.10); color: white; }
+
+        .nav-link-custom.active {
+            background: var(--card-white);
+            color: #1a4235;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 12px 0 0 12px;
+            position: relative;
+        }
+
+        .nav-link-custom.active::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .nav-link-custom.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 0.5rem; }
+        .nav-item { position: relative; margin-bottom: 4px; }
+        .sidebar-footer { padding: 1.2rem 0.5rem; border-top: 1px solid rgba(255,245,200,0.10); margin-top: auto; }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #d2ede4;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .logout-btn i { flex-shrink: 0; width: 22px; text-align: center; }
+        .logout-btn span { transition: all 0.3s ease; }
+        .logout-btn:hover { background: #c9513a; color: white; }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 28px 36px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+        .top-bar {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 0.8rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-bar-left { display: flex; align-items: center; gap: 12px; }
+        .mobile-hamburger { display: none; background: none; border: none; color: #1a463a; font-size: 1.3rem; cursor: pointer; padding: 6px 10px; border-radius: 10px; transition: all 0.2s; }
+        .mobile-hamburger:hover { background: var(--green-light); }
+
+        .greeting h1 { font-size: 1.3rem; font-weight: 700; color: #1a463a; letter-spacing: -0.3px; margin: 0; }
+        .greeting p { color: var(--gray-mist); font-size: 0.8rem; margin-top: 2px; }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--green-light);
+            padding: 4px 20px 4px 12px;
+            border-radius: 40px;
+            border: 1px solid var(--border-soft);
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .user-info h4 { font-size: 0.9rem; font-weight: 600; margin: 0; color: #1a463a; }
+        .user-info span { font-size: 0.65rem; color: var(--gray-mist); }
+
+        .activity-selector {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid var(--border-soft);
+            padding: 1.2rem 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .activity-selector .title { font-weight: 700; color: #1a463a; margin-bottom: 0.8rem; font-size: 1rem; }
+        .activity-selector .title i { color: var(--gold-warm); }
+
+        .activity-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .activity-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            border: 2px solid var(--border-soft);
+            background: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--slate);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .activity-btn:hover { border-color: var(--green-main); color: var(--green-main); }
+        .activity-btn.active { background: var(--green-main); border-color: var(--green-main); color: white; }
+
+        .activity-btn .difficulty-tag {
+            font-size: 0.55rem;
+            padding: 1px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+            font-weight: 700;
+        }
+
+        .difficulty-easy { background: #d1fae5; color: #065f46; }
+        .difficulty-medium { background: #fef3c7; color: #b45309; }
+        .difficulty-hard { background: #fee2e2; color: #991b1b; }
+
+        .activity-btn .step-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--gold-warm);
+            color: #1a4235;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .activity-banner {
+            background: linear-gradient(125deg, var(--green-dark), #217a5a);
+            border-radius: 24px;
+            padding: 0.8rem 1.8rem;
+            margin-bottom: 2rem;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 8px 18px rgba(26,107,79,0.2);
+        }
+
+        .activity-banner.show { display: flex; }
+
+        .activity-banner-info h4 { 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            margin-bottom: 2px; 
+            color: white; 
+        }
+        
+        .activity-banner-info .difficulty-tag {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .activity-banner-info p { 
+            font-size: 0.75rem; 
+            opacity: 0.9; 
+            margin: 0; 
+            color: #f5ffe0;
+            white-space: pre-wrap;
+        }
+
+        .btn-clear-activity {
+            background: rgba(255,255,220,0.2);
+            border: none;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.7rem;
+            transition: 0.2s;
+        }
+
+        .btn-clear-activity:hover { background: rgba(255,255,220,0.35); }
+
+        .workspace-card {
+            background: var(--card-white);
+            border-radius: 24px;
+            border: 1px solid var(--border-soft);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .card-header-custom {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-soft);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header-custom h3 { font-size: 1rem; font-weight: 700; color: #1a4a3a; margin: 0; }
+
+        .lang-badge {
+            background: var(--green-light);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .window-controls { display: flex; gap: 6px; align-items: center; }
+        .window-btn {
+            width: 26px; height: 26px; border: none; border-radius: 6px; font-size: 0.65rem;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+            color: #555; background: var(--green-light);
+        }
+        .window-btn:hover { background: var(--green-main); color: white; }
+        .window-btn.minimize:hover { background: #f59e0b; color: white; }
+
+        .trash-btn {
+            background: #fee2e2; color: #dc2626; border: none; border-radius: 30px;
+            padding: 4px 12px; font-size: 0.65rem; font-weight: 600; cursor: pointer;
+            transition: 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .trash-btn:hover { background: #fecaca; transform: scale(1.05); }
+
+        .workspace-wrapper {
+            position: relative; transition: height 0.15s ease; overflow: hidden;
+            min-height: 300px; max-height: 700px;
+        }
+
+        .workspace-wrapper.minimized { height: 0 !important; min-height: 0 !important; }
+        #blocklyDiv { height: 100%; width: 100%; min-height: 300px; background: #fefefb; }
+
+        .output-section { padding: 1rem 1.5rem; background: #fbfefc; }
+        .output-label {
+            font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
+            letter-spacing: 1px; color: var(--gray-mist); margin-bottom: 10px;
+        }
+
+        .output-area {
+            background: #1e2f2a; color: #bbf0e0; padding: 12px 16px; border-radius: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.75rem;
+            min-height: 70px; border: 1px solid #3a6f5b; max-height: 200px;
+            overflow-y: auto; white-space: pre-wrap;
+        }
+
+        .action-buttons { display: flex; gap: 12px; margin-top: 1rem; }
+        .btn-run-custom, .btn-save-custom, .btn-check-answer {
+            flex: 1; border: none; padding: 10px; border-radius: 40px;
+            font-weight: 700; transition: 0.2s; font-size: 0.85rem;
+        }
+        .btn-run-custom { background: var(--green-dark); color: white; }
+        .btn-run-custom:hover { background: #0d573f; transform: translateY(-2px); }
+        .btn-check-answer { background: var(--gold-warm); color: #1a4235; }
+        .btn-check-answer:hover { background: #e7a93f; transform: translateY(-2px); }
+        .btn-save-custom { background: #4a6fa5; color: white; }
+        .btn-save-custom:hover { background: #3a5a8a; transform: translateY(-2px); }
+
+        .resize-controls { display: flex; gap: 6px; align-items: center; }
+        .resize-btn {
+            background: var(--green-light); border: none; border-radius: 30px;
+            padding: 3px 10px; font-size: 0.65rem; font-weight: 600;
+            color: var(--green-dark); cursor: pointer; transition: 0.2s;
+        }
+        .resize-btn:hover { background: var(--green-main); color: white; }
+
+        .zoom-controls { display: flex; gap: 4px; align-items: center; margin-left: 6px; }
+        .zoom-btn {
+            background: var(--green-light); border: none; border-radius: 30px;
+            padding: 3px 8px; font-size: 0.65rem; font-weight: 600;
+            color: var(--green-dark); cursor: pointer; transition: 0.2s;
+        }
+        .zoom-btn:hover { background: var(--green-main); color: white; }
+        .zoom-level { font-size: 0.65rem; color: var(--gray-mist); min-width: 32px; text-align: center; }
+
+        .blocklyToolboxDiv {
+            background: #f0f5f2 !important;
+            border-right: 1px solid var(--border-soft) !important;
+        }
+        .blocklyTreeRow { border-radius: 8px !important; margin: 2px 4px !important; }
+        .blocklyTreeRow:hover { background: var(--green-light) !important; }
+        .blocklyTreeRowSelected { background: var(--green-main) !important; color: white !important; }
+        .blocklyTreeRowSelected .blocklyTreeLabel { color: white !important; }
+        .blocklyTrash { opacity: 1 !important; transition: all 0.3s ease; }
+        .blocklyTrash:hover { transform: scale(1.2); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: var(--sidebar-collapsed-width); }
+            .main-content { margin-left: var(--sidebar-collapsed-width); padding: 16px; }
+            .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+            .top-bar { padding: 0.8rem 1.2rem; flex-wrap: wrap; }
+            .mobile-hamburger { display: block; }
+            .sidebar-toggle-btn { display: none; }
+            .greeting h1 { font-size: 1.1rem; }
+            .user-card { padding: 4px 14px 4px 10px; }
+            .user-avatar { width: 32px; height: 32px; font-size: 0.8rem; }
+            .user-info h4 { font-size: 0.8rem; }
+            .user-info span { font-size: 0.6rem; }
+            .activity-selector { padding: 1rem; }
+            .activity-btns { flex-direction: column; }
+            .activity-btn { width: 100%; text-align: center; }
+            #blocklyDiv { min-height: 200px; }
+            .card-header-custom { flex-direction: column; align-items: stretch; }
+            .resize-controls { flex-wrap: wrap; }
+            .zoom-controls { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 576px) {
+            .top-bar { flex-wrap: wrap; gap: 8px; }
+            .top-bar-left { flex: 1; }
+            .user-card { margin-left: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar expanded" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-left">
+                <h2>Block<span>Learn</span></h2>
+                <p>PNHS · ICT Studio</p>
+            </div>
+            <button class="sidebar-toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i class="fas fa-times icon-x"></i>
+                <i class="fas fa-bars icon-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span>Python</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><i class="fab fa-js"></i><span>JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom"><i class="fab fa-html5"></i><span>HTML</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span>Progress</span></a></div>
+            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span>Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span>Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i><span>Settings</span></a></div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Sign out</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="mobile-hamburger" onclick="toggleSidebar()" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting">
+                    <h1>💛 JavaScript Playground</h1>
+                    <p>Drag, drop, and experiment with JavaScript code blocks</p>
+                </div>
+            </div>
+            <div class="user-card">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <div class="user-info">
+                    <h4>{{ username }}</h4>
+                    <span>Grade {{ grade_level|default('11') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Selector -->
+        <div class="activity-selector">
+            <div class="title"><i class="fas fa-graduation-cap me-2"></i>JavaScript Activities</div>
+            <div class="activity-btns">
+                <button class="activity-btn active" data-activity="hello-world" onclick="loadActivity('hello-world')">
+                    <i class="fas fa-terminal me-1"></i> Hello World
+                    <span class="difficulty-tag difficulty-easy">Easy</span>
+                    <span class="step-badge">1</span>
+                </button>
+                <button class="activity-btn" data-activity="greeting" onclick="loadActivity('greeting')">
+                    <i class="fas fa-user me-1"></i> Personal Greeting
+                    <span class="difficulty-tag difficulty-easy">Easy</span>
+                    <span class="step-badge">2</span>
+                </button>
+                <button class="activity-btn" data-activity="calculator" onclick="loadActivity('calculator')">
+                    <i class="fas fa-calculator me-1"></i> Calculator
+                    <span class="difficulty-tag difficulty-medium">Medium</span>
+                    <span class="step-badge">3</span>
+                </button>
+                <button class="activity-btn" data-activity="temperature" onclick="loadActivity('temperature')">
+                    <i class="fas fa-thermometer-half me-1"></i> Temperature Converter
+                    <span class="difficulty-tag difficulty-medium">Medium</span>
+                    <span class="step-badge">4</span>
+                </button>
+                <button class="activity-btn" data-activity="number-guessing" onclick="loadActivity('number-guessing')">
+                    <i class="fas fa-gamepad me-1"></i> Number Guessing
+                    <span class="difficulty-tag difficulty-hard">Hard</span>
+                    <span class="step-badge">5</span>
+                </button>
+                <button class="activity-btn" data-activity="free-play" onclick="loadActivity('free-play')">
+                    <i class="fas fa-play me-1"></i> Free Play
+                </button>
+            </div>
+        </div>
+
+        <!-- Activity Banner -->
+        <div id="activityBanner" class="activity-banner show">
+            <div class="activity-banner-info">
+                <h4>
+                    <i class="fas fa-code me-2"></i>
+                    <span id="bannerActivityName">Hello World</span>
+                    <span class="difficulty-tag difficulty-easy" id="bannerDifficulty">Easy</span>
+                </h4>
+                <p id="bannerInstructions">Build a program that logs "Hello, World!" to the console using console.log().</p>
+            </div>
+            <button class="btn-clear-activity" onclick="clearWorkspace()">
+                <i class="fas fa-times me-1"></i> Clear
+            </button>
+        </div>
+
+        <!-- Workspace -->
+        <div class="workspace-card">
+            <div class="card-header-custom">
+                <h3><i class="fas fa-cubes me-2" style="color:var(--green-main)"></i>JavaScript Blockly</h3>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="window-controls">
+                        <button class="window-btn minimize" onclick="minimizeWorkspace()" title="Minimize">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="window-btn maximize" onclick="toggleMaximizeWorkspace()" title="Maximize/Restore">
+                            <i class="fas fa-expand" id="maximizeIcon"></i>
+                        </button>
+                    </div>
+                    <div class="resize-controls">
+                        <button class="resize-btn" onclick="resizeWorkspace('small')">Small</button>
+                        <button class="resize-btn" onclick="resizeWorkspace('medium')">Medium</button>
+                        <button class="resize-btn" onclick="resizeWorkspace('large')">Large</button>
+                    </div>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="zoomWorkspace('in')"><i class="fas fa-search-plus"></i></button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" onclick="zoomWorkspace('out')"><i class="fas fa-search-minus"></i></button>
+                        <button class="zoom-btn" onclick="zoomWorkspace('reset')"><i class="fas fa-expand"></i></button>
+                    </div>
+                    <button class="trash-btn" onclick="clearWorkspace()" title="Clear all blocks">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                    <span class="lang-badge"><i class="fab fa-js me-1"></i>JavaScript</span>
+                </div>
+            </div>
+            <div class="workspace-wrapper" id="workspaceWrapper">
+                <div id="blocklyDiv"></div>
+            </div>
+            <div class="output-section">
+                <div class="output-label"><i class="fas fa-terminal me-1"></i> JavaScript Output</div>
+                <div class="output-area" id="outputArea">Build your solution using blocks from the toolbox. Click RUN to see your code!</div>
+                <div class="action-buttons">
+                    <button class="btn-run-custom" onclick="runJavaScriptCode()"><i class="fas fa-play me-2"></i> Run Code</button>
+                    <button class="btn-check-answer" onclick="checkAnswer()"><i class="fas fa-check me-2"></i> Check Answer</button>
+                    <button class="btn-save-custom" onclick="saveJavaScriptPractice()"><i class="fas fa-floppy-disk me-2"></i> Save Practice</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ============================================================
+    // BLOCK REGISTRATION
+    // ============================================================
+    
+    console.log('Blockly version:', Blockly.version || 'unknown');
+    console.log('Blockly.JavaScript available?', typeof Blockly.JavaScript !== 'undefined');
+
+    // ===== 1. REGISTER BLOCK DEFINITIONS =====
+    Blockly.Blocks['console_log'] = {
+        init: function() {
+            this.appendValueInput('MESSAGE')
+                .setCheck(['String', 'Number'])
+                .appendField('console.log');
+            this.setInputsInline(true);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#F7DF1E');
+            this.setTooltip('Log message to console');
+        }
+    };
+
+    Blockly.Blocks['alert_block'] = {
+        init: function() {
+            this.appendValueInput('MESSAGE')
+                .setCheck(['String', 'Number'])
+                .appendField('alert');
+            this.setInputsInline(true);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#F7DF1E');
+            this.setTooltip('Show alert popup');
+        }
+    };
+
+    Blockly.Blocks['math_operation'] = {
+        init: function() {
+            this.appendValueInput('A')
+                .setCheck('Number')
+                .appendField('math');
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldDropdown([
+                    ['+', 'ADD'],
+                    ['-', 'SUBTRACT'],
+                    ['×', 'MULTIPLY'],
+                    ['÷', 'DIVIDE']
+                ]), 'OP');
+            this.appendValueInput('B')
+                .setCheck('Number')
+                .appendField('');
+            this.setInputsInline(true);
+            this.setOutput(true, 'Number');
+            this.setColour('#10b981');
+            this.setTooltip('Perform math operation');
+        }
+    };
+
+    Blockly.Blocks['prompt_block'] = {
+        init: function() {
+            this.appendValueInput('MESSAGE')
+                .setCheck('String')
+                .appendField('prompt');
+            this.setInputsInline(true);
+            this.setOutput(true, 'String');
+            this.setColour('#8b5cf6');
+            this.setTooltip('Get user input via prompt');
+        }
+    };
+
+    Blockly.Blocks['string_concat'] = {
+        init: function() {
+            this.appendValueInput('A')
+                .setCheck('String')
+                .appendField('concat');
+            this.appendValueInput('B')
+                .setCheck('String')
+                .appendField('+');
+            this.setInputsInline(true);
+            this.setOutput(true, 'String');
+            this.setColour('#8b5cf6');
+            this.setTooltip('Combine two strings');
+        }
+    };
+
+    Blockly.Blocks['variable_block'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('var')
+                .appendField(new Blockly.FieldTextInput('myVar'), 'VAR_NAME')
+                .appendField('=');
+            this.appendValueInput('VALUE')
+                .setCheck(['String', 'Number']);
+            this.setInputsInline(true);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#10b981');
+            this.setTooltip('Create a variable');
+        }
+    };
+
+    Blockly.Blocks['variable_get'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldTextInput('myVar'), 'VAR_NAME');
+            this.setOutput(true, ['String', 'Number']);
+            this.setColour('#10b981');
+            this.setTooltip('Get variable value');
+        }
+    };
+
+    Blockly.Blocks['math_number'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldNumber(0, -Infinity, Infinity, 1), 'NUM');
+            this.setOutput(true, 'Number');
+            this.setColour('#10b981');
+            this.setTooltip('A number');
+        }
+    };
+
+    // ===== 2. REGISTER JAVASCRIPT GENERATORS =====
+    if (typeof Blockly.JavaScript === 'undefined') {
+        console.warn('Blockly.JavaScript not available, trying to get generator...');
+        try {
+            var jsGenerator = Blockly.Generator.getGenerator('JavaScript');
+            if (jsGenerator) {
+                console.log('Found JavaScript generator via Blockly.Generator');
+                for (var key in jsGenerator) {
+                    Blockly.JavaScript = Blockly.JavaScript || {};
+                    Blockly.JavaScript[key] = jsGenerator[key];
+                }
+            }
+        } catch(e) {
+            console.error('Failed to get JavaScript generator:', e);
+        }
+    }
+
+    if (Blockly.JavaScript) {
+        Blockly.JavaScript['console_log'] = function(block) {
+            var msg = Blockly.JavaScript.valueToCode(block, 'MESSAGE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'console.log(' + msg + ');\n';
+        };
+
+        Blockly.JavaScript['alert_block'] = function(block) {
+            var msg = Blockly.JavaScript.valueToCode(block, 'MESSAGE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'alert(' + msg + ');\n';
+        };
+
+        Blockly.JavaScript['math_operation'] = function(block) {
+            var a = Blockly.JavaScript.valueToCode(block, 'A', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var b = Blockly.JavaScript.valueToCode(block, 'B', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var op = block.getFieldValue('OP');
+            var symbol = op === 'ADD' ? '+' : op === 'SUBTRACT' ? '-' : op === 'MULTIPLY' ? '*' : '/';
+            return ['(' + a + ' ' + symbol + ' ' + b + ')', Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        Blockly.JavaScript['prompt_block'] = function(block) {
+            var msg = Blockly.JavaScript.valueToCode(block, 'MESSAGE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return ['prompt(' + msg + ')', Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        Blockly.JavaScript['string_concat'] = function(block) {
+            var a = Blockly.JavaScript.valueToCode(block, 'A', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            var b = Blockly.JavaScript.valueToCode(block, 'B', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return ['(' + a + ' + ' + b + ')', Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        Blockly.JavaScript['variable_block'] = function(block) {
+            var name = block.getFieldValue('VAR_NAME');
+            var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'var ' + name + ' = ' + value + ';\n';
+        };
+
+        Blockly.JavaScript['variable_get'] = function(block) {
+            var name = block.getFieldValue('VAR_NAME');
+            return [name, Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        Blockly.JavaScript['math_number'] = function(block) {
+            var num = block.getFieldValue('NUM');
+            return [num, Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        console.log('✅ JavaScript generators registered successfully');
+    } else {
+        console.error('❌ Blockly.JavaScript is not available!');
+    }
+
+    // ============================================================
+    // END OF BLOCK REGISTRATION
+    // ============================================================
+
+    // ===== SIDEBAR FUNCTIONS =====
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    let isSidebarExpanded = true;
+
+    function toggleSidebar() {
+        isSidebarExpanded = !isSidebarExpanded;
+        if (isSidebarExpanded) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        } else {
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+    }
+
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            isSidebarExpanded = false;
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        } else {
+            isSidebarExpanded = true;
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        }
+    }
+
+    // ===== BLOCKLY SETUP =====
+    let workspace;
+    let currentActivity = 'hello-world';
+    let isMaximized = false;
+    let previousHeight = 460;
+    let currentZoom = 1;
+
+    // ===== ACTIVITY CONFIGURATIONS - SIMPLIFIED INSTRUCTIONS =====
+    const jsActivities = {
+        'hello-world': {
+            name: 'Hello World',
+            difficulty: 'Easy',
+            step: 1,
+            toolboxCategories: ['JS Basic'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Print "Hello, World!" to the console.
+
+BLOCKS NEEDED: console.log, TEXT
+
+STEPS:
+1. Drag console.log to the workspace
+2. Attach TEXT inside console.log
+3. Type "Hello, World!" in TEXT
+4. Click RUN CODE`
+        },
+        'greeting': {
+            name: 'Personal Greeting',
+            difficulty: 'Easy',
+            step: 2,
+            toolboxCategories: ['JS Basic', 'JS Advanced'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Ask for user's name and greet them.
+
+BLOCKS NEEDED: var, prompt, console.log, concat, TEXT, variable_get
+
+STEPS:
+1. Create "userName" variable with prompt "Enter your name:"
+2. Add console.log
+3. Inside console.log, use concat: "Hello, " + userName
+4. Click RUN CODE`
+        },
+        'calculator': {
+            name: 'Calculator',
+            difficulty: 'Medium',
+            step: 3,
+            toolboxCategories: ['JS Basic', 'JS Math'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Add two numbers and display the result.
+
+BLOCKS NEEDED: var, math_number, math_operation, console.log, concat, variable_get
+
+STEPS:
+1. Create "num1" variable = 5
+2. Create "num2" variable = 10
+3. Create "sum" variable = num1 + num2 (use math_operation ADD)
+4. console.log "The sum is: " + sum
+5. Click RUN CODE`
+        },
+        'temperature': {
+            name: 'Temperature Converter',
+            difficulty: 'Medium',
+            step: 4,
+            toolboxCategories: ['JS Basic', 'JS Math', 'JS Advanced'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Convert Celsius to Fahrenheit. Formula: (C × 9/5) + 32
+
+BLOCKS NEEDED: var, math_number, math_operation, console.log, concat, variable_get
+
+STEPS:
+1. Create "celsius" variable = 32
+2. Create "fahrenheit" = (celsius × 9) + 160
+3. console.log "°C = " + celsius + " = " + fahrenheit + "°F"
+4. Click RUN CODE`
+        },
+        'number-guessing': {
+            name: 'Number Guessing Game',
+            difficulty: 'Hard',
+            step: 5,
+            toolboxCategories: ['All'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Create a number guessing game.
+
+BLOCKS NEEDED: var, math_number, prompt, console.log, concat, variable_get
+
+STEPS:
+1. Create "secretNumber" variable = 42
+2. Create "guess" variable = prompt "Guess a number 1-100:"
+3. console.log "Your guess: " + guess
+4. (Challenge: Add IF-ELSE to check if guess is correct)
+5. Click RUN CODE`
+        },
+        'free-play': {
+            name: 'Free Play',
+            difficulty: 'All Levels',
+            step: 0,
+            toolboxCategories: ['All'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Build anything you want!
+
+Available blocks in all categories. Try creating:
+- A calculator with +, -, ×, ÷
+- A temperature converter
+- A game
+- Any program you can think of!`
+        }
+    };
+
+    // ===== TOOLBOX GENERATOR =====
+    function getJSToolbox(categories) {
+        const allCategories = {
+            'JS Basic': `
+                <category name="BASIC" colour="#F7DF1E">
+                    <block type="console_log"></block>
+                    <block type="alert_block"></block>
+                    <block type="text"></block>
+                </category>`,
+            'JS Math': `
+                <category name="MATH" colour="#10b981">
+                    <block type="math_operation"></block>
+                    <block type="math_number"></block>
+                </category>`,
+            'JS Advanced': `
+                <category name="ADVANCED" colour="#8b5cf6">
+                    <block type="prompt_block"></block>
+                    <block type="string_concat"></block>
+                    <block type="variable_block"></block>
+                    <block type="variable_get"></block>
+                </category>`
+        };
+
+        if (categories.includes('All')) {
+            return `
+                <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">
+                    ${allCategories['JS Basic']}
+                    ${allCategories['JS Math']}
+                    ${allCategories['JS Advanced']}
+                </xml>`;
+        }
+
+        let toolboxXml = '<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">';
+        categories.forEach(cat => {
+            if (allCategories[cat]) toolboxXml += allCategories[cat];
+        });
+        toolboxXml += '</xml>';
+        return toolboxXml;
+    }
+
+    // ===== BLOCKLY INITIALIZATION =====
+    function initBlockly(toolboxXml) {
+        if (workspace) {
+            workspace.dispose();
+            workspace = null;
+        }
+
+        workspace = Blockly.inject('blocklyDiv', {
+            toolbox: toolboxXml,
+            trashcan: true,
+            zoom: { controls: true, wheel: true, startScale: 0.9 },
+            renderer: 'zelos'
+        });
+
+        console.log('✅ Blockly workspace initialized');
+
+        setTimeout(() => {
+            document.querySelectorAll('.blocklyTrash').forEach(el => {
+                el.style.opacity = '1';
+                el.style.transition = 'all 0.3s ease';
+            });
+        }, 200);
+
+        window.addEventListener('resize', () => {
+            if (workspace) Blockly.svgResize(workspace);
+        });
+    }
+
+    // ===== ACTIVITY LOADING =====
+    function loadActivity(activityId) {
+        currentActivity = activityId;
+        const activity = jsActivities[activityId];
+        if (!activity) return;
+
+        document.querySelectorAll('.activity-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.activity === activityId);
+        });
+
+        const banner = document.getElementById('activityBanner');
+        document.getElementById('bannerActivityName').innerHTML = activity.name;
+        
+        const diffTag = document.getElementById('bannerDifficulty');
+        diffTag.textContent = activity.difficulty;
+        diffTag.className = 'difficulty-tag';
+        if (activity.difficulty === 'Easy') diffTag.classList.add('difficulty-easy');
+        else if (activity.difficulty === 'Medium') diffTag.classList.add('difficulty-medium');
+        else if (activity.difficulty === 'Hard') diffTag.classList.add('difficulty-hard');
+        else diffTag.classList.add('difficulty-easy');
+        
+        document.getElementById('bannerInstructions').innerHTML = activity.instructions.replace(/\n/g, '<br>');
+        banner.style.display = 'flex';
+
+        const toolboxXml = getJSToolbox(activity.toolboxCategories);
+        initBlockly(toolboxXml);
+
+        setTimeout(() => {
+            try {
+                if (workspace && activity.blocksXml) {
+                    const xmlDom = Blockly.Xml.textToDom(activity.blocksXml);
+                    Blockly.Xml.domToWorkspace(xmlDom, workspace);
+                    Blockly.svgResize(workspace);
+                }
+                document.getElementById('outputArea').innerHTML = 'Build your solution using blocks from the toolbox. Click RUN to see your code!';
+            } catch(e) {
+                console.error('Failed to load activity blocks:', e);
+                document.getElementById('outputArea').innerHTML = 'Error loading activity: ' + e.message;
+            }
+        }, 100);
+    }
+
+    // ===== WORKSPACE CONTROLS =====
+    function clearWorkspace() {
+        if (confirm('Are you sure you want to clear all blocks?')) {
+            try {
+                if (workspace) {
+                    workspace.clear();
+                    document.getElementById('outputArea').innerHTML = 'Workspace cleared. Build your solution from scratch!';
+                    Blockly.svgResize(workspace);
+                }
+            } catch(e) { 
+                console.error('Error clearing workspace:', e); 
+            }
+        }
+    }
+
+    function zoomWorkspace(action) {
+        if (!workspace) return;
+        if (action === 'in') currentZoom = Math.min(2, currentZoom + 0.1);
+        else if (action === 'out') currentZoom = Math.max(0.5, currentZoom - 0.1);
+        else if (action === 'reset') currentZoom = 1;
+        workspace.setScale(currentZoom);
+        document.getElementById('zoomLevel').textContent = Math.round(currentZoom * 100) + '%';
+        Blockly.svgResize(workspace);
+    }
+
+    function resizeWorkspace(size) {
+        const wrapper = document.getElementById('workspaceWrapper');
+        let height = size === 'small' ? 300 : size === 'medium' ? 460 : 620;
+        wrapper.style.height = height + 'px';
+        if (!isMaximized) previousHeight = height;
+        wrapper.classList.remove('minimized');
+        Blockly.svgResize(workspace);
+    }
+
+    function minimizeWorkspace() {
+        const wrapper = document.getElementById('workspaceWrapper');
+        if (wrapper.classList.contains('minimized')) {
+            wrapper.classList.remove('minimized');
+            wrapper.style.height = previousHeight + 'px';
+        } else {
+            previousHeight = wrapper.offsetHeight || 460;
+            wrapper.classList.add('minimized');
+            wrapper.style.height = '0px';
+        }
+        Blockly.svgResize(workspace);
+    }
+
+    function toggleMaximizeWorkspace() {
+        const wrapper = document.getElementById('workspaceWrapper');
+        const icon = document.getElementById('maximizeIcon');
+
+        if (isMaximized) {
+            wrapper.style.height = previousHeight + 'px';
+            wrapper.classList.remove('minimized');
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+            isMaximized = false;
+        } else {
+            previousHeight = wrapper.offsetHeight || 460;
+            wrapper.style.height = '700px';
+            wrapper.classList.remove('minimized');
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+            isMaximized = true;
+        }
+        Blockly.svgResize(workspace);
+    }
+
+    // ===== RUN JAVASCRIPT CODE =====
+    function runJavaScriptCode() {
+        try {
+            if (!workspace) {
+                document.getElementById('outputArea').innerHTML = 'Workspace not initialized. Please reload.';
+                return;
+            }
+
+            if (typeof Blockly.JavaScript === 'undefined') {
+                document.getElementById('outputArea').innerHTML = 'JavaScript generator not available.';
+                console.error('Blockly.JavaScript is undefined!');
+                return;
+            }
+
+            let code = Blockly.JavaScript.workspaceToCode(workspace);
+            
+            if (!code || code.trim() === '') {
+                document.getElementById('outputArea').innerHTML = 'No code to run. Build your solution first!';
+                return;
+            }
+
+            // Show the generated code
+            document.getElementById('outputArea').innerHTML = 'Code generated:\n\n' + code;
+
+        } catch(e) {
+            document.getElementById('outputArea').innerHTML = 'Error: ' + e.message;
+            console.error('Run JavaScript error:', e);
+        }
+    }
+
+    // ===== CHECK ANSWER =====
+    function checkAnswer() {
+        try {
+            if (!workspace) {
+                document.getElementById('outputArea').innerHTML = 'Workspace not initialized.';
+                return;
+            }
+
+            if (typeof Blockly.JavaScript === 'undefined') {
+                document.getElementById('outputArea').innerHTML = 'JavaScript generator not available.';
+                return;
+            }
+
+            let code = Blockly.JavaScript.workspaceToCode(workspace);
+            
+            if (!code || code.trim() === '') {
+                document.getElementById('outputArea').innerHTML = 'Build your solution first, then check your answer!';
+                return;
+            }
+
+            let feedback = '';
+
+            // Check each activity
+            if (currentActivity === 'hello-world') {
+                if (code.includes('console.log("Hello, World!")') || code.includes("console.log('Hello, World!')")) {
+                    feedback = '✅ Correct! Output: Hello, World!';
+                } else if (code.includes('console.log')) {
+                    feedback = '⚠️ You used console.log, but the message should be "Hello, World!".\n\nYour code:\n' + code;
+                } else {
+                    feedback = '❌ You need console.log to print "Hello, World!".\n\nYour code:\n' + code;
+                }
+            } else if (currentActivity === 'greeting') {
+                if (code.includes('userName') && code.includes('prompt') && code.includes('console.log')) {
+                    feedback = '✅ Correct! Your code asks for name and greets them.';
+                } else {
+                    feedback = '⚠️ Need: var for name, prompt, console.log with concat.\n\nYour code:\n' + code;
+                }
+            } else if (currentActivity === 'calculator') {
+                if (code.includes('num1') && code.includes('num2') && code.includes('sum') && code.includes('console.log')) {
+                    feedback = '✅ Correct! Your calculator adds two numbers.';
+                } else {
+                    feedback = '⚠️ Need: num1, num2, sum variables with ADD, console.log.\n\nYour code:\n' + code;
+                }
+            } else if (currentActivity === 'temperature') {
+                if (code.includes('celsius') && code.includes('fahrenheit') && code.includes('console.log')) {
+                    feedback = '✅ Correct! Your temperature converter works.';
+                } else {
+                    feedback = '⚠️ Need: celsius, fahrenheit variables, console.log.\n\nYour code:\n' + code;
+                }
+            } else if (currentActivity === 'number-guessing') {
+                if (code.includes('secretNumber') && code.includes('guess') && code.includes('prompt') && code.includes('console.log')) {
+                    feedback = '✅ Correct! Your number guessing game works.';
+                } else {
+                    feedback = '⚠️ Need: secretNumber, guess with prompt, console.log.\n\nYour code:\n' + code;
+                }
+            } else {
+                feedback = 'Your code:\n\n' + code;
+            }
+
+            document.getElementById('outputArea').innerHTML = feedback;
+
+        } catch(e) {
+            document.getElementById('outputArea').innerHTML = 'Error: ' + e.message;
+            console.error('Check answer error:', e);
+        }
+    }
+
+    function saveJavaScriptPractice() {
+        if (!workspace) {
+            alert('Workspace not ready. Please reload.');
+            return;
+        }
+        
+        if (typeof Blockly.JavaScript === 'undefined') {
+            alert('JavaScript generator not available.');
+            return;
+        }
+        
+        let code = Blockly.JavaScript.workspaceToCode(workspace).trim();
+        if (!code) { 
+            alert('Build your solution before saving!'); 
+            return; 
+        }
+
+        let activityName = jsActivities[currentActivity]?.name || 'JavaScript Activity';
+        let score = 100;
+
+        fetch('/save_activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                activity_name: activityName,
+                score: score,
+                code_blocks: code,
+                language: 'javascript'
+            })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                alert('✅ ' + activityName + ' saved! Score: ' + score + '/100');
+            } else {
+                alert(result.message || 'Save failed');
+            }
+        })
+        .catch(() => alert('Connection error.'));
+    }
+
+    // ===== URL PARAMETER CHECKING =====
+    function checkUrlForActivity() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activity = urlParams.get('activity');
+        if (activity && jsActivities[activity]) {
+            loadActivity(activity);
+        } else {
+            loadActivity('hello-world');
+        }
+    }
+
+    // ===== DOM CONTENT LOADED =====
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Page loaded - initializing...');
+        console.log('📦 Blockly.JavaScript available:', typeof Blockly.JavaScript !== 'undefined');
+        
+        if (typeof Blockly.JavaScript !== 'undefined') {
+            console.log('📦 Registered generators:', Object.keys(Blockly.JavaScript).filter(key => 
+                !['init', 'addReservedWords'].includes(key) && typeof Blockly.JavaScript[key] === 'function'
+            ));
+        }
+        
+        checkSidebarState();
+        checkUrlForActivity();
+        document.getElementById('workspaceWrapper').style.height = '460px';
+        
+        setTimeout(() => { 
+            if (workspace) {
+                Blockly.svgResize(workspace);
+                console.log('✅ Workspace resized');
+            }
+        }, 500);
+    });
+
+    window.addEventListener('resize', checkSidebarState);
+</script>
+</body>
+</html>
