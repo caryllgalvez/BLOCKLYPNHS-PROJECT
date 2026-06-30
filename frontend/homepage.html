@@ -1,10 +1,3 @@
-# ✅ Liquid Glass Login Card with Animation - Normal Size
-
-Narito ang **liquid glass login card** na may magandang animation, normal size lang (hindi sobrang laki), at white navbar.
-
----
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -889,7 +882,7 @@ Narito ang **liquid glass login card** na may magandang animation, normal size l
                 btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Login';
 
                 if (data.success) {
-                    showMessage('✅ Login successful! Redirecting...', 'success');
+                    showMessage(' Login successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = data.redirect || '/student_dashboard', 1000);
                 } else {
                     showMessage(data.message || 'Invalid credentials');
@@ -913,4 +906,3 @@ Narito ang **liquid glass login card** na may magandang animation, normal size l
     </script>
 </body>
 </html>
-```

@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Playground · BlockLearn Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blockly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blocks/javascript_compressed.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f0f6f3; line-height: 1.5; }
+        
+        :root {
+            --green-dark: #1a6b4f;
+            --green-main: #268e6c;
+            --green-light: #e2f3ed;
+            --gold-warm: #f0b84d;
+            --slate: #2a4a3f;
+            --gray-mist: #7f9e92;
+            --border-soft: #e2ede8;
+            --card-white: #ffffff;
+            --shadow-sm: 0 8px 24px rgba(26, 107, 79, 0.06);
+            --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 72px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(#d4e6df 0.6px, transparent 0.6px),
+                linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px);
+            background-size: 42px 42px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(170deg, #1a4e3d, #1a6048);
+            color: #e2f0ea;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid rgba(255,250,200,0.08);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+            z-index: 1000;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+        .sidebar.expanded { width: var(--sidebar-width); }
+
+        .sidebar.collapsed .nav-link-custom span { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.7rem 0.5rem; }
+        .sidebar.collapsed .sidebar-logo h2 { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .sidebar-logo p { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logout-btn span { opacity: 0; width: 0; overflow: hidden; display: none; }
+        .sidebar.collapsed .logout-btn { justify-content: center; padding: 8px 0.5rem; }
+        .sidebar.collapsed .nav-link-custom i { font-size: 1.3rem; }
+
+        .sidebar.expanded .nav-link-custom span { opacity: 1; width: auto; display: inline; }
+        .sidebar.expanded .nav-link-custom { justify-content: flex-start; padding: 0.7rem 1rem; }
+        .sidebar.expanded .sidebar-logo h2 { opacity: 1; width: auto; display: block; }
+        .sidebar.expanded .sidebar-logo p { opacity: 1; width: auto; display: block; }
+        .sidebar.expanded .sidebar-logo { justify-content: space-between; padding: 1rem 1.2rem; }
+        .sidebar.expanded .logout-btn span { opacity: 1; width: auto; display: inline; }
+        .sidebar.expanded .logout-btn { justify-content: flex-start; padding: 8px 12px; }
+        .sidebar.expanded .nav-link-custom i { font-size: 1rem; }
+
+        .sidebar-logo {
+            border-bottom: 1px solid rgba(255,245,200,0.10);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            gap: 12px;
+            overflow: hidden;
+            padding: 1rem 1.2rem;
+        }
+
+        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo h2 span { color: var(--gold-warm); }
+        .sidebar-logo p { font-size: 0.6rem; opacity: 0.6; margin: 2px 0 0 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo-left { display: flex; flex-direction: column; align-items: flex-start; transition: all 0.3s ease; }
+
+        .sidebar-toggle-btn {
+            background: rgba(255,255,255,0.10);
+            border: none;
+            color: #e2f0ea;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle-btn:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-x { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn .icon-bars { display: inline-block; }
+        .sidebar.expanded .sidebar-toggle-btn .icon-x { display: inline-block; }
+        .sidebar.expanded .sidebar-toggle-btn .icon-bars { display: none; }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0.7rem 1rem;
+            color: #cde6df;
+            text-decoration: none;
+            border-radius: 12px 0 0 12px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+            margin-right: -1px;
+            white-space: nowrap;
+        }
+
+        .nav-link-custom i { width: 22px; font-size: 1rem; flex-shrink: 0; text-align: center; transition: font-size 0.3s ease; }
+        .nav-link-custom span { transition: all 0.3s ease; }
+        .nav-link-custom:hover { background: rgba(255,245,210,0.10); color: white; }
+
+        .nav-link-custom.active {
+            background: var(--card-white);
+            color: #1a4235;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 12px 0 0 12px;
+            position: relative;
+        }
+
+        .nav-link-custom.active::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .nav-link-custom.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 0 0 var(--card-white);
+            z-index: 0;
+        }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 0.5rem; }
+        .nav-item { position: relative; margin-bottom: 4px; }
+        .sidebar-footer { padding: 1.2rem 0.5rem; border-top: 1px solid rgba(255,245,200,0.10); margin-top: auto; }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #d2ede4;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .logout-btn i { flex-shrink: 0; width: 22px; text-align: center; }
+        .logout-btn span { transition: all 0.3s ease; }
+        .logout-btn:hover { background: #c9513a; color: white; }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 28px 36px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+        .top-bar {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 0.8rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-bar-left { display: flex; align-items: center; gap: 12px; }
+        .mobile-hamburger { display: none; background: none; border: none; color: #1a463a; font-size: 1.3rem; cursor: pointer; padding: 6px 10px; border-radius: 10px; transition: all 0.2s; }
+        .mobile-hamburger:hover { background: var(--green-light); }
+
+        .greeting h1 { font-size: 1.3rem; font-weight: 700; color: #1a463a; letter-spacing: -0.3px; margin: 0; }
+        .greeting p { color: var(--gray-mist); font-size: 0.8rem; margin-top: 2px; }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--green-light);
+            padding: 4px 20px 4px 12px;
+            border-radius: 40px;
+            border: 1px solid var(--border-soft);
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .user-info h4 { font-size: 0.9rem; font-weight: 600; margin: 0; color: #1a463a; }
+        .user-info span { font-size: 0.65rem; color: var(--gray-mist); }
+
+        .activity-selector {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid var(--border-soft);
+            padding: 1.2rem 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .activity-selector .title { font-weight: 700; color: #1a463a; margin-bottom: 0.8rem; font-size: 1rem; }
+        .activity-selector .title i { color: var(--gold-warm); }
+
+        .activity-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .activity-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            border: 2px solid var(--border-soft);
+            background: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--slate);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .activity-btn:hover { border-color: var(--green-main); color: var(--green-main); }
+        .activity-btn.active { background: var(--green-main); border-color: var(--green-main); color: white; }
+
+        .activity-btn .difficulty-tag {
+            font-size: 0.55rem;
+            padding: 1px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+            font-weight: 700;
+        }
+
+        .difficulty-easy { background: #d1fae5; color: #065f46; }
+        .difficulty-medium { background: #fef3c7; color: #b45309; }
+        .difficulty-hard { background: #fee2e2; color: #991b1b; }
+
+        .activity-btn .step-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--gold-warm);
+            color: #1a4235;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .activity-banner {
+            background: linear-gradient(125deg, var(--green-dark), #217a5a);
+            border-radius: 24px;
+            padding: 0.8rem 1.8rem;
+            margin-bottom: 2rem;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 8px 18px rgba(26,107,79,0.2);
+        }
+
+        .activity-banner.show { display: flex; }
+
+        .activity-banner-info h4 { 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            margin-bottom: 2px; 
+            color: white; 
+        }
+        
+        .activity-banner-info .difficulty-tag {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .activity-banner-info p { 
+            font-size: 0.75rem; 
+            opacity: 0.9; 
+            margin: 0; 
+            color: #f5ffe0;
+            white-space: pre-wrap;
+        }
+
+        .btn-clear-activity {
+            background: rgba(255,255,220,0.2);
+            border: none;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.7rem;
+            transition: 0.2s;
+        }
+
+        .btn-clear-activity:hover { background: rgba(255,255,220,0.35); }
+
+        /* Expected Output Box */
+        .expected-output-box {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 8px 16px;
+            margin-top: 6px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .expected-output-box .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 2px;
+            color: #f5ffe0;
+        }
+
+        .expected-output-box .value {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #4ade80;
+            font-weight: 700;
+        }
+
+        .workspace-card {
+            background: var(--card-white);
+            border-radius: 24px;
+            border: 1px solid var(--border-soft);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .card-header-custom {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-soft);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header-custom h3 { font-size: 1rem; font-weight: 700; color: #1a4a3a; margin: 0; }
+
+        .lang-badge {
+            background: var(--green-light);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .window-controls { display: flex; gap: 6px; align-items: center; }
+        .window-btn {
+            width: 26px; height: 26px; border: none; border-radius: 6px; font-size: 0.65rem;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+            color: #555; background: var(--green-light);
+        }
+        .window-btn:hover { background: var(--green-main); color: white; }
+        .window-btn.minimize:hover { background: #f59e0b; color: white; }
+
+        .trash-btn {
+            background: #fee2e2; color: #dc2626; border: none; border-radius: 30px;
+            padding: 4px 12px; font-size: 0.65rem; font-weight: 600; cursor: pointer;
+            transition: 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .trash-btn:hover { background: #fecaca; transform: scale(1.05); }
+
+        .workspace-wrapper {
+            position: relative; transition: height 0.15s ease; overflow: hidden;
+            min-height: 300px; max-height: 700px;
+        }
+
+        .workspace-wrapper.minimized { height: 0 !important; min-height: 0 !important; }
+        #blocklyDiv { height: 100%; width: 100%; min-height: 300px; background: #fefefb; }
+
+        .output-section { padding: 1rem 1.5rem; background: #fbfefc; }
+        .output-label {
+            font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
+            letter-spacing: 1px; color: var(--gray-mist); margin-bottom: 10px;
+        }
+
+        .output-area {
+            background: #1e2f2a; color: #bbf0e0; padding: 12px 16px; border-radius: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.75rem;
+            min-height: 70px; border: 1px solid #3a6f5b; max-height: 200px;
+            overflow-y: auto; white-space: pre-wrap;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+
+        .output-area.success {
+            border-color: #22c55e;
+            background: #1a3a2a;
+        }
+
+        .output-area.error {
+            border-color: #ef4444;
+            background: #2a1a1a;
+        }
+
+        .output-area .highlight {
+            color: #4ade80;
+            font-weight: 700;
+        }
+
+        .action-buttons { display: flex; gap: 12px; margin-top: 1rem; }
+        .btn-run-custom {
+            flex: 1; border: none; padding: 10px; border-radius: 40px;
+            font-weight: 700; transition: 0.2s; font-size: 0.85rem;
+            background: var(--green-dark); color: white;
+        }
+        .btn-run-custom:hover { background: #0d573f; transform: translateY(-2px); }
+
+        .btn-submit-custom {
+            flex: 1; border: none; padding: 10px; border-radius: 40px;
+            font-weight: 700; transition: 0.2s; font-size: 0.85rem;
+            background: var(--gold-warm); color: #1a4235;
+        }
+        .btn-submit-custom:hover { background: #e7a93f; transform: translateY(-2px); }
+
+        .zoom-controls { display: flex; gap: 4px; align-items: center; margin-left: 6px; }
+        .zoom-btn {
+            background: var(--green-light); border: none; border-radius: 30px;
+            padding: 3px 8px; font-size: 0.65rem; font-weight: 600;
+            color: var(--green-dark); cursor: pointer; transition: 0.2s;
+        }
+        .zoom-btn:hover { background: var(--green-main); color: white; }
+        .zoom-level { font-size: 0.65rem; color: var(--gray-mist); min-width: 32px; text-align: center; }
+
+        .blocklyToolboxDiv {
+            background: #f0f5f2 !important;
+            border-right: 1px solid var(--border-soft) !important;
+        }
+        .blocklyTreeRow { border-radius: 8px !important; margin: 2px 4px !important; }
+        .blocklyTreeRow:hover { background: var(--green-light) !important; }
+        .blocklyTreeRowSelected { background: var(--green-main) !important; color: white !important; }
+        .blocklyTreeRowSelected .blocklyTreeLabel { color: white !important; }
+        .blocklyTrash { opacity: 1 !important; transition: all 0.3s ease; }
+        .blocklyTrash:hover { transform: scale(1.2); }
+
+        /* Success Notification */
+        .submit-success {
+            display: none;
+            background: #d1fae5;
+            color: #065f46;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid #065f46;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .submit-success.show {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: var(--sidebar-collapsed-width); }
+            .main-content { margin-left: var(--sidebar-collapsed-width); padding: 16px; }
+            .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+            .top-bar { padding: 0.8rem 1.2rem; flex-wrap: wrap; }
+            .mobile-hamburger { display: block; }
+            .sidebar-toggle-btn { display: none; }
+            .greeting h1 { font-size: 1.1rem; }
+            .user-card { padding: 4px 14px 4px 10px; }
+            .user-avatar { width: 32px; height: 32px; font-size: 0.8rem; }
+            .user-info h4 { font-size: 0.8rem; }
+            .user-info span { font-size: 0.6rem; }
+            .activity-selector { padding: 1rem; }
+            .activity-btns { flex-direction: column; }
+            .activity-btn { width: 100%; text-align: center; }
+            #blocklyDiv { min-height: 200px; }
+            .card-header-custom { flex-direction: column; align-items: stretch; }
+            .zoom-controls { flex-wrap: wrap; }
+            .expected-output-box { width: 100%; }
+        }
+
+        @media (max-width: 576px) {
+            .top-bar { flex-wrap: wrap; gap: 8px; }
+            .top-bar-left { flex: 1; }
+            .user-card { margin-left: auto; }
+            .activity-banner-info p { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar expanded" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-left">
+                <h2>Block<span>Learn</span></h2>
+                <p>PNHS · ICT Studio</p>
+            </div>
+            <button class="sidebar-toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i class="fas fa-times icon-x"></i>
+                <i class="fas fa-bars icon-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span>Python</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><i class="fab fa-js"></i><span>JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom active"><i class="fab fa-html5"></i><span>HTML</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span>Progress</span></a></div>
+            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span>Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span>Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i><span>Settings</span></a></div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Sign out</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="mobile-hamburger" onclick="toggleSidebar()" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting">
+                    <h1>HTML Playground</h1>
+                    <p>Drag, drop, and build HTML structures</p>
+                </div>
+            </div>
+            <div class="user-card">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <div class="user-info">
+                    <h4>{{ username }}</h4>
+                    <span>Grade {{ grade_level|default('11') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Selector -->
+        <div class="activity-selector">
+            <div class="title"><i class="fas fa-graduation-cap me-2"></i>HTML Activities</div>
+            <div class="activity-btns">
+                <button class="activity-btn active" data-activity="create-heading" onclick="loadActivity('create-heading')">
+                    <i class="fas fa-heading me-1"></i> Create Heading
+                    <span class="difficulty-tag difficulty-easy">Easy</span>
+                    <span class="step-badge">1</span>
+                </button>
+                <button class="activity-btn" data-activity="create-paragraph" onclick="loadActivity('create-paragraph')">
+                    <i class="fas fa-paragraph me-1"></i> Create Paragraph
+                    <span class="difficulty-tag difficulty-easy">Easy</span>
+                    <span class="step-badge">2</span>
+                </button>
+                <button class="activity-btn" data-activity="heading-with-style" onclick="loadActivity('heading-with-style')">
+                    <i class="fas fa-paint-brush me-1"></i> Heading with Style
+                    <span class="difficulty-tag difficulty-medium">Medium</span>
+                    <span class="step-badge">3</span>
+                </button>
+                <button class="activity-btn" data-activity="html-page" onclick="loadActivity('html-page')">
+                    <i class="fas fa-file-code me-1"></i> HTML Page
+                    <span class="difficulty-tag difficulty-hard">Hard</span>
+                    <span class="step-badge">4</span>
+                </button>
+                <button class="activity-btn" data-activity="free-play" onclick="loadActivity('free-play')">
+                    <i class="fas fa-play me-1"></i> Free Play
+                </button>
+            </div>
+        </div>
+
+        <!-- Activity Banner -->
+        <div id="activityBanner" class="activity-banner show">
+            <div class="activity-banner-info">
+                <h4>
+                    <i class="fas fa-code me-2"></i>
+                    <span id="bannerActivityName">Create Heading</span>
+                    <span class="difficulty-tag difficulty-easy" id="bannerDifficulty">Easy</span>
+                </h4>
+                <p id="bannerInstructions">Build an HTML heading (h1) with the text "Welcome to HTML!"</p>
+                <div class="expected-output-box">
+                    <span class="label"><i class="fas fa-eye me-1"></i>Expected Output</span>
+                    <span class="value" id="bannerExpectedOutput">&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</span>
+                </div>
+            </div>
+            <button class="btn-clear-activity" onclick="clearWorkspace()">
+                <i class="fas fa-times me-1"></i> Clear
+            </button>
+        </div>
+
+        <!-- Success Notification -->
+        <div class="submit-success" id="submitSuccess">
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="successMessage">Submitted Successfully! </span>
+            <br>
+            <small style="font-weight: 400;">Your activity has been submitted for review. You will receive your score and feedback from your teacher.</small>
+        </div>
+
+        <!-- Workspace -->
+        <div class="workspace-card">
+            <div class="card-header-custom">
+                <h3><i class="fas fa-cubes me-2" style="color:var(--green-main)"></i>HTML Blockly</h3>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="window-controls">
+                        <button class="window-btn minimize" onclick="minimizeWorkspace()" title="Minimize">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="window-btn maximize" onclick="toggleMaximizeWorkspace()" title="Maximize/Restore">
+                            <i class="fas fa-expand" id="maximizeIcon"></i>
+                        </button>
+                    </div>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="zoomWorkspace('in')"><i class="fas fa-search-plus"></i></button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" onclick="zoomWorkspace('out')"><i class="fas fa-search-minus"></i></button>
+                        <button class="zoom-btn" onclick="zoomWorkspace('reset')"><i class="fas fa-expand"></i></button>
+                    </div>
+                    <button class="trash-btn" onclick="clearWorkspace()" title="Clear all blocks">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                    <span class="lang-badge"><i class="fab fa-html5 me-1"></i>HTML</span>
+                </div>
+            </div>
+            <div class="workspace-wrapper" id="workspaceWrapper">
+                <div id="blocklyDiv"></div>
+            </div>
+            
+            <div class="output-section">
+                <div class="output-label"><i class="fas fa-code me-1"></i> HTML OUTPUT</div>
+                <div class="output-area" id="outputArea">Build your HTML using blocks. Click RUN to see the code!</div>
+                <div class="action-buttons">
+                    <button class="btn-run-custom" onclick="runHTMLCode()"><i class="fas fa-play me-2"></i> Run Code</button>
+                    <button class="btn-submit-custom" onclick="submitHTMLPractice()"><i class="fas fa-paper-plane me-2"></i> Submit</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ============================================================
+    // BLOCK REGISTRATION
+    // ============================================================
+    
+    console.log('Blockly version:', Blockly.version || 'unknown');
+
+    // ===== 1. REGISTER BLOCK DEFINITIONS =====
+
+    // Heading Block
+    Blockly.Blocks['html_heading'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldDropdown([
+                    ['h1', 'h1'],
+                    ['h2', 'h2'],
+                    ['h3', 'h3'],
+                    ['h4', 'h4']
+                ]), 'TAG')
+                .appendField(new Blockly.FieldTextInput('Heading'), 'TEXT');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#e34c26');
+            this.setTooltip('Create an HTML heading');
+        }
+    };
+
+    // Paragraph Block
+    Blockly.Blocks['html_paragraph'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('p')
+                .appendField(new Blockly.FieldTextInput('Paragraph text'), 'TEXT');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#e34c26');
+            this.setTooltip('Create an HTML paragraph');
+        }
+    };
+
+    // Style Block
+    Blockly.Blocks['html_style'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('style')
+                .appendField(new Blockly.FieldTextInput('color: blue; font-size: 20px;'), 'STYLE');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#2965f1');
+            this.setTooltip('Add CSS style');
+        }
+    };
+
+    // Div Container Block
+    Blockly.Blocks['html_div'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('div');
+            this.appendStatementInput('CONTENT')
+                .setCheck(null);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#e34c26');
+            this.setTooltip('Create a div container');
+        }
+    };
+
+    // ===== 2. REGISTER JAVASCRIPT GENERATORS =====
+    if (typeof Blockly.JavaScript === 'undefined') {
+        console.warn('Blockly.JavaScript not available, trying to get generator...');
+        try {
+            var jsGenerator = Blockly.Generator.getGenerator('JavaScript');
+            if (jsGenerator) {
+                console.log('Found JavaScript generator via Blockly.Generator');
+                for (var key in jsGenerator) {
+                    Blockly.JavaScript = Blockly.JavaScript || {};
+                    Blockly.JavaScript[key] = jsGenerator[key];
+                }
+            }
+        } catch(e) {
+            console.error('Failed to get JavaScript generator:', e);
+        }
+    }
+
+    if (Blockly.JavaScript) {
+        Blockly.JavaScript['html_heading'] = function(block) {
+            var tag = block.getFieldValue('TAG');
+            var text = block.getFieldValue('TEXT') || 'Heading';
+            return '<' + tag + '>' + text + '</' + tag + '>\n';
+        };
+
+        Blockly.JavaScript['html_paragraph'] = function(block) {
+            var text = block.getFieldValue('TEXT') || 'Paragraph text';
+            return '<p>' + text + '</p>\n';
+        };
+
+        Blockly.JavaScript['html_style'] = function(block) {
+            var style = block.getFieldValue('STYLE') || 'color: blue;';
+            return '<style>' + style + '</style>\n';
+        };
+
+        Blockly.JavaScript['html_div'] = function(block) {
+            var content = Blockly.JavaScript.statementToCode(block, 'CONTENT');
+            return '<div>\n' + content + '</div>\n';
+        };
+
+        console.log('HTML JavaScript generators registered successfully');
+    } else {
+        console.error('Blockly.JavaScript is not available!');
+    }
+
+    // ============================================================
+    // END OF BLOCK REGISTRATION
+    // ============================================================
+
+    // ===== SIDEBAR FUNCTIONS =====
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    let isSidebarExpanded = true;
+
+    function toggleSidebar() {
+        isSidebarExpanded = !isSidebarExpanded;
+        if (isSidebarExpanded) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        } else {
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+    }
+
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            isSidebarExpanded = false;
+            sidebar.classList.remove('expanded');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        } else {
+            isSidebarExpanded = true;
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('expanded');
+            mainContent.classList.remove('expanded');
+        }
+    }
+
+    // ===== BLOCKLY SETUP =====
+    let workspace;
+    let currentActivity = 'create-heading';
+    let isMaximized = false;
+    let previousHeight = 460;
+    let currentZoom = 1;
+
+    // ===== ACTIVITY CONFIGURATIONS =====
+    const htmlActivities = {
+        'create-heading': {
+            name: 'Create Heading',
+            difficulty: 'Easy',
+            step: 1,
+            toolboxCategories: ['HTML Basic'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Create an h1 heading with the text "Welcome to HTML!"\n\nBLOCKS NEEDED: html_heading\n\nSTEPS:\n1. Drag "html_heading" block\n2. Select "h1" from dropdown\n3. Type "Welcome to HTML!" in the text field\n4. Click RUN CODE`,
+            expected: '<h1>Welcome to HTML!</h1>',
+            checkCode: function(code) {
+                if (code.includes('<h1>Welcome to HTML!</h1>')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</span>' };
+                } else if (code.includes('<h1>')) {
+                    return { correct: false, message: 'Error: You used h1, but the text should be <span class="highlight">"Welcome to HTML!"</span>' };
+                } else {
+                    return { correct: false, message: 'Error: Need an h1 heading with <span class="highlight">"Welcome to HTML!"</span>' };
+                }
+            }
+        },
+        'create-paragraph': {
+            name: 'Create Paragraph',
+            difficulty: 'Easy',
+            step: 2,
+            toolboxCategories: ['HTML Basic'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Create a paragraph with the text "This is my first HTML page!"\n\nBLOCKS NEEDED: html_paragraph\n\nSTEPS:\n1. Drag "html_paragraph" block\n2. Type "This is my first HTML page!" in the text field\n3. Click RUN CODE`,
+            expected: '<p>This is my first HTML page!</p>',
+            checkCode: function(code) {
+                if (code.includes('<p>This is my first HTML page!</p>')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">&lt;p&gt;This is my first HTML page!&lt;/p&gt;</span>' };
+                } else if (code.includes('<p>')) {
+                    return { correct: false, message: 'Error: You used p, but the text should be <span class="highlight">"This is my first HTML page!"</span>' };
+                } else {
+                    return { correct: false, message: 'Error: Need a paragraph with <span class="highlight">"This is my first HTML page!"</span>' };
+                }
+            }
+        },
+        'heading-with-style': {
+            name: 'Heading with Style',
+            difficulty: 'Medium',
+            step: 3,
+            toolboxCategories: ['HTML Basic', 'HTML Style'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Create a blue h1 heading with "Styled Heading!"\n\nBLOCKS NEEDED: html_heading, html_style\n\nSTEPS:\n1. Drag "html_heading" block\n2. Select "h1", type "Styled Heading!"\n3. Drag "html_style" block\n4. Type "color: blue;" in the style field\n5. Click RUN CODE`,
+            expected: '<style>color: blue;</style>\n<h1>Styled Heading!</h1>',
+            checkCode: function(code) {
+                if (code.includes('color: blue;') && code.includes('<h1>Styled Heading!</h1>')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">color: blue; &lt;h1&gt;Styled Heading!&lt;/h1&gt;</span>' };
+                } else if (code.includes('<h1>') && code.includes('style')) {
+                    return { correct: false, message: 'Error: You have heading and style, but check the text and color.' };
+                } else {
+                    return { correct: false, message: 'Error: Need: style block and h1 heading with <span class="highlight">"Styled Heading!"</span>' };
+                }
+            }
+        },
+        'html-page': {
+            name: 'HTML Page',
+            difficulty: 'Hard',
+            step: 4,
+            toolboxCategories: ['All'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Build a simple HTML page with:\n- A heading (h1): "My Page"\n- A paragraph: "Welcome to my HTML page!"\n\nBLOCKS NEEDED: html_heading, html_paragraph\n\nSTEPS:\n1. Drag html_heading -> h1 -> "My Page"\n2. Drag html_paragraph -> "Welcome to my HTML page!"\n3. Click RUN CODE`,
+            expected: '<h1>My Page</h1>\n<p>Welcome to my HTML page!</p>',
+            checkCode: function(code) {
+                if (code.includes('<h1>My Page</h1>') && code.includes('<p>Welcome to my HTML page!</p>')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">&lt;h1&gt;My Page&lt;/h1&gt; &lt;p&gt;Welcome to my HTML page!&lt;/p&gt;</span>' };
+                } else if (code.includes('<h1>') && code.includes('<p>')) {
+                    return { correct: false, message: 'Error: Check your heading text (should be "My Page") and paragraph text (should be "Welcome to my HTML page!")' };
+                } else {
+                    return { correct: false, message: 'Error: Need: h1 heading and a paragraph.' };
+                }
+            }
+        },
+        'free-play': {
+            name: 'Free Play',
+            difficulty: 'All Levels',
+            step: 0,
+            toolboxCategories: ['All'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Build anything you want with HTML blocks!\n\nAvailable blocks:\n- html_heading (h1, h2, h3, h4)\n- html_paragraph (p)\n- html_style (CSS)\n- html_div (container)\n\nTry creating:\n- A webpage with heading and paragraph\n- Styled elements\n- A div with multiple elements`,
+            expected: 'Your HTML Code',
+            checkCode: function(code) {
+                return { correct: true, message: 'Free Play! Your HTML code:\n\n' + code };
+            }
+        }
+    };
+
+    // ===== TOOLBOX GENERATOR =====
+    function getHTMLToolbox(categories) {
+        const allCategories = {
+            'HTML Basic': `
+                <category name="HTML" colour="#e34c26">
+                    <block type="html_heading"></block>
+                    <block type="html_paragraph"></block>
+                </category>`,
+            'HTML Style': `
+                <category name="STYLE" colour="#2965f1">
+                    <block type="html_style"></block>
+                </category>`,
+            'HTML Advanced': `
+                <category name="ADVANCED" colour="#f7df1e">
+                    <block type="html_div"></block>
+                </category>`
+        };
+
+        if (categories.includes('All')) {
+            return `
+                <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">
+                    ${allCategories['HTML Basic']}
+                    ${allCategories['HTML Style']}
+                    ${allCategories['HTML Advanced']}
+                </xml>`;
+        }
+
+        let toolboxXml = '<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">';
+        categories.forEach(cat => {
+            if (allCategories[cat]) toolboxXml += allCategories[cat];
+        });
+        toolboxXml += '</xml>';
+        return toolboxXml;
+    }
+
+    // ===== BLOCKLY INITIALIZATION =====
+    function initBlockly(toolboxXml) {
+        if (workspace) {
+            workspace.dispose();
+            workspace = null;
+        }
+
+        workspace = Blockly.inject('blocklyDiv', {
+            toolbox: toolboxXml,
+            trashcan: true,
+            zoom: { controls: true, wheel: true, startScale: 0.9 },
+            renderer: 'zelos'
+        });
+
+        console.log('Blockly workspace initialized');
+
+        setTimeout(() => {
+            document.querySelectorAll('.blocklyTrash').forEach(el => {
+                el.style.opacity = '1';
+                el.style.transition = 'all 0.3s ease';
+            });
+        }, 200);
+
+        window.addEventListener('resize', () => {
+            if (workspace) Blockly.svgResize(workspace);
+        });
+    }
+
+    // ===== ACTIVITY LOADING =====
+    function loadActivity(activityId) {
+        currentActivity = activityId;
+        const activity = htmlActivities[activityId];
+        if (!activity) return;
+
+        // Hide success message when switching activities
+        document.getElementById('submitSuccess').classList.remove('show');
+
+        document.querySelectorAll('.activity-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.activity === activityId);
+        });
+
+        const banner = document.getElementById('activityBanner');
+        document.getElementById('bannerActivityName').innerHTML = activity.name;
+        
+        const diffTag = document.getElementById('bannerDifficulty');
+        diffTag.textContent = activity.difficulty;
+        diffTag.className = 'difficulty-tag';
+        if (activity.difficulty === 'Easy') diffTag.classList.add('difficulty-easy');
+        else if (activity.difficulty === 'Medium') diffTag.classList.add('difficulty-medium');
+        else if (activity.difficulty === 'Hard') diffTag.classList.add('difficulty-hard');
+        else diffTag.classList.add('difficulty-easy');
+        
+        document.getElementById('bannerInstructions').innerHTML = activity.instructions.replace(/\n/g, '<br>');
+
+        // Update Expected Output in Banner
+        const expectedEl = document.getElementById('bannerExpectedOutput');
+        if (activity.expected) {
+            expectedEl.textContent = activity.expected;
+            expectedEl.style.display = 'inline';
+        } else {
+            expectedEl.textContent = '—';
+        }
+
+        banner.style.display = 'flex';
+
+        const toolboxXml = getHTMLToolbox(activity.toolboxCategories);
+        initBlockly(toolboxXml);
+
+        setTimeout(() => {
+            try {
+                if (workspace && activity.blocksXml) {
+                    const xmlDom = Blockly.Xml.textToDom(activity.blocksXml);
+                    Blockly.Xml.domToWorkspace(xmlDom, workspace);
+                    Blockly.svgResize(workspace);
+                }
+                document.getElementById('outputArea').innerHTML = 'Build your HTML using blocks. Click RUN to see the code!';
+                document.getElementById('outputArea').className = 'output-area';
+            } catch(e) {
+                console.error('Failed to load activity blocks:', e);
+                document.getElementById('outputArea').innerHTML = 'Error loading activity: ' + e.message;
+                document.getElementById('outputArea').className = 'output-area error';
+            }
+        }, 100);
+    }
+
+    // ===== WORKSPACE CONTROLS =====
+    function clearWorkspace() {
+        // Hide success message when clearing
+        document.getElementById('submitSuccess').classList.remove('show');
+        
+        if (confirm('Are you sure you want to clear all blocks?')) {
+            try {
+                if (workspace) {
+                    workspace.clear();
+                    document.getElementById('outputArea').innerHTML = 'Workspace cleared. Build your solution from scratch!';
+                    document.getElementById('outputArea').className = 'output-area';
+                    Blockly.svgResize(workspace);
+                }
+            } catch(e) { 
+                console.error('Error clearing workspace:', e); 
+            }
+        }
+    }
+
+    function zoomWorkspace(action) {
+        if (!workspace) return;
+        if (action === 'in') currentZoom = Math.min(2, currentZoom + 0.1);
+        else if (action === 'out') currentZoom = Math.max(0.5, currentZoom - 0.1);
+        else if (action === 'reset') currentZoom = 1;
+        workspace.setScale(currentZoom);
+        document.getElementById('zoomLevel').textContent = Math.round(currentZoom * 100) + '%';
+        Blockly.svgResize(workspace);
+    }
+
+    function minimizeWorkspace() {
+        const wrapper = document.getElementById('workspaceWrapper');
+        if (wrapper.classList.contains('minimized')) {
+            wrapper.classList.remove('minimized');
+            wrapper.style.height = previousHeight + 'px';
+        } else {
+            previousHeight = wrapper.offsetHeight || 460;
+            wrapper.classList.add('minimized');
+            wrapper.style.height = '0px';
+        }
+        Blockly.svgResize(workspace);
+    }
+
+    function toggleMaximizeWorkspace() {
+        const wrapper = document.getElementById('workspaceWrapper');
+        const icon = document.getElementById('maximizeIcon');
+
+        if (isMaximized) {
+            wrapper.style.height = previousHeight + 'px';
+            wrapper.style.maxHeight = '700px';
+            wrapper.style.minHeight = '300px';
+            wrapper.style.overflow = 'hidden';
+            wrapper.classList.remove('minimized');
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+            isMaximized = false;
+        } else {
+            previousHeight = wrapper.offsetHeight || 460;
+            wrapper.style.height = '700px';
+            wrapper.style.maxHeight = '700px';
+            wrapper.style.minHeight = '300px';
+            wrapper.style.overflow = 'hidden';
+            wrapper.classList.remove('minimized');
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+            isMaximized = true;
+        }
+        if (workspace) {
+            Blockly.svgResize(workspace);
+        }
+    }
+
+    // ===== RUN HTML CODE =====
+    function runHTMLCode() {
+        // Hide success message when running again
+        document.getElementById('submitSuccess').classList.remove('show');
+        
+        try {
+            if (!workspace) {
+                document.getElementById('outputArea').innerHTML = 'Workspace not initialized. Please reload.';
+                document.getElementById('outputArea').className = 'output-area error';
+                return;
+            }
+
+            if (typeof Blockly.JavaScript === 'undefined') {
+                document.getElementById('outputArea').innerHTML = 'JavaScript generator not available.';
+                document.getElementById('outputArea').className = 'output-area error';
+                console.error('Blockly.JavaScript is undefined!');
+                return;
+            }
+
+            let code = Blockly.JavaScript.workspaceToCode(workspace);
+            
+            if (!code || code.trim() === '') {
+                document.getElementById('outputArea').innerHTML = 'No code to run. Build your HTML first!';
+                document.getElementById('outputArea').className = 'output-area error';
+                return;
+            }
+
+            document.getElementById('outputArea').innerHTML = 'HTML Code generated:\n\n' + code;
+            document.getElementById('outputArea').className = 'output-area';
+
+        } catch(e) {
+            document.getElementById('outputArea').innerHTML = 'Error: ' + e.message;
+            document.getElementById('outputArea').className = 'output-area error';
+            console.error('Run HTML error:', e);
+        }
+    }
+
+    // ===== SUBMIT HTML PRACTICE =====
+    function submitHTMLPractice() {
+        if (!workspace) {
+            alert('Workspace not ready. Please reload.');
+            return;
+        }
+        
+        if (typeof Blockly.JavaScript === 'undefined') {
+            alert('JavaScript generator not available.');
+            return;
+        }
+        
+        let code = Blockly.JavaScript.workspaceToCode(workspace).trim();
+        if (!code) { 
+            alert('Build your HTML before submitting!'); 
+            return; 
+        }
+
+        let activityName = htmlActivities[currentActivity]?.name || 'HTML Activity';
+        
+        // Show loading state
+        const submitBtn = document.querySelector('.btn-submit-custom');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Submitting...';
+        submitBtn.disabled = true;
+
+        fetch('/submit_activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                activity_name: activityName,
+                code_blocks: code,
+                language: 'html'
+            })
+        })
+        .then(r => r.json())
+        .then(result => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            if (result.success) {
+                // Show success message
+                const successDiv = document.getElementById('submitSuccess');
+                document.getElementById('successMessage').textContent = 'Submitted Successfully!';
+                successDiv.classList.add('show');
+                
+                document.getElementById('outputArea').innerHTML = 'Submitted Successfully!';
+                document.getElementById('outputArea').className = 'output-area success';
+                
+                // Scroll to success message
+                successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert(result.message || 'Submission failed. Please try again.');
+            }
+        })
+        .catch(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            alert('Connection error. Please check your internet.');
+        });
+    }
+
+    // ===== URL PARAMETER CHECKING =====
+    function checkUrlForActivity() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activity = urlParams.get('activity');
+        if (activity && htmlActivities[activity]) {
+            loadActivity(activity);
+        } else {
+            loadActivity('create-heading');
+        }
+    }
+
+    // ===== DOM CONTENT LOADED =====
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded - initializing...');
+        console.log('Blockly.JavaScript available:', typeof Blockly.JavaScript !== 'undefined');
+        
+        if (typeof Blockly.JavaScript !== 'undefined') {
+            console.log('Registered generators:', Object.keys(Blockly.JavaScript).filter(key => 
+                !['init', 'addReservedWords'].includes(key) && typeof Blockly.JavaScript[key] === 'function'
+            ));
+        }
+        
+        checkSidebarState();
+        checkUrlForActivity();
+        document.getElementById('workspaceWrapper').style.height = '460px';
+        
+        setTimeout(() => { 
+            if (workspace) {
+                Blockly.svgResize(workspace);
+                console.log('Workspace resized');
+            }
+        }, 500);
+    });
+
+    window.addEventListener('resize', checkSidebarState);
+</script>
+</body>
+</html>

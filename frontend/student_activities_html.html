@@ -3,283 +3,1127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Activities · BlockLearn Studio</title>
+    <title>HTML/CSS Activities · BlockLearn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <!-- Same styles as student_activities.html -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
-        /* Copy all styles from student_activities.html here */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f2f8f5; line-height: 1.5; }
-        :root { --green-deep: #1a6b4f; --green-main: #268e6c; --green-soft: #e2f3ed; --green-pale: #d4ece2; --gold-warm: #f0b84d; --gold-light: #fff3e0; --slate-dark: #2a4a3f; --stone: #7f9e92; --border-fresh: #e2ede8; --card-white: #ffffff; --shadow-light: 0 12px 28px -10px rgba(26, 107, 79, 0.08); --shadow-hover: 0 24px 42px -14px rgba(26, 107, 79, 0.18); }
-        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(#d4e6df 0.6px, transparent 0.6px), linear-gradient(90deg, #d4e6df 0.6px, transparent 0.6px); background-size: 42px 42px; opacity: 0.35; pointer-events: none; z-index: 0; }
-        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
-        .sidebar { width: 280px; background: linear-gradient(170deg, #1c4e3d, #1a6048); color: #e2f0ea; display: flex; flex-direction: column; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(255,250,200,0.12); box-shadow: 6px 0 20px rgba(0,0,0,0.04); }
-        .sidebar-logo { padding: 2rem 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,245,200,0.15); text-align: center; }
-        .sidebar-logo h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
-        .sidebar-logo h2 span { color: var(--gold-warm); }
-        .sidebar-logo p { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
-        .sidebar-nav { flex: 1; padding: 1.5rem 1rem; }
-        .nav-item { margin-bottom: 6px; }
-        .nav-link-custom { display: flex; align-items: center; gap: 14px; padding: 0.75rem 1rem; color: #cde6df; text-decoration: none; border-radius: 16px; transition: all 0.2s; font-size: 0.9rem; font-weight: 500; }
-        .nav-link-custom i { width: 24px; font-size: 1.1rem; }
-        .nav-link-custom:hover { background: rgba(255,245,210,0.12); color: white; }
-        .nav-link-custom.active { background: var(--gold-warm); color: #1a4235; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .sidebar-footer { padding: 1.5rem; border-top: 1px solid rgba(255,245,200,0.12); margin-top: auto; }
-        .logout-btn { display: flex; align-items: center; gap: 12px; color: #d2ede4; text-decoration: none; padding: 10px 12px; border-radius: 40px; transition: 0.2s; }
-        .logout-btn:hover { background: #c9513a; color: white; }
-        .main-content { flex: 1; margin-left: 280px; padding: 28px 36px; }
-        .top-bar { background: var(--card-white); border-radius: 32px; padding: 1rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-fresh); box-shadow: var(--shadow-light); }
-        .page-title { font-size: 1.5rem; font-weight: 700; color: #1a463a; letter-spacing: -0.3px; }
-        .user-avatar { width: 46px; height: 46px; background: linear-gradient(135deg, var(--green-main), var(--green-deep)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
-        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--green-pale); }
-        .section-header i { font-size: 1.4rem; }
-        .section-header h5 { font-size: 1.1rem; font-weight: 700; margin: 0; color: #2a5b49; }
-        .activity-card { background: var(--card-white); border-radius: 28px; padding: 1.3rem; cursor: pointer; transition: all 0.25s ease; border: 1px solid var(--border-fresh); box-shadow: var(--shadow-light); height: 100%; }
-        .activity-card:hover { transform: translateY(-6px); border-color: var(--green-main); box-shadow: var(--shadow-hover); }
-        .difficulty-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; font-weight: 600; }
-        .easy { background: #e0f5e8; color: #1c7e54; }
-        .medium { background: #ffefd6; color: #d97706; }
-        .hard { background: #ffe6e5; color: #c2412c; }
-        .status-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; font-weight: 600; }
-        .status-completed { background: #e0f5e8; color: #1c7e54; }
-        .status-pending { background: #fef3c7; color: #b45309; }
-        .activity-card h6 { font-size: 1rem; font-weight: 700; margin: 12px 0 6px; color: #1c4a3a; }
-        .instruction-modal .modal-content { border-radius: 32px; overflow: hidden; border: none; box-shadow: 0 30px 50px -20px rgba(0,0,0,0.3); }
-        .modal-header-custom { background: linear-gradient(125deg, var(--green-deep), #1e8260); color: white; padding: 1.5rem 2rem; border: none; }
-        .modal-body-custom { padding: 1.8rem; background: #fefef9; }
-        .instruction-steps { background: var(--green-soft); border-radius: 24px; padding: 1.5rem; margin: 1.25rem 0; }
-        .step-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(38,142,108,0.2); }
-        .step-number { width: 30px; height: 30px; background: var(--green-main); color: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
-        .code-tip { background: #1e2f2a; color: #bdf0e0; padding: 0.9rem 1.2rem; border-radius: 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; margin-top: 12px; }
-        .btn-start { background: var(--green-deep); color: white; border: none; padding: 12px 28px; border-radius: 60px; font-weight: 700; width: 100%; transition: 0.2s; }
-        .btn-start:hover { background: #0f553f; transform: translateY(-2px); }
-        .language-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-        .lang-tab { padding: 0.6rem 1.5rem; border-radius: 40px; background: var(--card-white); border: 2px solid var(--border-fresh); color: var(--stone); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-        .lang-tab:hover { border-color: var(--green-main); color: var(--green-main); }
-        .lang-tab.active { background: var(--green-main); border-color: var(--green-main); color: white; }
-        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); position: fixed; z-index: 1000; transition: transform 0.25s ease; width: 260px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 20px; } .top-bar { flex-direction: column; align-items: flex-start; gap: 12px; } }
-        .mobile-menu-btn { position: fixed; bottom: 24px; right: 24px; background: var(--green-deep); color: white; border: none; width: 52px; height: 52px; border-radius: 30px; z-index: 1001; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green-deep: #145a42;
+            --green-main: #1f8a64;
+            --green-light: #28a87a;
+            --green-soft: #e2f3ed;
+            --gold-warm: #e8a838;
+            --gold-light: #fce9c5;
+            --coral: #e06050;
+            --coral-soft: #fce8e5;
+            --blue: #4a90d9;
+            --blue-soft: #e4eefb;
+            --stone: #7f9e92;
+            --stone-light: #a8bfb4;
+            --border-fresh: #dde9e3;
+            --card-white: #ffffff;
+            --bg-main: #f0f6f3;
+            --text-primary: #1a463a;
+            --text-secondary: #4a6b5e;
+            --shadow-xs: 0 2px 8px rgba(20,90,66,0.04);
+            --shadow-sm: 0 4px 16px rgba(20,90,66,0.06);
+            --shadow-md: 0 8px 28px rgba(20,90,66,0.08);
+            --shadow-lg: 0 16px 48px rgba(20,90,66,0.12);
+            --shadow-xl: 0 24px 64px rgba(20,90,66,0.16);
+            --sidebar-w: 256px;
+            --sidebar-collapsed-w: 72px;
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --glass-bg: rgba(255,255,255,0.75);
+            --glass-border: rgba(255,255,255,0.6);
+            --card-glass: rgba(255,255,255,0.8);
+            --input-bg: #ffffff;
+            --grid-line: rgba(170,210,195,0.3);
+            --blob-opacity: 0.3;
+            --sidebar-text: #b5d9cb;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-section: rgba(216,239,229,0.3);
+            --sidebar-border: rgba(255,255,255,0.07);
+            --sidebar-hover-bg: rgba(255,255,255,0.08);
+            --sidebar-icon-toggle: rgba(255,255,255,0.08);
+            --sidebar-icon-toggle-hover: rgba(255,255,255,0.18);
+            --dropdown-bg: #ffffff;
+            --dropdown-link-hover: var(--green-soft);
+            --dropdown-link-hover-text: var(--green-deep);
+            --pd-sep: var(--border-fresh);
+            --chart-grid: #e8f0ec;
+            --chart-tick: #a8bfb4;
+            --greeting-overlay: rgba(255,255,255,0.1);
+            --search-bg: var(--card-white);
+            --dropdown-z-index: 99999;
+            --html-color: #e44d26;
+            --html-light: #fff0eb;
+            --html-dark: #a83820;
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0f1f19;
+            --text-primary: #d8ede5;
+            --text-secondary: #a8c4b8;
+            --border-fresh: #1e3a2e;
+            --card-white: #162b22;
+            --glass-bg: rgba(22,43,34,0.8);
+            --glass-border: rgba(40,70,55,0.6);
+            --card-glass: rgba(22,43,34,0.85);
+            --input-bg: #1a3329;
+            --shadow-xs: 0 2px 8px rgba(0,0,0,0.15);
+            --shadow-sm: 0 4px 16px rgba(0,0,0,0.2);
+            --shadow-md: 0 8px 28px rgba(0,0,0,0.25);
+            --shadow-lg: 0 16px 48px rgba(0,0,0,0.3);
+            --shadow-xl: 0 24px 64px rgba(0,0,0,0.35);
+            --green-soft: #163328;
+            --gold-light: #2e2510;
+            --coral-soft: #2e1a16;
+            --blue-soft: #152535;
+            --stone-light: #5a7a6d;
+            --grid-line: rgba(40,80,60,0.25);
+            --blob-opacity: 0.15;
+            --sidebar-text: #8fb8a8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-section: rgba(160,200,180,0.2);
+            --sidebar-border: rgba(255,255,255,0.05);
+            --sidebar-hover-bg: rgba(255,255,255,0.06);
+            --sidebar-icon-toggle: rgba(255,255,255,0.06);
+            --sidebar-icon-toggle-hover: rgba(255,255,255,0.14);
+            --dropdown-bg: #1a3329;
+            --dropdown-link-hover: #163328;
+            --dropdown-link-hover-text: #4ad9a0;
+            --pd-sep: #1e3a2e;
+            --chart-grid: #1e3a2e;
+            --chart-tick: #5a7a6d;
+            --greeting-overlay: rgba(255,255,255,0.06);
+            --search-bg: #1a3329;
+            --html-light: #2e1e16;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-main);
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .bg-layer {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .bg-layer::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 48px 48px;
+            transition: background-image 0.4s ease;
+        }
+        .bg-blob {
+            position: absolute; border-radius: 50%; filter: blur(90px);
+            opacity: var(--blob-opacity);
+            animation: blobDrift 22s ease-in-out infinite alternate;
+            transition: opacity 0.4s ease;
+        }
+        .bg-blob--1 {
+            width: 480px; height: 480px; top: -12%; right: -6%;
+            background: radial-gradient(circle, rgba(228,77,38,0.3), transparent 70%);
+        }
+        .bg-blob--2 {
+            width: 380px; height: 380px; bottom: -10%; left: 8%;
+            background: radial-gradient(circle, rgba(40,168,122,0.2), transparent 70%);
+            animation-duration: 28s; animation-delay: -6s;
+        }
+        @keyframes blobDrift {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(25px, -30px) scale(1.04); }
+            100% { transform: translate(-15px, 15px) scale(0.97); }
+        }
+
+        .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: linear-gradient(175deg, #14423a 0%, #185a48 40%, #1a6850 100%);
+            color: #d8efe5;
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0;
+            overflow-y: auto; overflow-x: hidden;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 4px 0 32px rgba(0,0,0,0.08);
+            z-index: 1000;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            padding: 1rem 1.1rem;
+            transition: all 0.35s ease;
+            overflow: hidden; min-height: 64px;
+        }
+        .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
+        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; }
+        .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
+        .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
+        .logo-mono { display: none; width: 100%; text-align: center; flex-shrink: 0; }
+        .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
+        .logo-mono span em { font-style: normal; color: var(--gold-warm); }
+
+        .toggle-btn {
+            background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
+            color: #d8efe5; font-size: 0.9rem; width: 28px; height: 28px;
+            border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background: var(--sidebar-icon-toggle-hover); transform: rotate(90deg); }
+
+        .hamburger-wrap { display: none; padding: 0.4rem 0 0.2rem; justify-content: center; }
+        .hamburger-btn {
+            background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
+            color: #d8efe5; font-size: 0.85rem; width: 32px; height: 32px;
+            border-radius: 10px; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hamburger-btn:hover { background: var(--sidebar-icon-toggle-hover); }
+
+        .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
+        .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logo-full { display: none; }
+        .sidebar.collapsed .logo-mono { display: block; }
+        .sidebar.collapsed .toggle-btn { display: none; }
+        .sidebar.collapsed .hamburger-wrap { display: flex; }
+        .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.55rem 0; margin: 0 0.3rem; }
+        .sidebar.collapsed .nav-link-custom i { font-size: 1.15rem; }
+        .sidebar.collapsed .nav-text { display: none !important; }
+        .sidebar.collapsed .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
+        .sidebar.collapsed .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
+        .sidebar.collapsed .sidebar-user-info { display: none !important; }
+        .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
+
+        .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
+        .sidebar:not(.collapsed) .logo-full { display: flex; }
+        .sidebar:not(.collapsed) .logo-mono { display: none; }
+        .sidebar:not(.collapsed) .toggle-btn { display: flex; }
+        .sidebar:not(.collapsed) .hamburger-wrap { display: none; }
+        .sidebar:not(.collapsed) .nav-link-custom { justify-content: flex-start; padding: 0.55rem 0.9rem; margin: 0 0.4rem; }
+        .sidebar:not(.collapsed) .nav-link-custom i { font-size: 0.95rem; }
+        .sidebar:not(.collapsed) .nav-text { display: inline !important; }
+        .sidebar:not(.collapsed) .nav-section-label { height: auto; padding: 1.1rem 1.1rem 0.35rem; opacity: 1; }
+        .sidebar:not(.collapsed) .sidebar-user { justify-content: flex-start; padding: 0.9rem 1.1rem; }
+        .sidebar:not(.collapsed) .sidebar-user-info { display: block !important; }
+
+        .nav-section-label {
+            font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.5px;
+            font-weight: 700; color: var(--sidebar-section);
+            white-space: nowrap; transition: all 0.3s ease;
+        }
+        .sidebar-nav { flex: 1; padding: 0.4rem 0; }
+        .nav-item { position: relative; margin-bottom: 2px; }
+        .nav-link-custom {
+            display: flex; align-items: center; gap: 13px;
+            color: var(--sidebar-text); text-decoration: none;
+            border-radius: var(--radius-sm); transition: all 0.25s ease;
+            font-size: 0.86rem; font-weight: 500; position: relative; white-space: nowrap;
+        }
+        .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
+        .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
+        .nav-link-custom:hover i { transform: scale(1.12); }
+        .nav-link-custom.active {
+            background: var(--card-white); color: #145a42; font-weight: 650;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-radius: var(--radius-sm);
+        }
+        .nav-link-custom.active i { color: var(--html-color); }
+        .nav-badge {
+            position: absolute; top: 5px; left: 24px;
+            width: 7px; height: 7px; background: var(--coral);
+            border-radius: 50%; border: 2px solid #185a48;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+        .nav-link-custom.active .nav-badge { border-color: var(--card-white); }
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); opacity: 0.6; }
+        }
+
+        .sidebar-user {
+            display: flex; align-items: center; gap: 11px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            transition: all 0.35s ease; overflow: hidden;
+        }
+        .sidebar-avatar {
+            width: 34px; height: 34px; border-radius: 11px;
+            background: linear-gradient(135deg, var(--gold-warm), #d4922a);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(232,168,56,0.3);
+        }
+        .sidebar-user-info h4 { font-size: 0.78rem; font-weight: 650; margin: 0; white-space: nowrap; color: #d8efe5; }
+        .sidebar-user-info p { font-size: 0.6rem; opacity: 0.45; margin: 1px 0 0; white-space: nowrap; }
+
+        .main-content {
+            flex: 1; margin-left: var(--sidebar-w);
+            padding: 28px 34px 40px;
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+        .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
+
+        .top-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl); padding: 0.5rem 1.5rem;
+            margin-bottom: 1.6rem; display: flex;
+            justify-content: space-between; align-items: center;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm);
+            transition: background 0.4s ease, border-color 0.4s ease;
+            position: relative; z-index: 100;
+        }
+        .page-title {
+            font-size: 1.1rem; font-weight: 800; color: var(--text-primary);
+            letter-spacing: -0.4px; margin: 0; transition: color 0.4s ease;
+        }
+        .page-title i { color: var(--html-color); margin-right: 8px; font-size: 0.9rem; }
+        .top-bar-right {
+            display: flex; align-items: center; gap: 10px;
+            position: relative; z-index: 200;
+        }
+
+        .top-search { position: relative; display: flex; align-items: center; }
+        .top-search i { position: absolute; left: 11px; color: var(--stone-light); font-size: 0.8rem; pointer-events: none; transition: color 0.2s; }
+        .top-search input {
+            width: 200px; padding: 0.45rem 0.7rem 0.45rem 2.2rem;
+            border: 1.5px solid var(--border-fresh); border-radius: 10px;
+            font-size: 0.78rem; font-family: inherit; background: var(--search-bg);
+            color: var(--text-primary); transition: all 0.25s ease;
+        }
+        .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
+        .top-search input:focus { outline: none; border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(31,138,100,0.1); width: 240px; }
+        .top-search:focus-within i { color: var(--green-main); }
+
+        .theme-btn {
+            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            background: var(--card-white); display: flex; align-items: center; justify-content: center;
+            color: var(--stone); font-size: 0.88rem; cursor: pointer;
+            transition: all 0.3s ease; flex-shrink: 0;
+        }
+        .theme-btn:hover { border-color: var(--gold-warm); color: var(--gold-warm); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
+        .theme-btn .icon-sun { display: none; }
+        .theme-btn .icon-moon { display: inline; }
+        [data-theme="dark"] .theme-btn .icon-sun { display: inline; }
+        [data-theme="dark"] .theme-btn .icon-moon { display: none; }
+
+        .notif-btn {
+            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            background: var(--card-white); display: flex; align-items: center; justify-content: center;
+            color: var(--stone); font-size: 0.9rem; cursor: pointer;
+            transition: all 0.25s ease; position: relative; flex-shrink: 0;
+        }
+        .notif-btn:hover { border-color: var(--green-main); color: var(--green-main); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
+        .notif-btn .notif-badge {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--coral); color: white;
+            font-size: 0.55rem; font-weight: 700;
+            min-width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--card-white); transition: all 0.3s ease;
+        }
+        .notif-btn .notif-badge.hidden { display: none; }
+
+        .notif-dropdown {
+            display: none; position: absolute; top: calc(100% + 12px); right: 0;
+            width: 380px; max-height: 420px;
+            background: var(--dropdown-bg); border-radius: var(--radius-md);
+            border: 1px solid var(--border-fresh);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            z-index: var(--dropdown-z-index); overflow: hidden;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        .notif-dropdown.open { display: block; animation: dropIn 0.25s ease; }
+        .notif-dropdown .notif-header {
+            padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--pd-sep);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .notif-dropdown .notif-header h6 { font-weight: 700; color: var(--text-primary); margin: 0; font-size: 0.85rem; }
+        .notif-dropdown .notif-header h6 i { color: var(--gold-warm); margin-right: 6px; }
+        .notif-dropdown .notif-header .mark-read-btn {
+            font-size: 0.65rem; color: var(--green-main); cursor: pointer;
+            background: none; border: none; font-weight: 600; transition: color 0.2s;
+        }
+        .notif-dropdown .notif-header .mark-read-btn:hover { color: var(--green-deep); }
+        .notif-dropdown .notif-list { max-height: 340px; overflow-y: auto; padding: 0.3rem 0; }
+        .notif-dropdown .notif-list::-webkit-scrollbar { width: 4px; }
+        .notif-dropdown .notif-list::-webkit-scrollbar-thumb { background: var(--border-fresh); border-radius: 10px; }
+        .notif-item { padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border-fresh); transition: all 0.2s; cursor: default; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: var(--green-soft); }
+        .notif-item.unread { background: var(--blue-soft); border-left: 3px solid var(--blue); }
+        [data-theme="dark"] .notif-item.unread:hover { background: #1a3040; }
+        .notif-item .notif-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+        .notif-item .notif-message { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+        .notif-item .notif-time { font-size: 0.6rem; color: var(--stone-light); margin-top: 4px; display: block; }
+        .notif-item .score-badge {
+            display: inline-block; background: var(--green-soft); color: var(--green-deep);
+            padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;
+        }
+        .notif-empty { padding: 2rem 1.2rem; text-align: center; color: var(--stone-light); }
+        .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--border-fresh); }
+        .notif-empty p { font-size: 0.8rem; margin: 0; }
+
+        .profile-trigger {
+            display: flex; align-items: center; gap: 9px;
+            cursor: pointer; padding: 4px 10px 4px 4px;
+            border-radius: 12px; border: 1.5px solid var(--border-fresh);
+            background: var(--card-white); transition: all 0.25s ease;
+            flex-shrink: 0; position: relative; z-index: 300;
+        }
+        .profile-trigger:hover { border-color: var(--green-main); box-shadow: var(--shadow-xs); }
+        .profile-trigger.open { border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(31,138,100,0.1); }
+        .profile-trigger-avatar {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            border-radius: 9px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.78rem; flex-shrink: 0;
+        }
+        .profile-trigger-info { display: flex; flex-direction: column; }
+        .profile-trigger-name { font-size: 0.72rem; font-weight: 650; color: var(--text-primary); line-height: 1.2; white-space: nowrap; transition: color 0.4s ease; }
+        .profile-trigger-role { font-size: 0.6rem; color: var(--stone-light); line-height: 1.2; white-space: nowrap; }
+        .profile-trigger-chevron { color: var(--stone-light); font-size: 0.6rem; margin-left: 2px; transition: transform 0.25s ease; }
+        .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
+
+        .profile-dropdown {
+            display: none; position: absolute; top: calc(100% + 12px); right: 0;
+            min-width: 220px; background: var(--dropdown-bg);
+            border-radius: var(--radius-md); border: 1px solid var(--border-fresh);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            z-index: var(--dropdown-z-index); overflow: visible;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        .profile-dropdown.open { display: block !important; animation: dropIn 0.25s ease; }
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .pd-header { padding: 0.9rem 1rem; border-bottom: 1px solid var(--pd-sep); display: flex; align-items: center; gap: 10px; }
+        .pd-avatar {
+            width: 38px; height: 38px; border-radius: 11px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .pd-name { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); transition: color 0.4s ease; }
+        .pd-grade { font-size: 0.68rem; color: var(--stone-light); }
+        .pd-links { padding: 0.3rem 0; }
+        .pd-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.55rem 1rem; color: var(--text-secondary); text-decoration: none;
+            font-size: 0.78rem; font-weight: 500; transition: all 0.2s;
+            cursor: pointer; border: none; background: transparent; width: 100%;
+        }
+        .pd-link:hover { background: var(--dropdown-link-hover); color: var(--dropdown-link-hover-text); }
+        .pd-link i { width: 18px; text-align: center; font-size: 0.8rem; color: var(--stone); transition: color 0.2s; }
+        .pd-link:hover i { color: var(--green-main); }
+        .pd-sep { height: 1px; background: var(--pd-sep); margin: 0.3rem 0; transition: background 0.4s ease; }
+        .pd-link.logout { color: var(--coral); }
+        .pd-link.logout i { color: var(--coral); }
+        .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
+
+        .language-tabs { display: flex; gap: 0.6rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+        .lang-tab {
+            padding: 0.5rem 1.4rem; border-radius: 40px;
+            background: var(--card-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1.5px solid var(--glass-border);
+            color: var(--stone); font-weight: 600; font-size: 0.78rem;
+            cursor: pointer; transition: all 0.3s ease;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: var(--shadow-xs);
+        }
+        .lang-tab:hover { border-color: var(--green-main); color: var(--green-main); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .lang-tab.active {
+            background: var(--html-color); border-color: var(--html-color); color: white;
+            box-shadow: 0 4px 16px rgba(228,77,38,0.35);
+        }
+        .lang-tab.active:hover { color: white; transform: translateY(-2px); }
+
+        .level-section { margin-bottom: 2rem; }
+        .level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+        .level-icon {
+            width: 42px; height: 42px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+        .level-icon.easy-icon { background: var(--green-soft); color: var(--green-main); }
+        .level-icon.medium-icon { background: var(--gold-light); color: #c48a20; }
+        .level-icon.hard-icon { background: var(--coral-soft); color: var(--coral); }
+        .level-header h5 { font-size: 0.95rem; font-weight: 750; margin: 0; transition: color 0.4s ease; }
+        .level-count {
+            font-size: 0.6rem; font-weight: 650; padding: 3px 10px;
+            border-radius: 20px; background: var(--card-glass);
+            border: 1px solid var(--glass-border);
+            color: var(--stone); transition: all 0.4s ease;
+        }
+
+        .activity-card {
+            background: var(--card-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg); padding: 1.3rem 1.4rem;
+            cursor: pointer; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm); height: 100%;
+            position: relative; overflow: hidden; text-decoration: none;
+            color: inherit; display: flex; flex-direction: column;
+        }
+        .card-accent-bar {
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            border-radius: 3px 3px 0 0; opacity: 0; transition: opacity 0.35s;
+        }
+        .activity-card:hover { transform: translateY(-5px); border-color: var(--html-color); box-shadow: var(--shadow-xl); }
+        .activity-card:hover .card-accent-bar { opacity: 1; }
+        .activity-card:hover .card-arrow { opacity: 1; transform: translateY(0); }
+
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+        .difficulty-badge { font-size: 0.6rem; padding: 3px 11px; border-radius: 20px; font-weight: 700; letter-spacing: 0.3px; }
+        .easy { background: var(--green-soft); color: var(--green-deep); }
+        .medium { background: var(--gold-light); color: #9a7020; }
+        .hard { background: var(--coral-soft); color: #991b1b; }
+        .status-badge { font-size: 0.6rem; padding: 3px 11px; border-radius: 20px; font-weight: 650; }
+        .status-completed { background: var(--green-soft); color: var(--green-deep); }
+        .status-pending { background: var(--gold-light); color: #9a7020; }
+
+        .activity-card h6 { font-size: 0.95rem; font-weight: 750; margin: 0 0 4px; color: var(--text-primary); transition: color 0.4s ease; }
+        .step-badge {
+            display: inline-block; background: var(--html-color); color: white;
+            padding: 2px 10px; border-radius: 20px; font-size: 0.56rem;
+            font-weight: 700; margin-left: 6px;
+        }
+        .activity-card .card-desc {
+            font-size: 0.78rem; color: var(--stone-light); margin-bottom: 10px;
+            line-height: 1.5; transition: color 0.4s ease;
+        }
+        .blocks-available { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+        .block-pill {
+            background: var(--html-light); padding: 2px 10px; border-radius: 20px;
+            font-size: 0.58rem; font-weight: 700; color: var(--html-dark);
+            letter-spacing: 0.3px; transition: background 0.4s ease, color 0.4s ease;
+        }
+        .block-pill i { margin-right: 2px; }
+        .card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+        .card-meta-badge {
+            font-size: 0.62rem; padding: 3px 10px; border-radius: 20px;
+            font-weight: 600; background: var(--card-glass);
+            border: 1px solid var(--glass-border);
+            color: var(--stone); display: inline-flex; align-items: center; gap: 4px;
+            transition: all 0.4s ease;
+        }
+        .card-meta-badge i { font-size: 0.6rem; }
+        .card-meta-badge .gold { color: var(--gold-warm); }
+
+        .card-arrow {
+            display: inline-flex; align-items: center; gap: 5px;
+            margin-top: 10px; color: var(--html-color); font-size: 0.75rem; font-weight: 650;
+            opacity: 0; transform: translateY(5px); transition: all 0.35s ease;
+        }
+        .card-arrow i { transition: transform 0.3s; }
+        .activity-card:hover .card-arrow i { transform: translateX(3px); }
+
+        .free-play-card {
+            border: 2px dashed var(--html-color); background: var(--html-light);
+            text-decoration: none; color: inherit; transition: all 0.35s ease;
+        }
+        .free-play-card::before { display: none; }
+        .free-play-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); border-color: var(--green-main); background: var(--card-glass); }
+        .free-play-icon { font-size: 2.5rem; margin-bottom: 0.5rem; transition: transform 0.4s ease; }
+        .free-play-card:hover .free-play-icon { transform: scale(1.15) rotate(-5deg); }
+        .free-play-card h6 { font-weight: 750; color: var(--green-deep); transition: color 0.4s ease; }
+        .free-play-launch {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px; font-size: 0.78rem; font-weight: 650;
+            color: var(--html-color); transition: all 0.3s;
+        }
+        .free-play-card:hover .free-play-launch { gap: 10px; }
+
+        .instruction-panel {
+            position: fixed; top: 0; right: -520px; width: 500px; height: 100vh;
+            background: var(--card-white);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+            border-left: 1px solid var(--border-fresh);
+            transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease, border-color 0.4s ease;
+            z-index: 2000; padding: 1.8rem 2rem 1.5rem;
+            overflow-y: auto; display: flex; flex-direction: column;
+        }
+        .instruction-panel.open { right: 0; }
+        .instruction-panel .close-btn {
+            background: none; border: 1.5px solid var(--border-fresh);
+            font-size: 1rem; color: var(--stone); padding: 6px 12px;
+            border-radius: 10px; transition: all 0.25s; align-self: flex-end;
+            margin-bottom: 0.8rem; cursor: pointer;
+        }
+        .instruction-panel .close-btn:hover { background: var(--coral-soft); border-color: var(--coral); color: var(--coral); }
+        .instruction-panel h4 { font-weight: 800; color: var(--text-primary); margin-bottom: 0.3rem; font-size: 1.25rem; letter-spacing: -0.4px; transition: color 0.4s ease; }
+        .instruction-panel .step-number {
+            display: inline-block; background: var(--html-color); color: white;
+            padding: 3px 13px; border-radius: 20px; font-size: 0.65rem;
+            font-weight: 700; margin-bottom: 0.8rem;
+        }
+        .instruction-panel .meta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+        .instruction-panel .meta-row span {
+            background: var(--html-light); padding: 3px 14px; border-radius: 40px;
+            font-size: 0.68rem; font-weight: 650; color: var(--html-dark);
+            display: inline-flex; align-items: center; gap: 4px;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        .instruction-panel .instruction-text {
+            background: var(--html-light); padding: 1.2rem 1.4rem; border-radius: var(--radius-md);
+            border-left: 4px solid var(--html-color); font-size: 0.9rem;
+            color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem;
+            flex: 1; transition: background 0.4s ease, color 0.4s ease;
+        }
+        .instruction-panel .instruction-text .step-item { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border-fresh); transition: border-color 0.4s ease; }
+        .instruction-panel .instruction-text .step-item:last-child { border-bottom: none; }
+        .instruction-panel .instruction-text .step-num { font-weight: 800; color: var(--html-color); min-width: 28px; font-size: 0.82rem; }
+        .instruction-panel .instruction-text .step-desc { flex: 1; font-size: 0.85rem; }
+        .instruction-panel .instruction-text .step-desc code {
+            background: var(--card-white); padding: 1px 7px; border-radius: 6px;
+            font-size: 0.78rem; color: var(--html-dark); border: 1px solid var(--border-fresh);
+            transition: all 0.4s ease;
+        }
+        .instruction-panel .instruction-text .step-desc strong { color: var(--text-primary); transition: color 0.4s ease; }
+        .instruction-panel .block-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+        .instruction-panel .block-list .block-pill { font-size: 0.7rem; padding: 4px 13px; }
+        .instruction-panel .btn-start {
+            background: var(--html-color); border: none; color: white;
+            font-weight: 700; padding: 12px 20px; border-radius: 40px;
+            width: 100%; transition: all 0.3s; margin-top: auto;
+            font-family: inherit; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .instruction-panel .btn-start:hover { background: #c04020; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .instruction-panel .hint-box {
+            background: var(--gold-light); border-radius: var(--radius-sm);
+            padding: 0.8rem 1.1rem; margin-bottom: 1rem;
+            border-left: 4px solid var(--gold-warm);
+            font-size: 0.82rem; color: #7d6b2d; transition: all 0.4s ease;
+        }
+        .instruction-panel .hint-box i { margin-right: 6px; color: var(--gold-warm); }
+        .instruction-panel .expected-output {
+            background: #1e1e1e; color: #d4d4d4;
+            padding: 10px 16px; border-radius: var(--radius-sm);
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem;
+            margin-bottom: 1rem; border: 1px solid #333;
+        }
+        .instruction-panel .expected-output label {
+            font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1px;
+            color: #888; display: block; margin-bottom: 4px;
+        }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.25); backdrop-filter: blur(3px);
+            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .overlay.show { opacity: 1; pointer-events: auto; }
+
+        .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
+        .toast-msg {
+            background: #1a463a; color: white; padding: 10px 16px;
+            border-radius: 12px; font-size: 0.78rem; font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px;
+            animation: tIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+        }
+        .toast-msg.out { opacity: 0; transform: translateX(40px); }
+        .toast-msg.success i { color: #4ade80; }
+        .toast-msg.error i { color: var(--coral); }
+        @keyframes tIn {
+            from { opacity: 0; transform: translateX(40px) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .fu { opacity: 0; transform: translateY(16px); animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
+        .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.1s; }
+        .e3 { animation-delay: 0.15s; } .e4 { animation-delay: 0.2s; }
+        .e5 { animation-delay: 0.25s; } .e6 { animation-delay: 0.3s; }
+        .e7 { animation-delay: 0.35s; }
+
+        @media (max-width: 992px) { .activity-grid-2 { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 768px) {
+            .sidebar { width: var(--sidebar-collapsed-w); }
+            .sidebar .logo-full { display: none !important; }
+            .sidebar .logo-mono { display: block !important; }
+            .sidebar .toggle-btn { display: none !important; }
+            .sidebar .hamburger-wrap { display: flex !important; }
+            .sidebar .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+            .sidebar .nav-link-custom { justify-content: center; padding: 0.55rem 0; margin: 0 0.3rem; }
+            .sidebar .nav-link-custom i { font-size: 1.15rem; }
+            .sidebar .nav-text { display: none !important; }
+            .sidebar .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
+            .sidebar .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
+            .sidebar .sidebar-user-info { display: none !important; }
+            .sidebar .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
+            .main-content { margin-left: var(--sidebar-collapsed-w); padding: 16px; }
+            .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
+            .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
+            .top-search input { width: 130px; }
+            .top-search input:focus { width: 160px; }
+            .profile-trigger-info { display: none; }
+            .profile-dropdown { right: 0; left: auto; min-width: 200px; }
+            .notif-dropdown { width: 320px; right: 0; left: auto; }
+            .language-tabs { gap: 0.4rem; }
+            .lang-tab { font-size: 0.7rem; padding: 0.4rem 1rem; }
+            .instruction-panel { width: 100%; right: -100%; padding: 1.5rem; }
+        }
+        @media (max-width: 576px) {
+            .main-content { padding: 12px; }
+            .activity-grid-2 { grid-template-columns: 1fr !important; }
+            .top-bar { flex-wrap: wrap; gap: 8px; }
+            .top-bar-right { margin-left: auto; flex-wrap: wrap; }
+            .top-search { order: 10; width: 100%; }
+            .top-search input { width: 100% !important; }
+            .profile-dropdown { right: 0; left: auto; min-width: 180px; }
+            .notif-dropdown { width: 290px; right: 0; left: auto; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <aside class="sidebar">
+<div class="bg-layer" aria-hidden="true">
+    <div class="bg-blob bg-blob--1"></div>
+    <div class="bg-blob bg-blob--2"></div>
+</div>
+
+<div class="app">
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
-            <h2>Block<span>Learn</span></h2>
-            <p>PNHS · ICT Studio</p>
+            <div class="logo-full"><h2>Block<em>Learn</em></h2><p>PNHS &middot; ICT Studio</p></div>
+            <div class="logo-mono"><span>B<em>L</em></span></div>
+            <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar"><i class="fas fa-times"></i></button>
         </div>
+        <div class="hamburger-wrap"><button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar"><i class="fas fa-bars"></i></button></div>
         <nav class="sidebar-nav">
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-user"></i> Overview</a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i> Activities</a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i> Progress</a></div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i> Achievements</a></div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i> Profile</a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i> Settings</a></div>
+            <div class="nav-section-label">Main</div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
+            <div class="nav-section-label">Languages</div>
+            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fab fa-python"></i><span class="nav-text">Python</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><i class="fab fa-js"></i><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom active" aria-current="page"><i class="fab fa-html5"></i><span class="nav-text">HTML/CSS</span></a></div>
+            <div class="nav-section-label">Account</div>
+            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
         </nav>
-        <div class="sidebar-footer">
-            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sign out</a>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">S</div>
+            <div class="sidebar-user-info"><h4 id="sidebarName">Student</h4><p id="sidebarGrade">Grade 11 - ICT</p></div>
         </div>
     </aside>
 
-    <main class="main-content">
-        <div class="top-bar">
-            <h2 class="page-title"><i class="fas fa-cubes me-2" style="color:var(--gold-warm)"></i>Coding Activities</h2>
-            <div class="user-avatar"><i class="fas fa-user"></i></div>
-        </div>
-
-        <div class="language-tabs">
-            <a href="/student_activities" class="lang-tab"><i class="fab fa-python me-1"></i> Python</a>
-            <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js me-1"></i> JavaScript</a>
-            <a href="/student_activities_html" class="lang-tab active"><i class="fab fa-html5 me-1"></i> HTML/CSS</a>
-        </div>
-
-        <div class="mb-4">
-            <div class="section-header">
-                <i class="fab fa-html5" style="color:#E34F26;"></i>
-                <h5>HTML/CSS Activities</h5>
-                <span class="badge bg-light text-dark ms-2">2 activities</span>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="activity-card" data-activity="Create Heading" data-difficulty="easy" data-language="html">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <span class="difficulty-badge easy">Easy</span>
-                            <span class="status-badge status-pending" id="status-heading">Not Started</span>
-                        </div>
-                        <h6>🎨 Create Heading</h6>
-                        <p class="small text-muted">Create an H1 heading with your text</p>
-                        <div class="mt-3">
-                            <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>5 min</span>
-                            <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>100 pts</span>
-                        </div>
+    <main class="main-content" id="mainContent">
+        <header class="top-bar fu">
+            <div><h1 class="page-title"><i class="fab fa-html5"></i>HTML/CSS Activities</h1></div>
+            <div class="top-bar-right">
+                <div class="top-search"><input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search"><i class="fas fa-search"></i></div>
+                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
+                    <i class="fas fa-moon icon-moon"></i><i class="fas fa-sun icon-sun"></i>
+                </button>
+                <div style="position: relative;">
+                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" aria-label="Notifications"><i class="fas fa-bell"></i><span class="notif-badge hidden" id="notifBadge">0</span></button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header"><h6><i class="fas fa-bell"></i> Notifications</h6><button class="mark-read-btn" onclick="markAllRead()">Mark all as read</button></div>
+                        <div class="notif-list" id="notifList"><div class="notif-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading notifications...</p></div></div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="activity-card" data-activity="Create Paragraph" data-difficulty="easy" data-language="html">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <span class="difficulty-badge easy">Easy</span>
-                            <span class="status-badge status-pending" id="status-paragraph">Not Started</span>
-                        </div>
-                        <h6>🎨 Create Paragraph</h6>
-                        <p class="small text-muted">Create a paragraph with custom text</p>
-                        <div class="mt-3">
-                            <span class="badge bg-light text-dark me-2"><i class="far fa-clock me-1"></i>5 min</span>
-                            <span class="badge bg-light text-dark"><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i>100 pts</span>
+                <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()">
+                    <div class="profile-trigger-avatar"><i class="fas fa-user"></i></div>
+                    <div class="profile-trigger-info"><span class="profile-trigger-name" id="triggerName">Student</span><span class="profile-trigger-role" id="triggerRole">Grade 11</span></div>
+                    <i class="fas fa-chevron-down profile-trigger-chevron"></i>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="pd-header"><div class="pd-avatar"><i class="fas fa-user"></i></div><div><div class="pd-name" id="pdName">Student</div><div class="pd-grade" id="pdGrade">Grade 11 - ICT</div></div></div>
+                        <div class="pd-links">
+                            <a href="/student_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
+                            <a href="/student_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
+                            <div class="pd-sep"></div>
+                            <a href="/logout" class="pd-link logout"><i class="fas fa-sign-out-alt"></i> Sign out</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
+
+        <nav class="language-tabs fu e2" aria-label="Programming language">
+            <a href="/student_activities" class="lang-tab"><i class="fab fa-python"></i> Python</a>
+            <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js"></i> JavaScript</a>
+            <a href="/student_activities_html" class="lang-tab active"><i class="fab fa-html5"></i> HTML/CSS</a>
+        </nav>
+
+        <!-- ===== EASY ===== -->
+        <section class="level-section fu e3">
+            <div class="level-header">
+                <div class="level-icon easy-icon"><i class="fas fa-seedling"></i></div>
+                <h5>Easy Level</h5>
+                <span class="level-count">2 activities</span>
+            </div>
+            <div class="row g-3 activity-grid-2" style="display:grid; grid-template-columns: repeat(2, 1fr);">
+                <div>
+                    <div class="activity-card" data-activity="create-heading">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--html-color), #f07050);"></div>
+                        <div class="card-top">
+                            <span class="difficulty-badge easy">Easy</span>
+                            <span class="status-badge status-pending" id="status-createheading">Not Started</span>
+                        </div>
+                        <h6>Create Heading <span class="step-badge">Step 1</span></h6>
+                        <p class="card-desc">Create an h1 heading with "Welcome to HTML!"</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-heading"></i> HEADING</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <div class="card-meta">
+                            <span class="card-meta-badge"><i class="far fa-clock"></i> 5 min</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
+                        </div>
+                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="activity-card" data-activity="create-paragraph">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--html-color), #f07050);"></div>
+                        <div class="card-top">
+                            <span class="difficulty-badge easy">Easy</span>
+                            <span class="status-badge status-pending" id="status-createparagraph">Not Started</span>
+                        </div>
+                        <h6>Create Paragraph <span class="step-badge">Step 2</span></h6>
+                        <p class="card-desc">Create a paragraph with "This is my first HTML page!"</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-paragraph"></i> PARAGRAPH</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <div class="card-meta">
+                            <span class="card-meta-badge"><i class="far fa-clock"></i> 5 min</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
+                        </div>
+                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== MEDIUM ===== -->
+        <section class="level-section fu e5">
+            <div class="level-header">
+                <div class="level-icon medium-icon"><i class="fas fa-chart-line"></i></div>
+                <h5>Medium Level</h5>
+                <span class="level-count">1 activity</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="activity-card" data-activity="heading-with-style">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, #f07050, #f09070);"></div>
+                        <div class="card-top">
+                            <span class="difficulty-badge medium">Medium</span>
+                            <span class="status-badge status-pending" id="status-headingwithstyle">Not Started</span>
+                        </div>
+                        <h6>Heading with Style <span class="step-badge">Step 3</span></h6>
+                        <p class="card-desc">Create a blue h1 heading with "Styled Heading!"</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-heading"></i> HEADING</span><span class="block-pill"><i class="fas fa-paint-brush"></i> STYLE</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <div class="card-meta">
+                            <span class="card-meta-badge"><i class="far fa-clock"></i> 8 min</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 15 pts</span>
+                        </div>
+                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== HARD ===== -->
+        <section class="level-section fu e7">
+            <div class="level-header">
+                <div class="level-icon hard-icon"><i class="fas fa-trophy"></i></div>
+                <h5>Hard Level</h5>
+                <span class="level-count">1 activity</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="activity-card" data-activity="html-page">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--coral), #f08070);"></div>
+                        <div class="card-top">
+                            <span class="difficulty-badge hard">Hard</span>
+                            <span class="status-badge status-pending" id="status-htmlpage">Not Started</span>
+                        </div>
+                        <h6>HTML Page <span class="step-badge">Step 4</span></h6>
+                        <p class="card-desc">Build a simple HTML page with heading and paragraph</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-heading"></i> HEADING</span><span class="block-pill"><i class="fas fa-paragraph"></i> PARAGRAPH</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <div class="card-meta">
+                            <span class="card-meta-badge"><i class="far fa-clock"></i> 10 min</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 20 pts</span>
+                        </div>
+                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FREE PLAY ===== -->
+        <section class="fu e7" style="margin-top: 0.5rem;">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="/student_playground_html?activity=free-play" class="activity-card free-play-card">
+                        <div style="text-align: center; padding: 0.5rem 0;">
+                            <div class="free-play-icon"></div>
+                            <h6>Free Play</h6>
+                            <p class="card-desc" style="margin-bottom: 8px;">Build anything you want with HTML blocks</p>
+                            <span class="block-pill" style="background: var(--html-color); color: white; padding: 4px 14px; font-size: 0.65rem;"><i class="fas fa-play" style="margin-right: 4px;"></i>Free Play</span>
+                            <div class="free-play-launch">Launch <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
     </main>
 </div>
 
-<!-- Instruction Modal -->
-<div class="modal fade instruction-modal" id="instructionModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header-custom">
-                <h4 class="mb-0"><i class="fas fa-lightbulb me-2"></i><span id="modalTitle">Activity Instructions</span></h4>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body-custom">
-                <div id="modalContent"></div>
-                <button class="btn-start mt-4" id="startActivityBtn" onclick="startSelectedActivity()">
-                    <i class="fas fa-play me-2"></i>Start Activity
-                </button>
-            </div>
-        </div>
+<div class="overlay" id="overlay"></div>
+
+<div class="instruction-panel" id="instructionPanel">
+    <button class="close-btn" id="closePanelBtn"><i class="fas fa-times"></i></button>
+    <h4 id="panelTitle">Create Heading</h4>
+    <span class="step-number" id="panelStep">Step 1</span>
+    <div class="meta-row" id="panelMeta">
+        <span class="difficulty-badge easy" id="panelDifficulty">Easy</span>
+        <span><i class="far fa-clock me-1"></i><span id="panelTime">5 min</span></span>
+        <span><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i><span id="panelPoints">10 pts</span></span>
     </div>
+    <div class="instruction-text" id="panelInstructions"></div>
+    <div class="expected-output" id="panelOutput">
+        <label><i class="fas fa-eye me-1"></i> Expected Output</label>
+        <span id="outputText">&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</span>
+    </div>
+    <div class="hint-box" id="panelHint">
+        <i class="fas fa-lightbulb"></i> <strong>Hint:</strong> <span id="hintText"></span>
+    </div>
+    <div class="block-list" id="panelBlocks"></div>
+    <button class="btn-start" id="panelStartBtn"><i class="fas fa-play"></i> Start Activity</button>
 </div>
 
-<button class="mobile-menu-btn d-md-none" onclick="document.querySelector('.sidebar').classList.toggle('open')">
-    <i class="fas fa-bars"></i>
-</button>
+<div class="toast-box" id="toastBox"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    let selectedActivity = null;
-    let modal = null;
+    function collapseSidebar() { document.getElementById('sidebar').classList.add('collapsed'); document.getElementById('mainContent').classList.add('shifted'); }
+    function expandSidebar() { document.getElementById('sidebar').classList.remove('collapsed'); document.getElementById('mainContent').classList.remove('shifted'); }
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.add('collapsed');
+            document.getElementById('mainContent').classList.add('shifted');
+        } else {
+            document.getElementById('sidebar').classList.remove('collapsed');
+            document.getElementById('mainContent').classList.remove('shifted');
+        }
+    }
 
-    const activityInstructions = {
-        'Create Heading': {
-            title: '🎨 Create Heading - HTML Headers',
-            description: 'Learn to create headings in HTML (H1 to H6).',
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+    (function() { const s = localStorage.getItem('theme'); if (s === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();
+
+    function toggleNotifications() {
+        const dd = document.getElementById('notifDropdown');
+        document.getElementById('profileDropdown').classList.remove('open');
+        document.getElementById('profileTrigger').classList.remove('open');
+        dd.classList.toggle('open');
+    }
+    function markAllRead() {
+        document.querySelectorAll('.notif-item.unread').forEach(i => i.classList.remove('unread'));
+        updateNotifBadge();
+        showToast('All notifications marked as read', 'success');
+    }
+    function updateNotifBadge() {
+        const u = document.querySelectorAll('.notif-item.unread').length;
+        const b = document.getElementById('notifBadge');
+        if (u > 0) { b.textContent = u; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
+    }
+    function loadNotifications() {
+        fetch('/get_notifications').then(r => r.json()).then(d => {
+            const l = document.getElementById('notifList');
+            if (d.success && d.notifications && d.notifications.length > 0) {
+                l.innerHTML = d.notifications.map(n => {
+                    const c = n.is_read ? '' : ' unread';
+                    const sc = n.score != null ? `<span class="score-badge">${n.score}%</span>` : '';
+                    return `<div class="notif-item${c}" data-id="${n.id}"><div class="notif-title">${n.title}</div><div class="notif-message">${n.message}</div>${sc}<span class="notif-time">${n.time_ago}</span></div>`;
+                }).join('');
+                updateNotifBadge();
+            } else { l.innerHTML = `<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>`; }
+        }).catch(() => { document.getElementById('notifList').innerHTML = `<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>`; });
+    }
+
+    function toggleProfile() {
+        const dd = document.getElementById('profileDropdown');
+        document.getElementById('notifDropdown').classList.remove('open');
+        dd.classList.toggle('open');
+        document.getElementById('profileTrigger').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+        const nb = document.getElementById('notifBtn'), nd = document.getElementById('notifDropdown');
+        const pt = document.getElementById('profileTrigger'), pd = document.getElementById('profileDropdown');
+        if (!nb.contains(e.target) && !nd.contains(e.target)) nd.classList.remove('open');
+        if (!pt.contains(e.target) && !pd.contains(e.target)) { pd.classList.remove('open'); pt.classList.remove('open'); }
+    });
+
+    function showToast(message, type) {
+        const box = document.getElementById('toastBox');
+        const t = document.createElement('div');
+        t.className = `toast-msg ${type || 'success'}`;
+        t.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        box.appendChild(t);
+        setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    document.querySelectorAll('.activity-card:not(.free-play-card)').forEach(card => {
+        card.addEventListener('mouseenter', function() { const b = this.querySelector('.card-accent-bar'); if (b) b.style.opacity = '1'; });
+        card.addEventListener('mouseleave', function() { const b = this.querySelector('.card-accent-bar'); if (b) b.style.opacity = '0'; });
+    });
+
+    const activityData = {
+        'create-heading': {
+            title: 'Create Heading', step: 'Step 1', difficulty: 'Easy', time: '5 min', points: '10 pts',
             steps: [
-                'Drag a <strong>HEADING</strong> (H1) block',
-                'Drag a <strong>TEXT</strong> block and connect it inside',
-                'Type: <code>"BlockLearn"</code> in the text block',
-                'Click <strong>RUN CODE</strong> to see your heading',
-                'Submit when you see the large heading text'
+                'Find the <strong>HEADING</strong> block in the STRUCTURE category.',
+                'Drag the <strong>HEADING</strong> block to the workspace.',
+                'Change the heading level dropdown to <strong>h1</strong>.',
+                'Find the <strong>TEXT</strong> block in the BASIC category.',
+                'Drag the <strong>TEXT</strong> block inside the HEADING block.',
+                'Click the text block and type: <strong>"Welcome to HTML!"</strong>',
+                'Click <strong>RUN CODE</strong> to see your heading in the preview!'
             ],
-            codeExample: '<h1>BlockLearn</h1>',
-            expectedOutput: '<h1>BlockLearn</h1>',
-            tips: 'H1 is the largest heading, H6 is the smallest!'
+            output: '<h1>Welcome to HTML!</h1>',
+            hint: 'Use <code>&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</code> — the h1 tag creates the largest heading.',
+            blocks: ['HEADING', 'TEXT']
         },
-        'Create Paragraph': {
-            title: '🎨 Create Paragraph - HTML Text',
-            description: 'Create paragraphs using the HTML p tag.',
+        'create-paragraph': {
+            title: 'Create Paragraph', step: 'Step 2', difficulty: 'Easy', time: '5 min', points: '10 pts',
             steps: [
-                'Drag a <strong>PARAGRAPH</strong> block',
-                'Drag a <strong>TEXT</strong> block and connect it inside',
-                'Type: <code>"Learning HTML is fun!"</code>',
-                'Click <strong>RUN CODE</strong> to see your paragraph',
-                'Submit when you see the text formatted as a paragraph'
+                'Find the <strong>PARAGRAPH</strong> block in the STRUCTURE category.',
+                'Drag the <strong>PARAGRAPH</strong> block to the workspace.',
+                'Find the <strong>TEXT</strong> block in the BASIC category.',
+                'Drag the <strong>TEXT</strong> block inside the PARAGRAPH block.',
+                'Click the text block and type: <strong>"This is my first HTML page!"</strong>',
+                'Click <strong>RUN CODE</strong> to see your paragraph in the preview!'
             ],
-            codeExample: '<p>Learning HTML is fun!</p>',
-            expectedOutput: '<p>Learning HTML is fun!</p>',
-            tips: 'Paragraphs automatically add spacing before and after the text!'
+            output: '<p>This is my first HTML page!</p>',
+            hint: 'Use <code>&lt;p&gt;This is my first HTML page!&lt;/p&gt;</code> — the p tag creates a paragraph.',
+            blocks: ['PARAGRAPH', 'TEXT']
+        },
+        'heading-with-style': {
+            title: 'Heading with Style', step: 'Step 3', difficulty: 'Medium', time: '8 min', points: '15 pts',
+            steps: [
+                'Find the <strong>HEADING</strong> block and drag it to the workspace.',
+                'Set the heading level to <strong>h1</strong>.',
+                'Find the <strong>STYLE</strong> block in the STYLE category.',
+                'Drag the <strong>STYLE</strong> block and attach it to the HEADING block.',
+                'In the style block, set the color property to <strong>"blue"</strong>.',
+                'Add a <strong>TEXT</strong> block inside the heading and type: <strong>"Styled Heading!"</strong>',
+                'Click <strong>RUN CODE</strong> to see your styled heading!'
+            ],
+            output: '<h1 style="color: blue;">Styled Heading!</h1>',
+            hint: 'Use inline style: <code>&lt;h1 style="color: blue;"&gt;Styled Heading!&lt;/h1&gt;</code>',
+            blocks: ['HEADING', 'STYLE', 'TEXT']
+        },
+        'html-page': {
+            title: 'HTML Page', step: 'Step 4', difficulty: 'Hard', time: '10 min', points: '20 pts',
+            steps: [
+                'Drag a <strong>HEADING</strong> block and set it to <strong>h1</strong>.',
+                'Add a <strong>TEXT</strong> block inside with: <strong>"My Webpage"</strong>',
+                'Below the heading, drag a <strong>PARAGRAPH</strong> block.',
+                'Add a <strong>TEXT</strong> block inside the paragraph with: <strong>"Welcome to my website!"</strong>',
+                'Make sure both blocks are properly nested.',
+                'Click <strong>RUN CODE</strong> to see your complete HTML page!'
+            ],
+            output: '<h1>My Webpage</h1>\n<p>Welcome to my website!</p>',
+            hint: 'Structure: heading first, then paragraph. Both need text blocks inside them.',
+            blocks: ['HEADING', 'PARAGRAPH', 'TEXT']
         }
     };
 
+    const panel = document.getElementById('instructionPanel');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closePanelBtn');
+
+    function openPanel(key) {
+        const d = activityData[key];
+        if (!d) return;
+        document.getElementById('panelTitle').textContent = d.title;
+        document.getElementById('panelStep').textContent = d.step;
+        const db = document.getElementById('panelDifficulty');
+        db.textContent = d.difficulty;
+        db.className = 'difficulty-badge ' + d.difficulty.toLowerCase();
+        document.getElementById('panelTime').textContent = d.time;
+        document.getElementById('panelPoints').textContent = d.points;
+        document.getElementById('panelInstructions').innerHTML = d.steps.map((s, i) =>
+            `<div class="step-item"><span class="step-num">${i + 1}.</span><span class="step-desc">${s}</span></div>`
+        ).join('');
+        document.getElementById('outputText').textContent = d.output;
+        document.getElementById('hintText').textContent = d.hint;
+        document.getElementById('panelBlocks').innerHTML = d.blocks.map(b => `<span class="block-pill">${b}</span>`).join('');
+        document.getElementById('panelStartBtn').onclick = function() { window.location.href = `/student_playground_html?activity=${key}`; };
+        panel.classList.add('open');
+        overlay.classList.add('show');
+    }
+
+    function closePanel() { panel.classList.remove('open'); overlay.classList.remove('show'); }
+    closeBtn.addEventListener('click', closePanel);
+    overlay.addEventListener('click', closePanel);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePanel(); });
+
+    document.querySelectorAll('.activity-card[data-activity]').forEach(card => {
+        card.addEventListener('click', function(e) { e.preventDefault(); openPanel(this.dataset.activity); });
+    });
+
     function loadActivityStatuses() {
-        fetch('/get_activities')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.activities) {
-                    data.activities.forEach(act => {
-                        const statusMap = {
-                            'Create Heading': 'status-heading',
-                            'Create Paragraph': 'status-paragraph'
-                        };
-                        
-                        const statusId = statusMap[act.name];
-                        if (statusId) {
-                            const statusSpan = document.getElementById(statusId);
-                            if (statusSpan) {
-                                if (act.completed) {
-                                    statusSpan.textContent = '✓ Completed';
-                                    statusSpan.className = 'status-badge status-completed';
-                                } else {
-                                    statusSpan.textContent = 'Not Started';
-                                    statusSpan.className = 'status-badge status-pending';
-                                }
-                            }
-                        }
-                    });
-                }
-            })
-            .catch(e => console.error('Error loading statuses:', e));
+        fetch('/get_activities').then(r => r.json()).then(data => {
+            if (data.success && data.activities) {
+                const m = { 'Create Heading': 'status-createheading', 'Create Paragraph': 'status-createparagraph', 'Heading with Style': 'status-headingwithstyle', 'HTML Page': 'status-htmlpage' };
+                data.activities.forEach(a => {
+                    const id = m[a.name];
+                    if (id) { const el = document.getElementById(id); if (el && a.completed) { el.textContent = ' Completed'; el.className = 'status-badge status-completed'; } }
+                });
+            }
+        }).catch(e => console.error('Error loading statuses:', e));
     }
 
-    function showInstructions(activityName) {
-        selectedActivity = activityName;
-        const inst = activityInstructions[activityName];
-        
-        if (inst) {
-            document.getElementById('modalTitle').innerHTML = inst.title;
-            document.getElementById('modalContent').innerHTML = `
-                <p class="text-muted mb-3">${inst.description}</p>
-                <div class="instruction-steps">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-list-ol me-2" style="color:#1e6f5c"></i>Step-by-Step Guide:</h6>
-                    ${inst.steps.map((step, idx) => `
-                        <div class="step-item">
-                            <div class="step-number">${idx + 1}</div>
-                            <div class="step-text">${step}</div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="mb-3">
-                    <h6 class="fw-bold"><i class="fas fa-code me-2" style="color:var(--gold-warm)"></i>Example Code:</h6>
-                    <div class="code-tip">
-                        <code>${inst.codeExample}</code>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <h6 class="fw-bold"><i class="fas fa-bullseye me-2" style="color:#1c7e54"></i>Expected Output:</h6>
-                    <div class="code-tip" style="background:#eef3f1; color:#1a2e35;">
-                        <code>${inst.expectedOutput}</code>
-                    </div>
-                </div>
-                <div class="alert" style="background:var(--green-soft); border:none; border-radius:20px;">
-                    <i class="fas fa-lightbulb me-2" style="color:var(--gold-warm)"></i>
-                    <strong>💡 Tip:</strong> ${inst.tips}
-                </div>
-            `;
-            modal = new bootstrap.Modal(document.getElementById('instructionModal'));
-            modal.show();
-        }
+    function loadUserInfo() {
+        fetch('/student_profile_data').then(r => r.json()).then(d => {
+            if (d.success) {
+                const n = d.full_name || d.lrn || 'Student', i = n.charAt(0).toUpperCase(), g = d.grade_level || 'Grade 11';
+                document.getElementById('sidebarAvatar').innerText = i;
+                document.getElementById('sidebarName').innerText = n;
+                document.getElementById('sidebarGrade').innerText = g + ' - ICT';
+                document.getElementById('triggerName').innerText = n;
+                document.getElementById('triggerRole').innerText = g;
+                document.getElementById('pdName').innerText = n;
+                document.getElementById('pdGrade').innerText = g + ' - ICT';
+            }
+        }).catch(err => console.error('Error loading user info:', err));
     }
 
-    function startSelectedActivity() {
-        if (selectedActivity) {
-            modal.hide();
-            window.location.href = `/student_dashboard?activity=${encodeURIComponent(selectedActivity)}`;
-        }
-    }
-
-    document.querySelectorAll('.activity-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            const activityName = card.getAttribute('data-activity');
-            if (activityName) showInstructions(activityName);
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        loadActivityStatuses();
-    });
+    document.addEventListener('DOMContentLoaded', function() { checkSidebarState(); loadActivityStatuses(); loadNotifications(); loadUserInfo(); });
+    window.addEventListener('resize', checkSidebarState);
 </script>
 </body>
 </html>
