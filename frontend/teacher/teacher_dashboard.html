@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support Tickets · BlockLearn Studio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Teacher Dashboard · BlockLearn Studio</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -359,6 +359,7 @@
             z-index: calc(var(--z-dropdown) + 1);
         }
 
+        /* Position relative container for dropdowns */
         .dropdown-wrapper {
             position: relative;
             display: inline-block;
@@ -451,56 +452,6 @@
         }
         .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
 
-        /* ===== PROFILE DROPDOWN ===== */
-        .profile-dropdown {
-            display: none;
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            min-width: 220px;
-            background: var(--dropdown-bg);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-fresh);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            z-index: var(--z-dropdown);
-            overflow: visible;
-            transition: background 0.4s ease, border-color 0.4s ease;
-        }
-        .profile-dropdown.open {
-            display: block !important;
-            animation: dropIn 0.25s ease;
-        }
-        @keyframes dropIn {
-            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .pd-header {
-            padding: 0.8rem 1rem; border-bottom: 1px solid var(--pd-sep);
-            display: flex; align-items: center; gap: 10px;
-        }
-        .pd-avatar {
-            width: 38px; height: 38px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.85rem; flex-shrink: 0;
-        }
-        .pd-name { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); transition: color 0.4s ease; }
-        .pd-grade { font-size: 0.65rem; color: var(--stone-light); }
-        .pd-links { padding: 0.3rem 0; }
-        .pd-link {
-            display: flex; align-items: center; gap: 10px;
-            padding: 0.55rem 1rem; color: var(--text-secondary); text-decoration: none;
-            font-size: 0.78rem; font-weight: 500; transition: all 0.2s;
-            cursor: pointer; border: none; background: transparent; width: 100%;
-        }
-        .pd-link:hover { background: var(--dropdown-link-hover); color: var(--dropdown-link-hover-text); }
-        .pd-link i { width: 18px; text-align: center; font-size: 0.8rem; color: var(--stone); transition: color 0.2s; }
-        .pd-link:hover i { color: var(--green-main); }
-        .pd-sep { height: 1px; background: var(--pd-sep); margin: 0.3rem 0; transition: background 0.4s ease; }
-        .pd-link.logout { color: var(--coral); }
-        .pd-link.logout i { color: var(--coral); }
-        .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
-
         /* ===== SIDEBAR OVERLAY ===== */
         .sidebar-overlay {
             display: none;
@@ -536,6 +487,10 @@
         .notif-dropdown.open {
             display: block;
             animation: dropIn 0.25s ease;
+        }
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .nd-head {
             padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--pd-sep);
@@ -578,195 +533,305 @@
         .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; color: var(--border-fresh); }
         .notif-empty p { font-size: 0.8rem; margin: 0; }
 
-        /* ===== TICKET CUSTOM STYLES ===== */
-        .ticket-status {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 40px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .ticket-status.pending { background: #fef3c7; color: #b45309; }
-        .ticket-status.resolved { background: #d1fae5; color: #065f46; }
-        .ticket-status.closed { background: #e5e7eb; color: #4b5563; }
-        
-        .ticket-priority {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .ticket-priority.low { background: #e5e7eb; color: #4b5563; }
-        .ticket-priority.medium { background: #fef3c7; color: #b45309; }
-        .ticket-priority.high { background: #fee2e2; color: #dc2626; }
-
-        .ticket-card {
-            background: var(--card-glass);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
+        /* ===== PROFILE DROPDOWN (with Logout) ===== */
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 220px;
+            background: var(--dropdown-bg);
             border-radius: var(--radius-md);
-            padding: 1rem 1.3rem;
-            transition: all 0.3s;
-            cursor: pointer;
-            margin-bottom: 0.8rem;
-            box-shadow: var(--shadow-xs);
-        }
-        .ticket-card:hover {
-            border-color: var(--green-main);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-        .ticket-card.high-priority { border-left: 4px solid #dc2626; }
-
-        .filter-btn {
-            padding: 6px 16px;
-            border-radius: 40px;
-            border: 2px solid var(--border-fresh);
-            background: var(--card-white);
-            font-weight: 600;
-            font-size: 0.75rem;
-            color: var(--stone);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        .filter-btn:hover { border-color: var(--green-main); color: var(--green-main); }
-        .filter-btn.active { background: var(--green-main); border-color: var(--green-main); color: white; }
-
-        .btn-primary-custom {
-            background: var(--green-deep);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 700;
-            transition: all 0.2s;
-            font-size: 0.8rem;
-            font-family: inherit;
-        }
-        .btn-primary-custom:hover { background: #0f553f; transform: translateY(-2px); }
-
-        .btn-outline-custom {
-            background: transparent;
-            color: var(--green-deep);
-            border: 2px solid var(--green-deep);
-            padding: 6px 18px;
-            border-radius: 40px;
-            font-weight: 600;
-            transition: all 0.2s;
-            font-size: 0.8rem;
-            font-family: inherit;
-        }
-        .btn-outline-custom:hover { background: var(--green-deep); color: white; }
-
-        .modal-custom .modal-content {
-            border-radius: 24px;
-            overflow: hidden;
-        }
-        .modal-header-custom {
-            background: linear-gradient(125deg, var(--green-deep), #1e8260);
-            color: white;
-            padding: 1rem 1.8rem;
-            border: none;
-        }
-
-        .card-panel {
-            background: var(--card-glass);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-sm);
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.4rem;
+            border: 1px solid var(--border-fresh);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            z-index: var(--z-dropdown);
+            overflow: visible;
             transition: background 0.4s ease, border-color 0.4s ease;
         }
+        .profile-dropdown.open {
+            display: block !important;
+            animation: dropIn 0.25s ease;
+        }
+        .pd-header {
+            padding: 0.8rem 1rem; border-bottom: 1px solid var(--pd-sep);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .pd-avatar {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .pd-name { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); transition: color 0.4s ease; }
+        .pd-grade { font-size: 0.65rem; color: var(--stone-light); }
+        .pd-links { padding: 0.3rem 0; }
+        .pd-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.55rem 1rem; color: var(--text-secondary); text-decoration: none;
+            font-size: 0.78rem; font-weight: 500; transition: all 0.2s;
+            cursor: pointer; border: none; background: transparent; width: 100%;
+        }
+        .pd-link:hover { background: var(--dropdown-link-hover); color: var(--dropdown-link-hover-text); }
+        .pd-link i { width: 18px; text-align: center; font-size: 0.8rem; color: var(--stone); transition: color 0.2s; }
+        .pd-link:hover i { color: var(--green-main); }
+        .pd-sep { height: 1px; background: var(--pd-sep); margin: 0.3rem 0; transition: background 0.4s ease; }
+        .pd-link.logout { color: var(--coral); }
+        .pd-link.logout i { color: var(--coral); }
+        .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
 
-        .section-title {
-            font-size: 0.88rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-            transition: color 0.4s ease;
+        /* ===== GREETING ===== */
+        .greeting-banner {
+            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+            border-radius: var(--radius-xl); padding: 1.4rem 1.8rem;
+            margin-bottom: 1.6rem; position: relative; overflow: hidden;
+            color: white; box-shadow: var(--shadow-lg);
         }
-        .section-title i { color: var(--green-main); margin-right: 8px; }
-
-        .form-control-custom {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1.5px solid var(--border-fresh);
-            transition: all 0.2s;
-            font-size: 0.85rem;
-            background: var(--input-bg);
-            color: var(--text-primary);
-            font-family: inherit;
+        .greeting-banner::before {
+            content: ''; position: absolute; top: -40%; right: -8%;
+            width: 280px; height: 280px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(232,168,56,0.18), transparent 65%);
+            animation: glowShift 9s ease-in-out infinite alternate;
         }
-        .form-control-custom:focus {
-            outline: none;
-            border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.10);
+        .greeting-banner::after {
+            content: ''; position: absolute; bottom: -25%; left: 18%;
+            width: 180px; height: 180px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent 60%);
+            animation: glowShift 12s ease-in-out infinite alternate-reverse;
         }
-        select.form-control-custom {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237f9e92' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
+        @keyframes glowShift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(18px, -12px) scale(1.08); }
         }
-
-        /* ===== STAT BOXES - Like Picture 1 ===== */
-        .stat-box {
-            text-align: center;
-            border-radius: 16px;
-            padding: 0.8rem;
+        .greeting-banner h1 {
+            font-size: 1.25rem; font-weight: 800; margin-bottom: 0.2rem;
+            position: relative; z-index: 1; letter-spacing: -0.5px;
+        }
+        .greeting-banner h1 em { font-style: normal; color: var(--gold-warm); }
+        .greeting-banner p {
+            font-size: 0.82rem; opacity: 0.75; margin: 0;
+            position: relative; z-index: 1; max-width: 500px;
+        }
+        .greeting-date {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--greeting-overlay); backdrop-filter: blur(10px);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.68rem;
+            font-weight: 600; margin-top: 0.5rem; position: relative; z-index: 1;
+            border: 1px solid rgba(255,255,255,0.08);
             transition: background 0.4s ease;
         }
-        .stat-box .stat-number {
-            font-size: 1.8rem;
-            font-weight: 900;
-            line-height: 1.2;
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; margin-bottom: 1.6rem;
         }
-        .stat-box .stat-label {
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
+        .stat-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg); padding: 1rem 1.2rem;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
         }
-        .stat-box:hover {
-            transform: translateY(-2px);
-            transition: transform 0.2s;
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            border-radius: 3px 3px 0 0; opacity: 0; transition: opacity 0.35s;
         }
-        .stat-box.pending-box {
-            background: #fef3c7;
+        .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
+        .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
+        .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
+        .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--coral), #f08070); }
+        .stat-card:hover {
+            transform: translateY(-3px); border-color: var(--green-main);
+            box-shadow: var(--shadow-lg);
         }
-        .stat-box.pending-box .stat-number {
-            color: #b45309;
+        .stat-card:hover::before { opacity: 1; }
+        .stat-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.6rem;
         }
-        .stat-box.pending-box .stat-label {
-            color: #b45309;
+        .stat-header span {
+            font-size: 0.58rem; text-transform: uppercase; font-weight: 700;
+            letter-spacing: 1px; color: var(--stone); transition: color 0.4s ease;
         }
-        .stat-box.resolved-box {
-            background: #d1fae5;
+        .stat-icon {
+            width: 34px; height: 34px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; transition: all 0.35s ease;
         }
-        .stat-box.resolved-box .stat-number {
-            color: #065f46;
+        .stat-card:nth-child(1) .stat-icon { background: var(--green-soft); color: var(--green-main); }
+        .stat-card:nth-child(2) .stat-icon { background: var(--blue-soft); color: var(--blue); }
+        .stat-card:nth-child(3) .stat-icon { background: var(--gold-light); color: #c48a20; }
+        .stat-card:nth-child(4) .stat-icon { background: var(--coral-soft); color: var(--coral); }
+        .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-3deg); }
+        .stat-value {
+            font-size: 1.7rem; font-weight: 900; color: var(--text-primary);
+            margin-bottom: 2px; letter-spacing: -1px; line-height: 1.1;
+            transition: color 0.4s ease;
         }
-        .stat-box.resolved-box .stat-label {
-            color: #065f46;
+        .stat-label { color: var(--stone-light); font-size: 0.65rem; font-weight: 500; transition: color 0.4s ease; }
+        .stat-progress {
+            height: 4px; background: var(--chart-grid); border-radius: 10px;
+            overflow: hidden; margin-top: 8px; transition: background 0.4s ease;
         }
-        .stat-box.total-box {
-            background: #e5e7eb;
+        .stat-progress-fill {
+            height: 100%; border-radius: 10px; width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .stat-box.total-box .stat-number {
-            color: #4b5563;
+        .stat-card:nth-child(1) .stat-progress-fill { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
+        .stat-card:nth-child(2) .stat-progress-fill { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
+        .stat-card:nth-child(3) .stat-progress-fill { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
+        .stat-card:nth-child(4) .stat-progress-fill { background: linear-gradient(90deg, var(--coral), #f08070); }
+
+        /* ===== ACTION CARDS ===== */
+        .action-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1.2rem; margin-bottom: 1.6rem;
         }
-        .stat-box.total-box .stat-label {
-            color: #4b5563;
+        .action-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg); padding: 1.4rem 1.2rem;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm); cursor: pointer;
+            text-decoration: none; color: inherit; text-align: center;
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
+        .action-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            opacity: 0; transition: opacity 0.35s;
+        }
+        .action-card:nth-child(1)::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
+        .action-card:nth-child(2)::before { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
+        .action-card:hover {
+            transform: translateY(-4px); border-color: var(--green-main);
+            box-shadow: var(--shadow-xl);
+        }
+        .action-card:hover::before { opacity: 1; }
+        .action-icon {
+            width: 56px; height: 56px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 0.7rem; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .action-card:nth-child(1) .action-icon { background: linear-gradient(135deg, var(--green-soft), #c8e8da); }
+        .action-card:nth-child(2) .action-icon { background: linear-gradient(135deg, var(--gold-light), #f5ddb0); }
+        .action-icon i { font-size: 1.4rem; transition: all 0.4s; }
+        .action-card:nth-child(1) .action-icon i { color: var(--green-main); }
+        .action-card:nth-child(2) .action-icon i { color: #c48a20; }
+        .action-card:hover .action-icon {
+            transform: scale(1.08) rotate(-4deg); box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .action-card:nth-child(1):hover .action-icon { background: linear-gradient(135deg, var(--green-main), var(--green-light)); }
+        .action-card:nth-child(1):hover .action-icon i { color: white; }
+        .action-card:nth-child(2):hover .action-icon { background: linear-gradient(135deg, var(--gold-warm), #f0c060); }
+        .action-card:nth-child(2):hover .action-icon i { color: white; }
+        .action-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; color: var(--text-primary); transition: color 0.4s ease; }
+        .action-card p { color: var(--stone); font-size: 0.75rem; margin: 0; line-height: 1.5; }
+        .action-arrow {
+            display: inline-flex; align-items: center; gap: 5px;
+            margin-top: 8px; color: var(--green-main); font-size: 0.75rem; font-weight: 600;
+            opacity: 0; transform: translateY(5px); transition: all 0.35s ease;
+        }
+        .action-card:hover .action-arrow { opacity: 1; transform: translateY(0); }
+        .action-arrow i { transition: transform 0.3s; }
+        .action-card:hover .action-arrow i { transform: translateX(3px); }
+
+        /* ===== TICKETS PANEL ===== */
+        .ticket-panel {
+            background: var(--card-glass);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg); border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm); padding: 1.2rem 1.3rem;
+            margin-bottom: 1.6rem;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        .panel-title {
+            font-size: 0.88rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--text-primary);
+            transition: color 0.4s ease;
+        }
+        .panel-title i { color: var(--green-main); margin-right: 6px; font-size: 0.8rem; }
+
+        .ticket-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 0.6rem; margin-bottom: 0.8rem;
+        }
+        .ticket-stat-box {
+            text-align: center; padding: 0.5rem; border-radius: var(--radius-sm);
+            transition: transform 0.2s, background 0.4s ease;
+        }
+        .ticket-stat-box:hover { transform: translateY(-2px); }
+        .ticket-stat-box:nth-child(1) { background: var(--gold-light); }
+        .ticket-stat-box:nth-child(2) { background: var(--green-soft); }
+        .ticket-stat-box:nth-child(3) { background: var(--chart-grid); }
+        .ticket-stat-box .ts-val { font-size: 1.3rem; font-weight: 900; line-height: 1.2; }
+        .ticket-stat-box:nth-child(1) .ts-val { color: #b45309; }
+        .ticket-stat-box:nth-child(2) .ts-val { color: var(--green-deep); }
+        .ticket-stat-box:nth-child(3) .ts-val { color: var(--text-secondary); }
+        .ticket-stat-box .ts-lbl {
+            font-size: 0.58rem; color: var(--stone); font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .ticket-row {
+            padding: 0.5rem 0; border-bottom: 1px solid var(--border-fresh);
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.2s;
+        }
+        .ticket-row:last-child { border-bottom: none; }
+        .ticket-row:hover { padding-left: 0.4rem; }
+        .ticket-row-subject { font-weight: 600; font-size: 0.8rem; color: var(--text-primary); transition: color 0.4s ease; }
+        .ticket-row-student { font-size: 0.65rem; color: var(--stone-light); }
+        .ticket-status {
+            padding: 2px 8px; border-radius: 20px;
+            font-size: 0.55rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .ticket-status.pending { background: var(--gold-light); color: #b45309; }
+        .ticket-status.resolved { background: var(--green-soft); color: var(--green-deep); }
+
+        .btn-go {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--green-deep); color: white; border: none;
+            padding: 7px 16px; border-radius: 30px; font-weight: 700;
+            font-size: 0.75rem; text-decoration: none; margin-top: 0.5rem;
+            transition: all 0.25s ease; cursor: pointer;
+        }
+        .btn-go:hover { background: #0f4a38; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+        /* ===== RECENT SUBMISSIONS ===== */
+        .submissions-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg); border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm); overflow: hidden;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        .sub-item {
+            padding: 0.6rem 1.2rem; border-bottom: 1px solid var(--border-fresh);
+            transition: all 0.2s; cursor: default;
+        }
+        .sub-item:last-child { border-bottom: none; }
+        .sub-item:hover { background: rgba(31,138,100,0.03); }
+        .sub-item-inner {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .sub-name { font-weight: 600; font-size: 0.8rem; color: var(--text-primary); transition: color 0.4s ease; }
+        .sub-activity { font-size: 0.68rem; color: var(--stone-light); margin-top: 2px; }
+        .sub-score {
+            font-size: 0.7rem; font-weight: 700; padding: 2px 10px;
+            border-radius: 20px; white-space: nowrap;
+        }
+        .sub-score.pass { background: var(--green-soft); color: var(--green-deep); }
+        .sub-score.fail { background: var(--gold-light); color: #9a7020; }
+        .sub-time { font-size: 0.62rem; color: var(--stone-light); margin-top: 4px; }
+
+        .empty-state {
+            text-align: center; padding: 1.5rem 1rem; color: var(--stone-light);
+        }
+        .empty-state i { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; color: var(--border-fresh); }
+        .empty-state p { font-size: 0.8rem; margin: 0; }
 
         /* ===== TOAST ===== */
         .toast-box {
@@ -801,6 +866,13 @@
         .e9 { animation-delay: 0.45s; }
 
         /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .ticket-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 992px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .action-row { grid-template-columns: 1fr; }
+        }
         @media (max-width: 768px) {
             .sidebar { 
                 width: 280px;
@@ -831,25 +903,26 @@
             .main-content { margin-left: 0; padding: 14px; }
             .main-content.shifted { margin-left: 0; }
             
-            .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
+            .greeting-banner { padding: 1.2rem; }
+            .greeting-banner h1 { font-size: 1.1rem; }
+            .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); flex-wrap: wrap; }
             .top-search input { width: 120px; }
             .top-search input:focus { width: 150px; }
             .profile-trigger-info { display: none; }
             .notif-dropdown { width: 300px; right: -50px; }
             .profile-dropdown { right: -50px; min-width: 190px; }
-            .stat-box .stat-number { font-size: 1.4rem; }
         }
         @media (max-width: 576px) {
             .main-content { padding: 10px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 1.4rem; }
             .top-bar { flex-wrap: wrap; gap: 6px; }
             .top-bar-right { margin-left: auto; flex-wrap: wrap; }
             .top-search { order: 10; width: 100%; }
             .top-search input { width: 100% !important; }
             .notif-dropdown { width: 270px; right: -70px; }
             .profile-dropdown { right: -70px; min-width: 170px; }
-            .card-panel { padding: 1rem; }
-            .ticket-card { padding: 0.8rem 1rem; }
-            .stat-box .stat-number { font-size: 1.2rem; }
+            .ticket-stats { grid-template-columns: 1fr 1fr; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -894,7 +967,7 @@
         <nav class="sidebar-nav">
             <div class="nav-section-label">Overview</div>
             <div class="nav-item">
-                <a href="/teacher_dashboard" class="nav-link-custom">
+                <a href="/teacher_dashboard" class="nav-link-custom active" aria-current="page">
                     <i class="fas fa-th-large"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
@@ -920,7 +993,7 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="/teacher_tickets" class="nav-link-custom active" aria-current="page">
+                <a href="/teacher_tickets" class="nav-link-custom">
                     <i class="fas fa-ticket-alt"></i>
                     <span class="nav-text">Tickets</span>
                     <span class="nav-badge" id="ticketNavBadge" style="display:none;" title="Unresolved tickets"></span>
@@ -960,14 +1033,14 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div>
-                    <p class="page-title"><i class="fas fa-ticket-alt"></i>Support Tickets</p>
+                    <p class="page-title"><i class="fas fa-th-large"></i>Dashboard</p>
                     <p class="page-subtitle">Welcome back, <strong>ICT Teacher</strong></p>
                 </div>
             </div>
             <div class="top-bar-right">
                 <div class="top-search">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search tickets..." aria-label="Search tickets" id="searchInput" onkeyup="searchTickets(this.value)">
+                    <input type="text" placeholder="Search students, activities..." aria-label="Search">
                 </div>
 
                 <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode">
@@ -1024,75 +1097,127 @@
             </div>
         </div>
 
-        <!-- Statistics - Like Picture 1 with colored boxes -->
-        <div class="card-panel fu e2">
-            <div class="section-title"><i class="fas fa-chart-simple"></i>Ticket Overview</div>
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem;">
-                <div class="stat-box pending-box">
-                    <div class="stat-number" id="statPending">0</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-                <div class="stat-box resolved-box">
-                    <div class="stat-number" id="statResolved">0</div>
-                    <div class="stat-label">Resolved</div>
-                </div>
-                <div class="stat-box total-box">
-                    <div class="stat-number" id="statTotal">0</div>
-                    <div class="stat-label">Total</div>
-                </div>
+        <!-- GREETING BANNER -->
+        <div class="greeting-banner fu e2">
+            <h1>Good <span id="greetTime">Morning</span>, <em>ICT Teacher</em></h1>
+            <p>You have <strong id="greetPending">0</strong> pending tickets and <strong id="greetSubs">0</strong> recent submissions to review today.</p>
+            <div class="greeting-date">
+                <i class="fas fa-calendar-day"></i>
+                <span id="greetDate"></span>
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="card-panel fu e3">
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                <button class="filter-btn active" data-filter="all" onclick="filterTickets('all')">All</button>
-                <button class="filter-btn" data-filter="pending" onclick="filterTickets('pending')">Pending</button>
-                <button class="filter-btn" data-filter="resolved" onclick="filterTickets('resolved')">Resolved</button>
-                <button class="filter-btn" data-filter="closed" onclick="filterTickets('closed')">Closed</button>
-                <button style="margin-left:auto;" class="btn-primary-custom" onclick="refreshTickets()">
-                    <i class="fas fa-sync-alt me-1"></i> Refresh
-                </button>
+        <!-- STATS GRID -->
+        <div class="stats-grid fu e3">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Total Students</span>
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-value" data-target="0" id="statStudents">0</div>
+                <div class="stat-label">Active this block</div>
+                <div class="stat-progress"><div class="stat-progress-fill" data-width="100%"></div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Avg. Score</span>
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="stat-value" data-target="0" id="statAvg">0%</div>
+                <div class="stat-label">Across all activities</div>
+                <div class="stat-progress"><div class="stat-progress-fill" data-width="0%"></div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Pending</span>
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-value" data-target="0" id="statPending">0</div>
+                <div class="stat-label">Tickets to resolve</div>
+                <div class="stat-progress"><div class="stat-progress-fill" data-width="0%"></div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Activities</span>
+                    <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+                <div class="stat-value" data-target="0" id="statActivities">0</div>
+                <div class="stat-label">Created this block</div>
+                <div class="stat-progress"><div class="stat-progress-fill" data-width="0%"></div></div>
             </div>
         </div>
 
-        <!-- Ticket List -->
-        <div class="card-panel fu e4">
-            <div class="section-title"><i class="fas fa-list"></i>Tickets <span id="ticketCount" style="font-size:0.7rem; color:var(--stone); font-weight:400;"></span></div>
-            <div id="ticketList">
-                <p style="font-size:0.85rem; color:var(--stone); text-align:center; padding:2rem 0;">
-                    <i class="fas fa-spinner fa-spin me-2"></i>Loading tickets...
-                </p>
+        <!-- ACTION CARDS -->
+        <div class="action-row fu e4">
+            <a href="/teacher_scores" class="action-card">
+                <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
+                <h3>Record Scores</h3>
+                <p>Submit and update student grades for any activity</p>
+                <span class="action-arrow">Go to Scores <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="/teacher_tickets" class="action-card">
+                <div class="action-icon"><i class="fas fa-ticket-alt"></i></div>
+                <h3>View Tickets</h3>
+                <p>Check and respond to student concerns and requests</p>
+                <span class="action-arrow">Go to Tickets <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+
+        <!-- TICKETS PANEL -->
+        <div class="ticket-panel fu e5">
+            <div class="panel-title"><i class="fas fa-ticket-alt"></i>Recent Tickets</div>
+            <div class="ticket-stats" id="ticketStats">
+                <div class="ticket-stat-box"><div class="ts-val" id="tsPending">0</div><div class="ts-lbl">Pending</div></div>
+                <div class="ticket-stat-box"><div class="ts-val" id="tsResolved">0</div><div class="ts-lbl">Resolved</div></div>
+                <div class="ticket-stat-box"><div class="ts-val" id="tsTotal">0</div><div class="ts-lbl">Total</div></div>
             </div>
+            <div id="ticketRows"></div>
+            <a href="/teacher_tickets" class="btn-go"><i class="fas fa-arrow-right"></i> View All Tickets</a>
+        </div>
+
+        <!-- RECENT SUBMISSIONS -->
+        <div class="submissions-card fu e6">
+            <div class="chart-head"><h6><i class="fas fa-paper-plane"></i>Recent Submissions</h6></div>
+            <div id="submissionList"></div>
         </div>
     </main>
-</div>
-
-<!-- Ticket Detail Modal -->
-<div class="modal fade modal-custom" id="ticketModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header-custom">
-                <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Ticket Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" style="padding:1.8rem; background:var(--card-white);">
-                <div id="ticketDetailContent">
-                    <p>Loading...</p>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast-box" id="toastBox"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ===== DEMO TICKET DATA =====
-// Ito ay temporary lang para makita mo ang numbers
-// Kapag may actual data na, automatic itong papalitan
+// ===== DASHBOARD DATA WITH FALLBACK =====
+const dashboardData = (() => {
+    try {
+        const data = typeof dashboard_data !== 'undefined' ? dashboard_data : {};
+        return {
+            total_students: data.total_students || 0,
+            average_score: data.average_score || 0,
+            pending_tickets: data.pending_tickets || 0,
+            pending_submissions: data.pending_submissions || 0,
+            total_activities: data.total_activities || 0,
+            notifications: data.notifications || [],
+            recent_tickets: data.recent_tickets || [],
+            recent_submissions: data.recent_submissions || [],
+            score_distribution: data.score_distribution || { labels: ['0-59','60-69','70-79','80-89','90-100'], data: [0,0,0,0,0] },
+            completion_overview: data.completion_overview || { labels: ['Completed','Pending','Not Started'], data: [0,0,0] }
+        };
+    } catch(e) {
+        console.warn('Dashboard data not available, using defaults');
+        return {
+            total_students: 0,
+            average_score: 0,
+            pending_tickets: 0,
+            total_activities: 0,
+            notifications: [],
+            recent_tickets: [],
+            recent_submissions: [],
+            score_distribution: { labels: ['0-59','60-69','70-79','80-89','90-100'], data: [0,0,0,0,0] },
+            completion_overview: { labels: ['Completed','Pending','Not Started'], data: [0,0,0] }
+        };
+    }
+})();
 
 // ===== THEME =====
 function toggleTheme() {
@@ -1135,6 +1260,15 @@ function expandSidebar() {
     }
 }
 
+// ===== GREETING =====
+(function() {
+    const h = new Date().getHours();
+    const g = h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening';
+    document.getElementById('greetTime').textContent = g;
+    const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById('greetDate').textContent = new Date().toLocaleDateString('en-US', opts);
+})();
+
 // ===== DROPDOWNS =====
 function toggleNotif() {
     const dd = document.getElementById('notifDropdown');
@@ -1167,29 +1301,7 @@ document.addEventListener('click', function(e) {
 
 // ===== NOTIFICATIONS =====
 let notifications = [];
-function renderNotifications() {
-    const list = document.getElementById('notifList');
-    const dot = document.getElementById('notifDot');
-    if (!notifications.length) {
-        list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>';
-        dot.classList.remove('show');
-        return;
-    }
-    const unread = notifications.filter(n => !n.read).length;
-    if (unread > 0) dot.classList.add('show'); else dot.classList.remove('show');
-    list.innerHTML = notifications.slice(0, 8).map(n => `
-        <div class="nd-item${n.read ? '' : ' unread'}">
-            <div class="nd-title">${esc(n.title)}${n.read ? '' : '<span class="nd-tag">New</span>'}</div>
-            <div class="nd-msg">${esc(n.message)}</div>
-            <div class="nd-time">${esc(n.time_ago || '')}</div>
-        </div>
-    `).join('');
-}
-function markAllRead() {
-    notifications.forEach(n => n.read = true);
-    renderNotifications();
-    showToast('All notifications marked as read');
-}
+
 function loadNotifications() {
     fetch('/get_notifications')
         .then(r => r.json())
@@ -1199,288 +1311,191 @@ function loadNotifications() {
                 renderNotifications();
             }
         })
-        .catch(() => {});
-}
-loadNotifications();
-
-// ===== TICKET FUNCTIONS =====
-let currentFilter = 'all';
-let allTickets = [];
-
-// ===== LOAD TICKET STATS - WITH DEMO FALLBACK =====
-function loadTicketStats() {
-    // MAGINGAY NG DEMO DATA MUNA PARA MAKITA MO ANG NUMBERS
-    // ITO AY PARA LANG SA TESTING - MAAARI MONG I-REMOVE KAPAG MAY ACTUAL DATA NA
-    console.log('Loading ticket stats with demo data...');
-    
-    // Una, subukan kumuha ng totoong data
-    fetch('/get_ticket_count')
-        .then(r => r.json())
-        .then(d => {
-            console.log('Server response:', d);
-            
-            if (d && d.success) {
-                let pending = 0, resolved = 0, total = 0;
-                
-                if (d.counts) {
-                    pending = d.counts.pending || 0;
-                    resolved = d.counts.resolved || 0;
-                    total = d.counts.total || 0;
-                } else {
-                    pending = d.pending || 0;
-                    resolved = d.resolved || 0;
-                    total = d.total || 0;
-                }
-                
-                // Kung may data, gamitin
-                if (total > 0) {
-                    document.getElementById('statPending').textContent = pending;
-                    document.getElementById('statResolved').textContent = resolved;
-                    document.getElementById('statTotal').textContent = total;
-                    
-                    const badge = document.getElementById('ticketNavBadge');
-                    if (badge) {
-                        badge.style.display = pending > 0 ? 'block' : 'none';
-                        if (pending > 0) badge.textContent = pending > 9 ? '9+' : pending;
-                    }
-                    return;
-                }
-            }
-            
-            // KUNG WALANG DATA, GAMITIN ANG DEMO
-            console.log('No data found, using demo numbers');
-            document.getElementById('statPending').textContent = '3';
-            document.getElementById('statResolved').textContent = '2';
-            document.getElementById('statTotal').textContent = '6';
-            
-            // Ipakita ang badge
-            const badge = document.getElementById('ticketNavBadge');
-            if (badge) {
-                badge.style.display = 'block';
-                badge.textContent = '3';
-            }
-        })
-        .catch(err => {
-            console.error('Error loading stats:', err);
-            // GAMITIN ANG DEMO DATA KUNG MAY ERROR
-            document.getElementById('statPending').textContent = '3';
-            document.getElementById('statResolved').textContent = '2';
-            document.getElementById('statTotal').textContent = '6';
+        .catch(() => {
+            console.warn('Failed to load notifications from server');
         });
 }
 
-function loadTickets(filter) {
-    // MAGINGAY NG DEMO TICKETS MUNA
-    const demoData = [
-        { id: 1, subject: 'Connection test ticket', status: 'pending', priority: 'medium', student_name: 'carylllybanez', message: 'This is a test ticket for connection testing.', created_at: '2026-06-29 02:30 PM' },
-        { id: 2, subject: 'Connection test ticket', status: 'pending', priority: 'high', student_name: 'carylllybanez', message: 'Another test ticket.', created_at: '2026-06-29 02:25 PM' },
-        { id: 3, subject: 'Blockly Blocks Not Loading', status: 'pending', priority: 'high', student_name: 'carylllybanez', message: 'The blocks are not showing up in the playground.', created_at: '2026-06-29 02:20 PM' },
-        { id: 4, subject: 'Blockly Blocks Not Loading', status: 'resolved', priority: 'medium', student_name: 'carylllybanez', message: 'Fixed the block loading issue.', created_at: '2026-06-29 02:15 PM' },
-        { id: 5, subject: 'nathaniel generalao', status: 'resolved', priority: 'low', student_name: 'nathaniel', message: 'Need help with the activity.', created_at: '2026-06-29 02:10 PM' },
-        { id: 6, subject: 'Activity not saving', status: 'closed', priority: 'medium', student_name: 'Student Test', message: 'My activity progress is not saving.', created_at: '2026-06-29 02:05 PM' }
-    ];
-    
-    // Subukan kumuha ng totoong data
-    const url = filter && filter !== 'all' ? '/get_tickets?status=' + filter : '/get_tickets';
-    
-    fetch(url)
-        .then(r => r.json())
-        .then(d => {
-            if (d.success && d.tickets && d.tickets.length > 0) {
-                allTickets = d.tickets;
-                renderTickets(allTickets);
-                const countEl = document.getElementById('ticketCount');
-                if (countEl) countEl.textContent = `(${allTickets.length} tickets)`;
-                return;
-            }
-            // KUNG WALANG DATA, GAMITIN ANG DEMO
-            console.log('No tickets found, using demo tickets');
-            allTickets = demoData;
-            renderTickets(allTickets);
-            const countEl = document.getElementById('ticketCount');
-            if (countEl) countEl.textContent = `(${allTickets.length} tickets)`;
-        })
-        .catch(err => {
-            console.error('Error loading tickets:', err);
-            // GAMITIN ANG DEMO TICKETS
-            allTickets = demoData;
-            renderTickets(allTickets);
-            const countEl = document.getElementById('ticketCount');
-            if (countEl) countEl.textContent = `(${allTickets.length} tickets)`;
-        });
-}
-
-function renderTickets(tickets) {
-    const list = document.getElementById('ticketList');
-    
-    if (!tickets || tickets.length === 0) {
-        list.innerHTML = `
-            <div class="empty-state" style="text-align:center; padding:2rem 0;">
-                <i class="fas fa-inbox" style="font-size:2.5rem; color:var(--border-fresh); display:block; margin-bottom:0.8rem;"></i>
-                <p style="font-size:0.85rem; color:var(--stone);">No tickets found.</p>
-            </div>
-        `;
+function renderNotifications() {
+    const list = document.getElementById('notifList');
+    const dot = document.getElementById('notifDot');
+    if (!notifications || !notifications.length) {
+        list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>';
+        dot.classList.remove('show');
         return;
     }
-
-    list.innerHTML = tickets.map(t => {
-        const statusClass = t.status || 'pending';
-        const priorityClass = t.priority || 'medium';
-        const statusLabel = statusClass.replace('_', ' ').toUpperCase();
-        const highPriority = t.priority === 'high' ? 'high-priority' : '';
-        const studentName = t.student_full_name || t.student_name || t.student_username || 'Student';
-        
+    const unread = notifications.filter(n => !n.is_read && !n.read).length;
+    if (unread > 0) dot.classList.add('show'); else dot.classList.remove('show');
+    list.innerHTML = notifications.slice(0, 8).map(n => {
+        const isRead = n.is_read || n.read;
         return `
-            <div class="ticket-card ${highPriority}" onclick="viewTicket(${t.id})">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
-                    <div style="flex:1;">
-                        <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary);">
-                            ${esc(t.subject)}
-                        </div>
-                        <div style="font-size:0.8rem; color:var(--stone); margin-top:4px;">
-                            <i class="fas fa-user me-1"></i>${esc(studentName)}
-                        </div>
-                        <div style="font-size:0.75rem; color:var(--stone); margin-top:2px;">
-                            ${esc(t.message ? t.message.substring(0, 100) : '')}${t.message && t.message.length > 100 ? '...' : ''}
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0;">
-                        <span class="ticket-status ${statusClass}">${statusLabel}</span>
-                        <span class="ticket-priority ${priorityClass}">${t.priority || 'medium'}</span>
-                    </div>
-                </div>
-                <div style="font-size:0.65rem; color:var(--stone-light); margin-top:6px;">
-                    <i class="far fa-clock me-1"></i>${esc(t.created_at || '')}
-                </div>
+            <div class="nd-item${isRead ? '' : ' unread'}">
+                <div class="nd-title">${esc(n.title)}${isRead ? '' : '<span class="nd-tag">New</span>'}</div>
+                <div class="nd-msg">${esc(n.message)}</div>
+                <div class="nd-time">${esc(n.created_at || n.time_ago || '')}</div>
             </div>
         `;
     }).join('');
 }
 
-function viewTicket(ticketId) {
-    const ticket = allTickets.find(t => t.id === ticketId);
-    if (!ticket) return;
-
-    const statusClass = ticket.status || 'pending';
-    const priorityClass = ticket.priority || 'medium';
-    const statusLabel = statusClass.replace('_', ' ').toUpperCase();
-    const studentName = ticket.student_full_name || ticket.student_name || ticket.student_username || 'Student';
-
-    const content = document.getElementById('ticketDetailContent');
-    content.innerHTML = `
-        <div style="margin-bottom:1.2rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                <h5 style="font-weight:700; color:var(--text-primary); margin:0;">${esc(ticket.subject)}</h5>
-                <div style="display:flex; gap:6px;">
-                    <span class="ticket-status ${statusClass}">${statusLabel}</span>
-                    <span class="ticket-priority ${priorityClass}">${ticket.priority || 'medium'}</span>
-                </div>
-            </div>
-            <div style="font-size:0.8rem; color:var(--stone); margin-top:6px;">
-                <i class="fas fa-user me-1"></i>${esc(studentName)}
-                <span style="margin-left:12px;"><i class="far fa-clock me-1"></i>${esc(ticket.created_at || '')}</span>
-            </div>
-        </div>
-
-        <div style="background:var(--green-soft); border-radius:12px; padding:1rem; margin-bottom:1.2rem;">
-            <div style="font-weight:600; font-size:0.85rem; color:var(--text-primary); margin-bottom:4px;">Message:</div>
-            <div style="font-size:0.9rem; color:var(--text-primary); white-space:pre-wrap;">${esc(ticket.message)}</div>
-        </div>
-
-        <hr style="border-color:var(--border-fresh);">
-
-        <form id="ticketResponseForm">
-            <div class="mb-3">
-                <label style="font-weight:600; font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Update Status</label>
-                <select class="form-control-custom" id="ticketStatusSelect">
-                    <option value="pending" ${ticket.status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                    <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Resolved</option>
-                    <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>Closed</option>
-                </select>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="button" class="btn-primary-custom" onclick="updateTicket(${ticket.id})">
-                    <i class="fas fa-save me-2"></i>Update Ticket
-                </button>
-                <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">
-                    Close
-                </button>
-            </div>
-        </form>
-    `;
-
-    const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
-    modal.show();
+function markAllRead() {
+    fetch('/mark_all_notifications_read', { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                notifications.forEach(n => { n.is_read = true; n.read = true; });
+                renderNotifications();
+                showToast('All notifications marked as read');
+            }
+        })
+        .catch(() => {
+            showToast('Failed to mark all as read', 'error');
+        });
 }
 
-function updateTicket(ticketId) {
-    const status = document.getElementById('ticketStatusSelect').value;
+// Load notifications initially
+loadNotifications();
 
-    fetch('/update_ticket', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticket_id: ticketId, status })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            showToast('Ticket updated successfully!');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
-            if (modal) modal.hide();
-            loadTickets(currentFilter);
-            loadTicketStats();
-            loadNotifications();
-        } else {
-            showToast('Error: ' + (d.message || 'Failed to update'), 'error');
+// ===== STATS =====
+function animateValue(el, target, suffix) {
+    suffix = suffix || '';
+    const isFloat = String(target).includes('.');
+    let start = 0;
+    const dur = 900, step = 16, inc = target / (dur / step);
+    const timer = setInterval(() => {
+        start += inc;
+        if (start >= target) { start = target; clearInterval(timer); }
+        el.textContent = (isFloat ? start.toFixed(1) : Math.floor(start)) + suffix;
+    }, step);
+}
+(function() {
+    const d = dashboardData;
+    const students = d.total_students || 0;
+    const avg = d.average_score != null ? d.average_score : 0;
+    const pending = d.pending_tickets || 0;
+    const activities = d.total_activities || 0;
+
+    animateValue(document.getElementById('statStudents'), students);
+    animateValue(document.getElementById('statAvg'), avg, '%');
+    animateValue(document.getElementById('statPending'), pending);
+    animateValue(document.getElementById('statActivities'), activities);
+
+    document.getElementById('greetPending').textContent = pending;
+    document.getElementById('greetSubs').textContent = d.recent_submissions ? d.recent_submissions.length : 0;
+
+    setTimeout(() => {
+        const fills = document.querySelectorAll('.stat-progress-fill');
+        if (fills[0]) fills[0].style.width = '100%';
+        if (fills[1]) fills[1].style.width = Math.min(avg, 100) + '%';
+        if (fills[2]) fills[2].style.width = (pending > 0 ? Math.min((pending / Math.max(students, 1)) * 100, 100) : 0) + '%';
+        if (fills[3]) fills[3].style.width = (activities > 0 ? Math.min((activities / Math.max(students * 3, 1)) * 100, 100) : 0) + '%';
+    }, 300);
+})();
+
+// ===== TICKETS =====
+async function loadDashboardTickets() {
+    const badge = document.getElementById('ticketNavBadge');
+    const container = document.getElementById('ticketRows');
+    const tsPending = document.getElementById('tsPending');
+    const tsResolved = document.getElementById('tsResolved');
+    const tsTotal = document.getElementById('tsTotal');
+
+    let tickets = dashboardData.recent_tickets || [];
+    let countData = null;
+
+    try {
+        const [countResp, ticketsResp] = await Promise.all([
+            fetch('/get_ticket_count'),
+            fetch('/get_tickets')
+        ]);
+        const [countJson, ticketsJson] = await Promise.all([countResp.json(), ticketsResp.json()]);
+
+        if (countJson && countJson.success) {
+            countData = countJson;
+            tsPending.textContent = countData.pending || 0;
+            tsResolved.textContent = countData.resolved || 0;
+            tsTotal.textContent = countData.total || 0;
+            if (countData.pending > 0) {
+                badge.style.display = 'block';
+                badge.textContent = countData.pending > 9 ? '9+' : countData.pending;
+            } else {
+                badge.style.display = 'none';
+            }
         }
-    })
-    .catch(err => showToast('Error updating ticket: ' + (err.message||''), 'error'));
-}
 
-function filterTickets(filter) {
-    currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === filter);
+        if (ticketsJson && ticketsJson.success) {
+            tickets = ticketsJson.tickets || tickets;
+        }
+    } catch (err) {
+        console.warn('Unable to load dashboard tickets:', err);
+    }
+
+    const pending = tickets.filter(t => t.status === 'pending').length;
+    const resolved = tickets.filter(t => t.status === 'resolved').length;
+
+    if (!countData) {
+        tsPending.textContent = pending;
+        tsResolved.textContent = resolved;
+        tsTotal.textContent = tickets.length;
+        badge.style.display = pending > 0 ? 'block' : 'none';
+    }
+
+    tickets = tickets.sort((a, b) => {
+        const aDate = a.created_at || a.updated_at || '';
+        const bDate = b.created_at || b.updated_at || '';
+        return bDate.localeCompare(aDate);
     });
-    loadTickets(filter);
-}
-
-function refreshTickets() {
-    loadTickets(currentFilter);
-    loadTicketStats();
-    loadNotifications();
-    showToast('Tickets refreshed!');
-}
-
-function searchTickets(query) {
-    if (!query || query.trim() === '') {
-        loadTickets(currentFilter);
+    if (!tickets.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-ticket-alt"></i><p>No tickets yet</p></div>';
         return;
     }
-    
-    const filtered = allTickets.filter(t => 
-        (t.subject && t.subject.toLowerCase().includes(query.toLowerCase())) ||
-        (t.message && t.message.toLowerCase().includes(query.toLowerCase())) ||
-        (t.student_username && t.student_username.toLowerCase().includes(query.toLowerCase())) ||
-        (t.student_name && t.student_name.toLowerCase().includes(query.toLowerCase()))
-    );
-    renderTickets(filtered);
-    
-    const countEl = document.getElementById('ticketCount');
-    if (countEl) {
-        countEl.textContent = `(${filtered.length} results)`;
-    }
+
+    container.innerHTML = tickets.slice(0, 5).map(t => {
+        const studentLabel = t.student_full_name || t.student_username || t.student_name || 'Student';
+        return `
+            <div class="ticket-row">
+                <div>
+                    <div class="ticket-row-subject">${esc(t.subject || t.title || 'Untitled')}</div>
+                    <div class="ticket-row-student">${esc(studentLabel)}</div>
+                </div>
+                <span class="ticket-status ${t.status}">${statusLabel(t.status)}</span>
+            </div>
+        `;
+    }).join('');
 }
+
+loadDashboardTickets();
+
+// ===== SUBMISSIONS =====
+function renderRecentSubmissions() {
+    const subs = dashboardData.recent_submissions || [];
+    const container = document.getElementById('submissionList');
+    if (!subs.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-paper-plane"></i><p>No recent submissions</p></div>';
+        return;
+    }
+    container.innerHTML = subs.slice(0, 6).map(s => {
+        const score = typeof s.score === 'number' ? s.score : (s.score ? Number(s.score) : 0);
+        const passClass = score >= 75 ? 'pass' : 'fail';
+        return `
+        <div class="sub-item">
+            <div class="sub-item-inner">
+                <div>
+                    <div class="sub-name">${esc(s.student_name || s.student_username || 'Student')}</div>
+                    <div class="sub-activity">${esc(s.activity_name || s.activity_title || 'Activity')}</div>
+                </div>
+                <span class="sub-score ${passClass}">${score}/${s.total_score || 100}</span>
+            </div>
+            <div class="sub-time">${esc(s.submitted_at || s.time_ago || '')}</div>
+        </div>
+    `}).join('');
+}
+
+renderRecentSubmissions();
 
 // ===== HELPERS =====
-function esc(s) { 
-    if (!s) return ''; 
-    const d = document.createElement('div'); 
-    d.textContent = s; 
-    return d.innerHTML; 
-}
-
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function statusLabel(s) { const m = { pending: 'Pending', resolved: 'Resolved' }; return m[s] || s; }
 function showToast(msg, type) {
     const box = document.getElementById('toastBox');
     const el = document.createElement('div');
@@ -1496,44 +1511,137 @@ function showToast(msg, type) {
     }, 3000);
 }
 
-// ===== REAL-TIME POLLING =====
-let statsInterval = null;
-let ticketsInterval = null;
+// ===== CLOSE SIDEBAR ON OVERLAY CLICK (MOBILE) =====
+document.addEventListener('click', function(e) {
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const hamburgerBtn = document.querySelector('.mobile-hamburger');
+        
+        if (sidebar && sidebar.classList.contains('open')) {
+            if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        }
+    }
+});
 
-function startRealtimeUpdates() {
-    if (statsInterval) clearInterval(statsInterval);
-    statsInterval = setInterval(loadTicketStats, 5000);
-    
-    if (ticketsInterval) clearInterval(ticketsInterval);
-    ticketsInterval = setInterval(() => {
-        loadTickets(currentFilter);
-    }, 10000);
-    
-    setInterval(loadNotifications, 30000);
+// ===== FETCH LIVE DASHBOARD DATA FOR TEACHER =====
+async function fetchAndApplyDashboardData() {
+    try {
+        const resp = await fetch('/get_teacher_dashboard_data');
+        const d = await resp.json();
+        if (!d.success) return;
+
+        // Merge into dashboardData (mutate existing object)
+        Object.keys(d).forEach(k => {
+            if (k === 'success') return;
+            dashboardData[k] = d[k];
+        });
+
+        // Update stats
+        animateValue(document.getElementById('statStudents'), dashboardData.total_students || 0);
+        animateValue(document.getElementById('statAvg'), dashboardData.average_score || 0, '%');
+        animateValue(document.getElementById('statPending'), dashboardData.pending_tickets || 0);
+        animateValue(document.getElementById('statActivities'), dashboardData.total_activities || 0);
+        document.getElementById('greetPending').textContent = dashboardData.pending_tickets || 0;
+        document.getElementById('greetSubs').textContent = dashboardData.pending_submissions || (dashboardData.recent_submissions ? dashboardData.recent_submissions.length : 0);
+
+        // Update ticket stats
+        const pending = dashboardData.pending_tickets || 0;
+        document.getElementById('tsPending').textContent = pending;
+        document.getElementById('tsTotal').textContent = (dashboardData.recent_tickets || []).length;
+        
+        // Update nav badge
+        const badge = document.getElementById('ticketNavBadge');
+        if (pending > 0) {
+            badge.style.display = 'block';
+            badge.textContent = pending > 9 ? '9+' : pending;
+        } else {
+            badge.style.display = 'none';
+        }
+
+        // Re-render tickets and submissions
+        loadDashboardTickets();
+        renderRecentSubmissions();
+        
+        // Reload notifications from server (refreshes the bell icon and list)
+        loadNotifications();
+
+        // Backup ticket count in case the dashboard data endpoint missed it
+        try {
+            const countResp = await fetch('/get_ticket_count');
+            const countJson = await countResp.json();
+            if (countJson && countJson.success) {
+                const pending = countJson.pending || 0;
+                document.getElementById('greetPending').textContent = pending;
+                document.getElementById('statPending').textContent = pending;
+                document.getElementById('tsPending').textContent = pending;
+                const badge = document.getElementById('ticketNavBadge');
+                if (badge) {
+                    badge.style.display = pending > 0 ? 'block' : 'none';
+                    if (pending > 0) badge.textContent = pending > 9 ? '9+' : pending;
+                }
+            }
+        } catch (ticketErr) {
+            console.warn('Failed to refresh ticket counts:', ticketErr);
+        }
+    } catch (err) {
+        console.warn('Failed to load teacher dashboard data:', err);
+    }
 }
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Teacher Tickets page loaded');
-    
-    // I-load ang stats at tickets
-    loadTicketStats();
-    loadTickets('all');
-    loadNotifications();
-    startRealtimeUpdates();
+// ===== REAL-TIME POLLING =====
+let lastUpdateTimestamp = '1970-01-01T00:00:00Z';
 
-    document.getElementById('sidebarOverlay').addEventListener('click', function() {
-        if (window.innerWidth <= 768) {
-            document.getElementById('sidebar').classList.remove('open');
-            this.classList.remove('active');
+async function checkForUpdates() {
+    try {
+        const resp = await fetch(`/check_teacher_updates?last_update=${encodeURIComponent(lastUpdateTimestamp)}`);
+        const data = await resp.json();
+        
+        if (data.success && data.has_updates) {
+            // Refresh dashboard data
+            await fetchAndApplyDashboardData();
+            // Update timestamp
+            if (data.last_update) {
+                lastUpdateTimestamp = data.last_update;
+            }
         }
-    });
+        
+        // Update pending count even if no updates
+        if (data.success) {
+            const badge = document.getElementById('ticketNavBadge');
+            if (data.pending_tickets !== undefined) {
+                if (data.pending_tickets > 0) {
+                    badge.style.display = 'block';
+                    badge.textContent = data.pending_tickets > 9 ? '9+' : data.pending_tickets;
+                } else {
+                    badge.style.display = 'none';
+                }
+                document.getElementById('tsPending').textContent = data.pending_tickets || 0;
+            }
+            if (data.pending_submissions !== undefined) {
+                document.getElementById('greetSubs').textContent = data.pending_submissions || 0;
+            }
+        }
+    } catch (err) {
+        console.warn('Error checking for updates:', err);
+    }
+}
+
+// Start polling every 5 seconds for real-time updates
+setInterval(checkForUpdates, 5000);
+
+// Also check when page becomes visible again
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        checkForUpdates();
+    }
 });
 
-window.addEventListener('beforeunload', function() {
-    if (statsInterval) clearInterval(statsInterval);
-    if (ticketsInterval) clearInterval(ticketsInterval);
-});
+// Fetch live data after initial render
+fetchAndApplyDashboardData();
 </script>
 </body>
 </html>

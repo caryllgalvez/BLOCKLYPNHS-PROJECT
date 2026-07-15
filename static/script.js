@@ -162,3 +162,57 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     console.log('Blockly Learning Platform - Development Mode');
     console.log('Available functions: showAlert, makeRequest, exportToCSV, validateForm');
 }
+
+// Load shared dashboard data on DOM ready to sync sidebar badges across pages
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        if (typeof loadSharedDashboardData === 'function') {
+            loadSharedDashboardData();
+        }
+    } catch (e) {
+        console.warn('Error initializing shared dashboard data:', e);
+    }
+});
+
+// Fetch dashboard data (role-aware) and update shared sidebar badges/notifications
+async function loadSharedDashboardData() {
+    try {
+        const d = await makeRequest('/get_dashboard_data');
+        if (!d || !d.success) return;
+
+        // Ticket badge (handles teacher or student payloads)
+        const ticketBadge = document.getElementById('ticketNavBadge');
+        const pending = d.pending_tickets || d.pending || 0;
+        if (ticketBadge) {
+            if (pending > 0) {
+                ticketBadge.style.display = 'block';
+                ticketBadge.textContent = pending > 9 ? '9+' : pending;
+            } else {
+                ticketBadge.style.display = 'none';
+                ticketBadge.textContent = '';
+            }
+        }
+
+        // Notification badge (student-specific notifications)
+        const notifBadge = document.getElementById('notificationBadge');
+        if (notifBadge && Array.isArray(d.notifications)) {
+            const unread = d.notifications.filter(n => !n.is_read).length;
+            if (unread > 0) { notifBadge.classList.add('show'); notifBadge.textContent = unread > 9 ? '9+' : unread; }
+            else { notifBadge.classList.remove('show'); notifBadge.textContent = ''; }
+        }
+        // Student page badge id
+        const studentNotif = document.getElementById('notifBadge');
+        if (studentNotif && Array.isArray(d.notifications)) {
+            const unread2 = d.notifications.filter(n => !n.is_read).length;
+            if (unread2 > 0) { studentNotif.classList.remove('hidden'); studentNotif.textContent = unread2 > 99 ? '99+' : unread2; }
+            else { studentNotif.classList.add('hidden'); studentNotif.textContent = ''; }
+        }
+
+        // Merge into global dashboard_data if present (pages can read it)
+        if (typeof dashboard_data !== 'undefined') {
+            Object.assign(dashboard_data, d);
+        }
+    } catch (err) {
+        console.warn('Failed to load shared dashboard data', err);
+    }
+}

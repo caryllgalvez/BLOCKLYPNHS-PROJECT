@@ -1082,7 +1082,7 @@
                 <div class="stat-label">activities finished</div>
                 <div class="stat-progress"><div class="stat-progress-fill" id="completedBar"></div></div>
             </div>
-            <div class="stat-card fu e4">
+            <div class="stat-card fu e4" style="display: none;">
                 <div class="stat-header"><span>Average Score</span><div class="stat-icon"><i class="fas fa-star"></i></div></div>
                 <div class="stat-value" id="avgScore">0%</div>
                 <div class="stat-label">keep improving</div>
@@ -1547,10 +1547,26 @@
         loadStats(); 
         loadUnreadCount();
         
-        // Set intervals
-        setInterval(loadStats, 30000);
-        setInterval(loadUnreadCount, 30000);
-        setInterval(checkForNewNotifications, 10000); // Check every 10 seconds
+        // Set intervals for real-time updates
+        setInterval(loadStats, 10000);
+        setInterval(loadUnreadCount, 10000);
+        setInterval(checkForNewNotifications, 5000); // Check every 5 seconds
+    });
+
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'student_dashboard_refresh') {
+            loadStats();
+            loadUnreadCount();
+            checkForNewNotifications();
+        }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            loadStats();
+            loadUnreadCount();
+            checkForNewNotifications();
+        }
     });
 </script>
 </body>

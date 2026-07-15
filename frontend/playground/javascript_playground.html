@@ -1174,9 +1174,9 @@
                 console.log = originalConsoleLog;
                 
                 if (consoleOutput.length > 0) {
-                    output += '▶️ Output:\n' + consoleOutput.join('\n');
+                    output += 'Output:\n' + consoleOutput.join('\n');
                 } else {
-                    output += 'ℹ️ No console.log output detected.';
+                    output += 'No console.log output detected.';
                 }
             } catch(e) {
                 output += 'Execution error: ' + e.message;
@@ -1226,7 +1226,14 @@
                 language: 'javascript'
             })
         })
-        .then(r => r.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || `HTTP ${response.status}`);
+                });
+            }
+            return response.json();
+        })
         .then(result => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
@@ -1235,14 +1242,18 @@
                 alert('Submitted Successfully!');
                 document.getElementById('outputArea').innerHTML = 'Submitted Successfully!';
                 document.getElementById('outputArea').className = 'output-area success';
+                if (typeof loadStats === 'function') loadStats();
+                if (typeof loadActivity === 'function') loadActivity(currentActivity);
+                try { localStorage.setItem('student_dashboard_refresh', Date.now().toString()); } catch(e) {}
             } else {
                 alert(result.message || 'Submission failed. Please try again.');
             }
         })
-        .catch(() => {
+        .catch(error => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-            alert('Connection error. Please check your internet.');
+            console.error('Submit activity failed:', error);
+            alert('Unable to submit. Please try again.');
         });
     }
 

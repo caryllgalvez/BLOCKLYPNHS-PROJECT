@@ -607,7 +607,7 @@
         <div class="sidebar-user">
             <div class="sidebar-avatar"><i class="fas fa-chalkboard-user" style="font-size:0.8rem;"></i></div>
             <div class="sidebar-user-info">
-                <h4>{{ full_name or username }}</h4>
+                <h4 id="sidebarName">ICT Teacher</h4>
                 <p>Teacher</p>
             </div>
         </div>
@@ -620,13 +620,13 @@
             <div class="top-bar-left">
                 <div>
                     <p class="page-title"><i class="fas fa-tasks"></i>Activity Scores</p>
-                    <p class="page-subtitle">Welcome back, <strong>{{ full_name or username }}</strong></p>
+                    <p class="page-subtitle">Welcome back, <strong id="greetingName">ICT Teacher</strong></p>
                 </div>
             </div>
             <div class="top-bar-right">
                 <div class="top-search">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Quick search..." aria-label="Quick search">
+                    <input type="text" placeholder="Quick search..." aria-label="Quick search" id="searchInput" oninput="filterTable()">
                 </div>
 
                 <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode">
@@ -639,7 +639,7 @@
                     <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
                         <div class="profile-trigger-avatar"><i class="fas fa-chalkboard-user" style="font-size:0.65rem;"></i></div>
                         <div class="profile-trigger-info">
-                            <span class="profile-trigger-name">{{ full_name or username }}</span>
+                            <span class="profile-trigger-name" id="triggerName">ICT Teacher</span>
                             <span class="profile-trigger-role">Teacher</span>
                         </div>
                         <i class="fas fa-chevron-down profile-trigger-chevron"></i>
@@ -649,7 +649,7 @@
                         <div class="pd-header">
                             <div class="pd-avatar"><i class="fas fa-chalkboard-user" style="font-size:0.75rem;"></i></div>
                             <div>
-                                <div class="pd-name">{{ full_name or username }}</div>
+                                <div class="pd-name" id="pdName">ICT Teacher</div>
                                 <div class="pd-grade">Teacher</div>
                             </div>
                         </div>
@@ -664,18 +664,7 @@
             </div>
         </div>
 
-        <!-- SCORING GUIDE -->
-        <div class="scoring-guide fu e2">
-            <span class="guide-label"><i class="fas fa-info-circle" style="color:var(--green-main);margin-right:6px;"></i>Scoring Guide:</span>
-            <span class="guide-item"><span class="dot dot-easy"></span> Easy = <strong>10 pts</strong></span>
-            <span class="guide-item"><span class="dot dot-medium"></span> Medium = <strong>15 pts</strong></span>
-            <span class="guide-item"><span class="dot dot-hard"></span> Hard = <strong>20 pts</strong></span>
-            <span class="guide-item" style="color:var(--stone-light);font-weight:400;font-size:0.72rem;">
-                Max score depends on difficulty
-            </span>
-        </div>
-
-        <!-- STATS -->
+        <!-- STATS - MATCHING THE IMAGE: PENDING REVIEW, CHECKED, TOTAL SUBMISSIONS, AVERAGE POINTS -->
         <div class="stats-grid fu e3">
             <div class="stat-card">
                 <div class="stat-header">
@@ -836,53 +825,48 @@
         }
     });
 
-    // ===== CONVERT MILITARY TIME TO NORMAL TIME =====
-    function convertToNormalTime(militaryTime) {
-        if (!militaryTime) return '—';
-        
-        // Check if it's already in normal format (contains AM/PM)
-        if (militaryTime.includes('AM') || militaryTime.includes('PM')) {
-            return militaryTime;
-        }
-        
-        try {
-            // Parse the military time (format: HH:MM or HH:MM:SS)
-            let parts = militaryTime.split(':');
-            let hours = parseInt(parts[0]);
-            let minutes = parseInt(parts[1]);
-            let seconds = parts.length > 2 ? parseInt(parts[2]) : 0;
-            
-            // Determine AM/PM
-            let ampm = hours >= 12 ? 'PM' : 'AM';
-            
-            // Convert to 12-hour format
-            let hours12 = hours % 12;
-            if (hours12 === 0) hours12 = 12;
-            
-            // Format minutes with leading zero
-            let minutesStr = minutes.toString().padStart(2, '0');
-            
-            return hours12 + ':' + minutesStr + ' ' + ampm;
-        } catch (e) {
-            return militaryTime; // Return original if parsing fails
-        }
+    // ===== LOAD USER DATA =====
+    function loadUserData() {
+        fetch('/teacher_profile_data')
+            .then(r => r.json())
+            .then(d => {
+                if (d.success && d.full_name) {
+                    const name = d.full_name;
+                    document.getElementById('sidebarName').textContent = name;
+                    document.getElementById('greetingName').textContent = name;
+                    document.getElementById('triggerName').textContent = name;
+                    document.getElementById('pdName').textContent = name;
+                }
+            })
+            .catch(() => {});
     }
 
-    // ===== STATE =====
-    let currentTab = 'pending';
-    let allSubmissions = [];
-    let reviewModal;
-
-    // ===== MAX SCORE BY DIFFICULTY (ORIGINAL LOGIC) =====
+    // ===== MAX SCORE BY DIFFICULTY - FIXED! =====
     function getMaxScore(activityName) {
-        const name = activityName.toLowerCase();
-        if (name.includes('print') || name.includes('variable') || name.includes('if-else')) {
+        const name = (activityName || '').toLowerCase();
+        // Easy = 10 points
+        if (name.includes('print') || name.includes('variable') || name.includes('if-else') ||
+            name.includes('create heading') || name.includes('create paragraph') ||
+            name.includes('hello world') || name.includes('say hello') ||
+            name.includes('greeting')) {
             return 10;
-        } else if (name.includes('age') || name.includes('checker')) {
+        }
+        // Medium = 15 points
+        if (name.includes('age') || name.includes('checker') ||
+            name.includes('heading with style') || name.includes('unordered list') ||
+            name.includes('style') || name.includes('list')) {
             return 15;
-        } else if (name.includes('guess') || name.includes('guessing') || name.includes('game')) {
+        }
+        // Hard = 20 points
+        if (name.includes('guess') || name.includes('guessing') || name.includes('game') ||
+            name.includes('html page') || name.includes('simple web page') ||
+            name.includes('number guessing') || name.includes('webpage') ||
+            name.includes('temperature') || name.includes('converter') ||
+            name.includes('building') || name.includes('create a webpage') ||
+            name.includes('add numbers')) {
             return 20;
         }
+        // Default to 10 if unknown
         return 10;
     }
 
@@ -921,7 +905,28 @@
         var d = document.createElement('div'); d.textContent = str; return d.innerHTML;
     }
 
-    // ===== LOAD SUBMISSIONS (ORIGINAL API) =====
+    // ===== STATE =====
+    let currentTab = 'pending';
+    let allSubmissions = [];
+
+    // ===== CONVERT TIME =====
+    function convertToNormalTime(militaryTime) {
+        if (!militaryTime) return '—';
+        if (militaryTime.includes('AM') || militaryTime.includes('PM')) return militaryTime;
+        try {
+            let parts = militaryTime.split(':');
+            let hours = parseInt(parts[0]);
+            let minutes = parseInt(parts[1]);
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            let hours12 = hours % 12;
+            if (hours12 === 0) hours12 = 12;
+            return hours12 + ':' + String(minutes).padStart(2, '0') + ' ' + ampm;
+        } catch (e) {
+            return militaryTime;
+        }
+    }
+
+    // ===== LOAD SUBMISSIONS =====
     function loadSubmissions() {
         fetch('/teacher/submissions')
             .then(function(r) { return r.json(); })
@@ -931,7 +936,6 @@
                         sub.maxScore = getMaxScore(sub.activity_name);
                         sub.difficulty = getDifficultyLabel(sub.activity_name);
                         sub.difficultyClass = getDifficultyClass(sub.activity_name);
-                        // Convert submitted_at to normal time
                         if (sub.submitted_at) {
                             sub.submitted_at_normal = convertToNormalTime(sub.submitted_at);
                         }
@@ -957,7 +961,7 @@
             .catch(function(err) { console.error('Error loading submissions:', err); });
     }
 
-    // ===== RENDER TABLE (WITH NORMAL TIME) =====
+    // ===== RENDER TABLE =====
     function renderTable(tab) {
         var container = document.getElementById('tableContent');
         var filtered = [];
@@ -986,7 +990,6 @@
             var statusLabel = sub.status === 'pending_review' ? 'Pending' : 'Checked';
             var scoreDisplay = sub.score !== null ? sub.score + '/' + sub.maxScore : '—';
             var isPending = sub.status === 'pending_review';
-            // Use the converted normal time if available, otherwise use original
             var submittedDisplay = sub.submitted_at_normal || sub.submitted_at || '—';
 
             html += '<tr>' +
@@ -1006,7 +1009,18 @@
         container.innerHTML = html;
     }
 
-    // ===== SWITCH TAB (ORIGINAL LOGIC) =====
+    // ===== FILTER TABLE =====
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('#tableContent table tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    }
+
+    // ===== SWITCH TAB =====
     function switchTab(tab) {
         currentTab = tab;
         document.querySelectorAll('.submission-tab').forEach(function(btn) {
@@ -1015,7 +1029,7 @@
         renderTable(tab);
     }
 
-    // ===== SET SCORE PRESET (ORIGINAL LOGIC) =====
+    // ===== SET SCORE PRESET =====
     function setScore(value) {
         document.getElementById('reviewScore').value = value;
         document.querySelectorAll('.preset-btn').forEach(function(btn) {
@@ -1031,7 +1045,7 @@
         });
     }
 
-    // ===== OPEN REVIEW MODAL (ORIGINAL API) =====
+    // ===== OPEN REVIEW MODAL =====
     function openReviewModal(submissionId) {
         var modal = new bootstrap.Modal(document.getElementById('reviewModal'));
         reviewModal = modal;
@@ -1069,7 +1083,7 @@
         modal.show();
     }
 
-    // ===== SUBMIT REVIEW (ORIGINAL API + VALIDATION) =====
+    // ===== SUBMIT REVIEW =====
     function submitReview() {
         var submissionId = document.getElementById('reviewSubmissionId').value;
         var score = document.getElementById('reviewScore').value;
@@ -1123,12 +1137,13 @@
         });
     }
 
-    // ===== INIT (ORIGINAL INTERVALS) =====
+    // ===== INIT =====
     document.addEventListener('DOMContentLoaded', function() {
+        loadUserData();
         loadSubmissions();
         setInterval(loadSubmissions, 30000);
     });
 </script>
-
 </body>
 </html>
+```

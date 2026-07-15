@@ -862,10 +862,6 @@
                 <div class="stat-value" id="grade11Count">0</div>
                 <div class="stat-label">Grade 11</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="grade12Count">0</div>
-                <div class="stat-label">Grade 12</div>
-            </div>
         </div>
 
         <!-- SEARCH -->
@@ -1103,13 +1099,12 @@
     }
 
     function updateStats(students) {
-        document.getElementById('totalStudents').textContent = students.length;
-        const active = students.filter(s => s.has_activities).length;
+        const grade11Students = students.filter(s => s.grade_level && s.grade_level.toLowerCase().includes('11'));
+        document.getElementById('totalStudents').textContent = grade11Students.length;
+        const active = grade11Students.filter(s => s.has_activities).length;
         document.getElementById('activeStudents').textContent = active;
-        const grade11 = students.filter(s => s.grade_level && s.grade_level.toLowerCase().includes('11')).length;
-        const grade12 = students.filter(s => s.grade_level && s.grade_level.toLowerCase().includes('12')).length;
+        const grade11 = grade11Students.length;
         document.getElementById('grade11Count').textContent = grade11;
-        document.getElementById('grade12Count').textContent = grade12;
     }
 
     function filterStudents() {

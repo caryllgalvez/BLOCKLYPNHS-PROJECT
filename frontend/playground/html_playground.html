@@ -1205,7 +1205,14 @@
                 language: 'html'
             })
         })
-        .then(r => r.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || `HTTP ${response.status}`);
+                });
+            }
+            return response.json();
+        })
         .then(result => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
@@ -1221,14 +1228,18 @@
                 
                 // Scroll to success message
                 successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (typeof loadStats === 'function') loadStats();
+                if (typeof loadActivity === 'function') loadActivity(currentActivity);
+                try { localStorage.setItem('student_dashboard_refresh', Date.now().toString()); } catch(e) {}
             } else {
                 alert(result.message || 'Submission failed. Please try again.');
             }
         })
-        .catch(() => {
+        .catch(error => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-            alert('Connection error. Please check your internet.');
+            console.error('Submit activity failed:', error);
+            alert('Unable to submit. Please try again.');
         });
     }
 

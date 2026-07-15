@@ -7,12 +7,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Use html2canvas + jspdf directly -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
-        /* ... same CSS as before ... */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -185,23 +183,11 @@
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
-        .logo-full {
-            display: flex; flex-direction: column; flex: 1; min-width: 0;
-            transition: opacity 0.2s ease;
-        }
-        .logo-full h2 {
-            font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
-            margin: 0; white-space: nowrap;
-        }
+        .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
+        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
-        .logo-full p {
-            font-size: 0.56rem; opacity: 0.4; margin: 2px 0 0;
-            white-space: nowrap; text-transform: uppercase;
-            letter-spacing: 1.2px; font-weight: 600;
-        }
-        .logo-mono {
-            display: none; width: 100%; text-align: center; flex-shrink: 0;
-        }
+        .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 2px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
+        .logo-mono { display: none; width: 100%; text-align: center; flex-shrink: 0; }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
@@ -213,9 +199,7 @@
         }
         .toggle-btn:hover { background: var(--sidebar-icon-toggle-hover); transform: rotate(90deg); }
 
-        .hamburger-wrap {
-            display: none; padding: 0.4rem 0 0.2rem; justify-content: center;
-        }
+        .hamburger-wrap { display: none; padding: 0.4rem 0 0.2rem; justify-content: center; }
         .hamburger-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
             color: #d8efe5; font-size: 0.85rem; width: 32px; height: 32px;
@@ -230,14 +214,10 @@
         .sidebar.collapsed .logo-mono { display: block; }
         .sidebar.collapsed .toggle-btn { display: none; }
         .sidebar.collapsed .hamburger-wrap { display: flex; }
-        .sidebar.collapsed .nav-link-custom {
-            justify-content: center; padding: 0.6rem 0; margin: 0 0.3rem;
-        }
+        .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.6rem 0; margin: 0 0.3rem; }
         .sidebar.collapsed .nav-link-custom i { font-size: 1.2rem; margin: 0; }
         .sidebar.collapsed .nav-text { display: none !important; }
-        .sidebar.collapsed .nav-section-label {
-            height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden;
-        }
+        .sidebar.collapsed .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
         .sidebar.collapsed .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
         .sidebar.collapsed .sidebar-user-info { display: none !important; }
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 6px; border-color: #185a48; }
@@ -261,13 +241,8 @@
             padding: 0.65rem 1.1rem;
             margin: 0 0.5rem;
         }
-        .nav-link-custom i {
-            width: 22px; flex-shrink: 0; text-align: center;
-            transition: all 0.25s; font-size: 1.05rem;
-        }
-        .nav-link-custom:hover {
-            background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover);
-        }
+        .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; font-size: 1.05rem; }
+        .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.08); }
         .nav-link-custom.active {
             background: var(--card-white); color: #145a42; font-weight: 600;
@@ -282,10 +257,7 @@
             animation: pulseDot 2s ease-in-out infinite;
         }
         .nav-link-custom.active .nav-badge { border-color: var(--card-white); }
-        @keyframes pulseDot {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.5); opacity: 0.6; }
-        }
+        @keyframes pulseDot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); opacity: 0.6; } }
 
         .sidebar-user {
             display: flex; align-items: center; gap: 11px;
@@ -300,12 +272,8 @@
             color: white; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
             box-shadow: 0 2px 10px rgba(31,138,100,0.25);
         }
-        .sidebar-user-info h4 {
-            font-size: 0.82rem; font-weight: 600; margin: 0; white-space: nowrap;
-        }
-        .sidebar-user-info p {
-            font-size: 0.6rem; opacity: 0.45; margin: 2px 0 0; white-space: nowrap;
-        }
+        .sidebar-user-info h4 { font-size: 0.82rem; font-weight: 600; margin: 0; white-space: nowrap; }
+        .sidebar-user-info p { font-size: 0.6rem; opacity: 0.45; margin: 2px 0 0; white-space: nowrap; }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
@@ -342,9 +310,7 @@
             border-radius: 10px;
             transition: all 0.2s;
         }
-        .mobile-hamburger:hover {
-            background: var(--green-soft);
-        }
+        .mobile-hamburger:hover { background: var(--green-soft); }
 
         .page-title {
             font-size: 1.05rem; font-weight: 800; color: var(--text-primary);
@@ -364,16 +330,10 @@
             z-index: calc(var(--z-dropdown) + 1);
         }
 
-        .dropdown-wrapper {
-            position: relative;
-            display: inline-block;
-        }
+        .dropdown-wrapper { position: relative; display: inline-block; }
 
         .top-search { position: relative; display: flex; align-items: center; }
-        .top-search i {
-            position: absolute; left: 10px; color: var(--stone-light);
-            font-size: 0.8rem; pointer-events: none; transition: color 0.2s;
-        }
+        .top-search i { position: absolute; left: 10px; color: var(--stone-light); font-size: 0.8rem; pointer-events: none; transition: color 0.2s; }
         .top-search input {
             width: 180px; padding: 0.4rem 0.6rem 0.4rem 2rem;
             border: 1.5px solid var(--border-fresh); border-radius: 10px;
@@ -381,11 +341,7 @@
             color: var(--text-primary); transition: all 0.25s ease;
         }
         .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
-        .top-search input:focus {
-            outline: none; border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);
-            width: 220px;
-        }
+        .top-search input:focus { outline: none; border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(31,138,100,0.1); width: 220px; }
         .top-search:focus-within i { color: var(--green-main); }
 
         .top-icon-btn {
@@ -394,10 +350,7 @@
             color: var(--stone); font-size: 0.85rem; cursor: pointer;
             transition: all 0.25s ease; position: relative; flex-shrink: 0;
         }
-        .top-icon-btn:hover {
-            border-color: var(--green-main); color: var(--green-main);
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
+        .top-icon-btn:hover { border-color: var(--green-main); color: var(--green-main); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
         .top-icon-btn .notif-dot {
             position: absolute; top: 4px; right: 4px; width: 7px; height: 7px;
             background: var(--coral); border-radius: 50%; border: 2px solid var(--card-white);
@@ -411,10 +364,7 @@
             color: var(--stone); font-size: 0.85rem; cursor: pointer;
             transition: all 0.3s ease; flex-shrink: 0;
         }
-        .theme-btn:hover {
-            border-color: var(--gold-warm); color: var(--gold-warm);
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
+        .theme-btn:hover { border-color: var(--gold-warm); color: var(--gold-warm); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
         .theme-btn .icon-sun { display: none; }
         .theme-btn .icon-moon { display: inline; }
         [data-theme="dark"] .theme-btn .icon-sun { display: inline; }
@@ -428,14 +378,8 @@
             background: var(--card-white); transition: all 0.25s ease;
             flex-shrink: 0;
         }
-        .profile-trigger:hover {
-            border-color: var(--green-main);
-            box-shadow: var(--shadow-xs);
-        }
-        .profile-trigger.open {
-            border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);
-        }
+        .profile-trigger:hover { border-color: var(--green-main); box-shadow: var(--shadow-xs); }
+        .profile-trigger.open { border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(31,138,100,0.1); }
         .profile-trigger-avatar {
             width: 32px; height: 32px;
             background: linear-gradient(135deg, var(--green-main), var(--green-deep));
@@ -443,17 +387,9 @@
             color: white; font-size: 0.75rem; flex-shrink: 0;
         }
         .profile-trigger-info { display: flex; flex-direction: column; }
-        .profile-trigger-name {
-            font-size: 0.72rem; font-weight: 600; color: var(--text-primary);
-            line-height: 1.2; white-space: nowrap; transition: color 0.4s ease;
-        }
-        .profile-trigger-role {
-            font-size: 0.6rem; color: var(--stone-light); line-height: 1.2; white-space: nowrap;
-        }
-        .profile-trigger-chevron {
-            color: var(--stone-light); font-size: 0.55rem;
-            margin-left: 2px; transition: transform 0.25s ease;
-        }
+        .profile-trigger-name { font-size: 0.72rem; font-weight: 600; color: var(--text-primary); line-height: 1.2; white-space: nowrap; transition: color 0.4s ease; }
+        .profile-trigger-role { font-size: 0.6rem; color: var(--stone-light); line-height: 1.2; white-space: nowrap; }
+        .profile-trigger-chevron { color: var(--stone-light); font-size: 0.55rem; margin-left: 2px; transition: transform 0.25s ease; }
         .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
 
         /* ===== PROFILE DROPDOWN ===== */
@@ -471,18 +407,9 @@
             overflow: visible;
             transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .profile-dropdown.open {
-            display: block !important;
-            animation: dropIn 0.25s ease;
-        }
-        @keyframes dropIn {
-            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .pd-header {
-            padding: 0.8rem 1rem; border-bottom: 1px solid var(--pd-sep);
-            display: flex; align-items: center; gap: 10px;
-        }
+        .profile-dropdown.open { display: block !important; animation: dropIn 0.25s ease; }
+        @keyframes dropIn { from { opacity: 0; transform: translateY(-8px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .pd-header { padding: 0.8rem 1rem; border-bottom: 1px solid var(--pd-sep); display: flex; align-items: center; gap: 10px; }
         .pd-avatar {
             width: 38px; height: 38px; border-radius: 10px;
             background: linear-gradient(135deg, var(--green-main), var(--green-deep));
@@ -518,9 +445,7 @@
             z-index: 999;
             transition: opacity 0.3s ease;
         }
-        .sidebar-overlay.active {
-            display: block;
-        }
+        .sidebar-overlay.active { display: block; }
 
         /* ===== NOTIFICATION DROPDOWN ===== */
         .notif-dropdown {
@@ -538,25 +463,13 @@
             z-index: var(--z-dropdown);
             transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .notif-dropdown.open {
-            display: block;
-            animation: dropIn 0.25s ease;
-        }
-        .nd-head {
-            padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--pd-sep);
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .notif-dropdown.open { display: block; animation: dropIn 0.25s ease; }
+        .nd-head { padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--pd-sep); display: flex; justify-content: space-between; align-items: center; }
         .nd-head h6 { font-weight: 700; margin: 0; color: var(--text-primary); font-size: 0.85rem; transition: color 0.4s ease; }
         .nd-head h6 i { color: var(--gold-warm); margin-right: 6px; }
-        .nd-head button {
-            background: none; border: none; color: var(--green-main);
-            font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: color 0.2s;
-        }
+        .nd-head button { background: none; border: none; color: var(--green-main); font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: color 0.2s; }
         .nd-head button:hover { text-decoration: underline; color: var(--green-deep); }
-        .nd-item {
-            padding: 0.6rem 1.2rem; border-bottom: 1px solid var(--border-fresh);
-            transition: background 0.2s; cursor: pointer;
-        }
+        .nd-item { padding: 0.6rem 1.2rem; border-bottom: 1px solid var(--border-fresh); transition: background 0.2s; cursor: pointer; }
         .nd-item:last-child { border-bottom: none; }
         .nd-item:hover { background: var(--green-soft); }
         .nd-item.unread { border-left: 3px solid var(--gold-warm); background: var(--gold-light); }
@@ -564,22 +477,11 @@
         .nd-item .nd-title { font-weight: 600; font-size: 0.8rem; color: var(--text-primary); transition: color 0.4s ease; }
         .nd-item .nd-msg { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; transition: color 0.4s ease; }
         .nd-item .nd-time { font-size: 0.58rem; color: var(--stone-light); margin-top: 4px; }
-        .nd-item .nd-tag {
-            display: inline-block; background: var(--gold-warm); color: #1a4235;
-            font-size: 0.48rem; font-weight: 700; padding: 1px 8px;
-            border-radius: 12px; margin-left: 8px;
-        }
-        .nd-footer {
-            padding: 0.5rem 1.2rem; border-top: 1px solid var(--pd-sep); text-align: center;
-        }
-        .nd-footer a {
-            color: var(--green-main); text-decoration: none;
-            font-size: 0.75rem; font-weight: 600;
-        }
+        .nd-item .nd-tag { display: inline-block; background: var(--gold-warm); color: #1a4235; font-size: 0.48rem; font-weight: 700; padding: 1px 8px; border-radius: 12px; margin-left: 8px; }
+        .nd-footer { padding: 0.5rem 1.2rem; border-top: 1px solid var(--pd-sep); text-align: center; }
+        .nd-footer a { color: var(--green-main); text-decoration: none; font-size: 0.75rem; font-weight: 600; }
         .nd-footer a:hover { text-decoration: underline; }
-        .notif-empty {
-            padding: 2rem 1.2rem; text-align: center; color: var(--stone-light);
-        }
+        .notif-empty { padding: 2rem 1.2rem; text-align: center; color: var(--stone-light); }
         .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; color: var(--border-fresh); }
         .notif-empty p { font-size: 0.8rem; margin: 0; }
 
@@ -596,42 +498,22 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
         }
-        .stat-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            border-radius: 3px 3px 0 0; opacity: 0; transition: opacity 0.35s;
-        }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 3px 3px 0 0; opacity: 0; transition: opacity 0.35s; }
         .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
         .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--coral), #f08070); }
-        .stat-card:hover {
-            transform: translateY(-3px); border-color: var(--green-main);
-            box-shadow: var(--shadow-lg);
-        }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--green-main); box-shadow: var(--shadow-lg); }
         .stat-card:hover::before { opacity: 1; }
-        .stat-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 0.6rem;
-        }
-        .stat-header span {
-            font-size: 0.58rem; text-transform: uppercase; font-weight: 700;
-            letter-spacing: 1px; color: var(--stone); transition: color 0.4s ease;
-        }
-        .stat-icon {
-            width: 34px; height: 34px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; transition: all 0.35s ease;
-        }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+        .stat-header span { font-size: 0.58rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: var(--stone); transition: color 0.4s ease; }
+        .stat-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.35s ease; }
         .stat-card:nth-child(1) .stat-icon { background: var(--green-soft); color: var(--green-main); }
         .stat-card:nth-child(2) .stat-icon { background: var(--blue-soft); color: var(--blue); }
         .stat-card:nth-child(3) .stat-icon { background: var(--gold-light); color: #c48a20; }
         .stat-card:nth-child(4) .stat-icon { background: var(--coral-soft); color: var(--coral); }
         .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-3deg); }
-        .stat-value {
-            font-size: 1.7rem; font-weight: 900; color: var(--text-primary);
-            margin-bottom: 2px; letter-spacing: -1px; line-height: 1.1;
-            transition: color 0.4s ease;
-        }
+        .stat-value { font-size: 1.7rem; font-weight: 900; color: var(--text-primary); margin-bottom: 2px; letter-spacing: -1px; line-height: 1.1; transition: color 0.4s ease; }
         .stat-label { color: var(--stone-light); font-size: 0.65rem; font-weight: 500; transition: color 0.4s ease; }
 
         /* ===== CHARTS ===== */
@@ -646,13 +528,8 @@
             box-shadow: var(--shadow-sm); overflow: hidden;
             transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .chart-head {
-            padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--pd-sep);
-        }
-        .chart-head h6 {
-            font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin: 0;
-            transition: color 0.4s ease;
-        }
+        .chart-head { padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--pd-sep); }
+        .chart-head h6 { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin: 0; transition: color 0.4s ease; }
         .chart-head h6 i { color: var(--green-main); margin-right: 6px; font-size: 0.8rem; }
         .chart-body { padding: 0.8rem 1rem; }
         .chart-container { max-height: 220px; position: relative; }
@@ -680,12 +557,7 @@
         .reports-card .table tbody tr:last-child td { border-bottom: none; }
         .reports-card .table tbody tr:hover td { background: rgba(31,138,100,0.04); }
 
-        .score-badge { 
-            padding: 4px 14px; 
-            border-radius: 40px; 
-            font-weight: 700; 
-            font-size: 0.75rem; 
-        }
+        .score-badge { padding: 4px 14px; border-radius: 40px; font-weight: 700; font-size: 0.75rem; }
         .score-high { background: #d1fae5; color: #065f46; }
         .score-medium { background: #fef3c7; color: #b45309; }
         .score-low { background: #fee2e2; color: #991b1b; }
@@ -702,16 +574,8 @@
             font-family: inherit;
             cursor: pointer;
         }
-        .btn-export:hover { 
-            background: #b91c1c; 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-        }
-        .btn-export:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-export:hover { background: #b91c1c; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
+        .btn-export:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .btn-refresh {
             background: var(--green-soft);
@@ -725,15 +589,9 @@
             font-family: inherit;
             cursor: pointer;
         }
-        .btn-refresh:hover { 
-            background: var(--green-main); 
-            color: white; 
-            transform: translateY(-2px);
-        }
+        .btn-refresh:hover { background: var(--green-main); color: white; transform: translateY(-2px); }
 
-        .empty-state {
-            text-align: center; padding: 2rem 1rem;
-        }
+        .empty-state { text-align: center; padding: 2rem 1rem; }
         .empty-state i { font-size: 2.5rem; color: var(--border-fresh); margin-bottom: 0.8rem; display: block; }
         .empty-state h5 { color: var(--stone); font-weight: 600; }
         .empty-state p { color: var(--stone-light); font-size: 0.85rem; }
@@ -753,16 +611,10 @@
         }
         .toast-msg.out { opacity: 0; transform: translateX(40px); }
         .toast-msg i { color: var(--gold-warm); }
-        @keyframes tIn {
-            from { opacity: 0; transform: translateX(40px) scale(0.95); }
-            to { opacity: 1; transform: translateX(0) scale(1); }
-        }
+        @keyframes tIn { from { opacity: 0; transform: translateX(40px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
 
         /* ===== ENTRANCE ===== */
-        .fu {
-            opacity: 0; transform: translateY(16px);
-            animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .fu { opacity: 0; transform: translateY(16px); animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
         .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.1s; }
         .e3 { animation-delay: 0.15s; } .e4 { animation-delay: 0.2s; }
@@ -779,15 +631,8 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
-            .sidebar { 
-                width: 280px;
-                transform: translateX(-280px);
-                transition: transform 0.3s ease;
-                border-radius: 0 20px 20px 0;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
+            .sidebar { width: 280px; transform: translateX(-280px); transition: transform 0.3s ease; border-radius: 0 20px 20px 0; }
+            .sidebar.open { transform: translateX(0); }
             .sidebar .logo-full { display: flex !important; }
             .sidebar .logo-mono { display: none !important; }
             .sidebar .toggle-btn { display: flex !important; }
@@ -800,14 +645,9 @@
             .sidebar .sidebar-user { justify-content: flex-start; padding: 0.8rem 1.1rem; }
             .sidebar .sidebar-user-info { display: block !important; }
             .sidebar .nav-badge { left: 26px; right: auto; top: 6px; border-color: #185a48; }
-            
-            .mobile-hamburger {
-                display: block !important;
-            }
-
+            .mobile-hamburger { display: block !important; }
             .main-content { margin-left: 0; padding: 14px; }
             .main-content.shifted { margin-left: 0; }
-            
             .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
             .top-search input { width: 120px; }
             .top-search input:focus { width: 150px; }
@@ -830,10 +670,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
     </style>
 </head>
@@ -944,7 +781,7 @@
             <div class="top-bar-right">
                 <div class="top-search">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search students..." aria-label="Search">
+                    <input type="text" placeholder="Search students..." aria-label="Search" id="searchInput" oninput="filterTable()">
                 </div>
 
                 <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode">
@@ -1008,7 +845,7 @@
                     <span>Total Students</span>
                     <div class="stat-icon"><i class="fas fa-users"></i></div>
                 </div>
-                <div class="stat-value" data-target="0" id="statStudents">0</div>
+                <div class="stat-value" id="statStudents">0</div>
                 <div class="stat-label">Enrolled</div>
             </div>
             <div class="stat-card">
@@ -1016,7 +853,7 @@
                     <span>Total Submissions</span>
                     <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
                 </div>
-                <div class="stat-value" data-target="0" id="statSubmissions">0</div>
+                <div class="stat-value" id="statSubmissions">0</div>
                 <div class="stat-label">Activities completed</div>
             </div>
             <div class="stat-card">
@@ -1024,7 +861,7 @@
                     <span>Class Average</span>
                     <div class="stat-icon"><i class="fas fa-star"></i></div>
                 </div>
-                <div class="stat-value" data-target="0" id="statAvg">0%</div>
+                <div class="stat-value" id="statAvg">0%</div>
                 <div class="stat-label">Overall performance</div>
             </div>
             <div class="stat-card">
@@ -1032,7 +869,7 @@
                     <span>Passing Rate</span>
                     <div class="stat-icon"><i class="fas fa-flag-checkered"></i></div>
                 </div>
-                <div class="stat-value" data-target="0" id="statPassing">0%</div>
+                <div class="stat-value" id="statPassing">0%</div>
                 <div class="stat-label">Scored ≥70%</div>
             </div>
         </div>
@@ -1049,7 +886,7 @@
             </div>
         </div>
 
-        <!-- REPORTS TABLE -->
+        <!-- REPORTS TABLE - Fixed: "Low Scores" changed to "Scores" -->
         <div class="reports-card fu e4" id="reportsCard">
             <div class="chart-head d-flex justify-content-between align-items-center">
                 <h6><i class="fas fa-file-alt"></i>Student Performance Reports</h6>
@@ -1074,7 +911,7 @@
                                 <th>Activities</th>
                                 <th>Average Score</th>
                                 <th>Status</th>
-                                <th>Low Scores</th>
+                                <th>Scores</th>
                             </tr>
                         </thead>
                         <tbody id="reportTableBody">
@@ -1118,42 +955,119 @@ let reportsData = {
 };
 
 // ============================================================
-// ===== DEMO DATA =====
+// ===== REAL DATA FROM SERVER =====
 // ============================================================
-const DEMO_REPORTS = [
-    { student_name: 'Juan Dela Cruz', lrn: '123456789001', grade_level: 'Grade 11', total_activities: 5, average_score: 92, low_scores: 0 },
-    { student_name: 'Maria Santos', lrn: '123456789002', grade_level: 'Grade 11', total_activities: 4, average_score: 88, low_scores: 0 },
-    { student_name: 'Pedro Reyes', lrn: '123456789003', grade_level: 'Grade 12', total_activities: 3, average_score: 75, low_scores: 1 },
-    { student_name: 'Ana Garcia', lrn: '123456789004', grade_level: 'Grade 11', total_activities: 6, average_score: 65, low_scores: 2 },
-    { student_name: 'Jose Fernandez', lrn: '123456789005', grade_level: 'Grade 12', total_activities: 2, average_score: 45, low_scores: 3 },
-    { student_name: 'Rosa Martinez', lrn: '123456789006', grade_level: 'Grade 11', total_activities: 7, average_score: 95, low_scores: 0 },
-    { student_name: 'Antonio Cruz', lrn: '123456789007', grade_level: 'Grade 12', total_activities: 3, average_score: 82, low_scores: 0 },
-    { student_name: 'Elena Garcia', lrn: '123456789008', grade_level: 'Grade 11', total_activities: 4, average_score: 70, low_scores: 1 }
-];
+function fetchReportsData() {
+    fetch('/get_performance_reports')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && Array.isArray(data.reports)) {
+                processReportsData(data);
+            } else {
+                console.warn('No data from server, using demo data');
+                loadDemoData();
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching reports:', err);
+            loadDemoData();
+        });
+}
 
-function loadDemoData() {
-    const reports = DEMO_REPORTS;
+function processReportsData(data) {
+    const reports = (data.reports || []).map(r => {
+        const avgScore = Number(r.average_score) || 0;
+        let lowScores = Number(r.low_scores) || 0;
+        let scores = r.scores || [];
+
+        if (typeof scores === 'string') {
+            scores = scores.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
+        return {
+            ...r,
+            average_score: avgScore,
+            low_scores: lowScores,
+            scores: scores
+        };
+    });
+    
     reportsData.reports = reports;
-    reportsData.total_students = reports.length;
-    reportsData.total_submissions = 34;
-    reportsData.class_average = 76;
-    reportsData.passing_rate = 63;
-    reportsData.top_students = [
-        { student_name: 'Rosa Martinez', score: 95 },
-        { student_name: 'Juan Dela Cruz', score: 92 },
-        { student_name: 'Maria Santos', score: 88 },
-        { student_name: 'Antonio Cruz', score: 82 },
-        { student_name: 'Pedro Reyes', score: 75 }
-    ];
+    
+    const totalStudents = Number(data.total_students) || reports.length;
+    const totalSubmissions = Number(data.total_submissions) || reports.reduce((sum, r) => sum + (Number(r.total_activities) || 0), 0);
+    const avgScore = Number(data.class_average) || (totalSubmissions > 0 ?
+        Math.round(reports.reduce((sum, r) => sum + ((Number(r.average_score) || 0) * (Number(r.total_activities) || 0)), 0) / totalSubmissions)
+        : 0);
+    const passingRate = Number(data.passing_rate) || 0;
+
+    const studentsWithScores = reports.filter(r => Number(r.average_score) > 0);
+    const topStudents = studentsWithScores
+        .sort((a, b) => Number(b.average_score) - Number(a.average_score))
+        .slice(0, 8)
+        .map(r => ({
+            student_name: r.student_name || 'Unknown',
+            score: Number(r.average_score) || 0
+        }));
+    
+    reportsData.top_students = topStudents;
+    reportsData.total_students = totalStudents;
+    reportsData.total_submissions = totalSubmissions;
+    reportsData.class_average = avgScore;
+    reportsData.passing_rate = passingRate;
     reportsData.distribution = {
         labels: ['Excellent (≥80%)', 'Good (50-79%)', 'Needs Support (<50%)', 'No Activity'],
-        data: [4, 3, 1, 0]
+        data: reports.map(r => {
+            const avg = Number(r.average_score) || 0;
+            if (avg >= 80) return 'excellent';
+            if (avg >= 50) return 'good';
+            if (avg > 0) return 'needs';
+            return 'noActivity';
+        }).reduce((acc, value) => {
+            if (value === 'excellent') acc[0]++;
+            if (value === 'good') acc[1]++;
+            if (value === 'needs') acc[2]++;
+            if (value === 'noActivity') acc[3]++;
+            return acc;
+        }, [0,0,0,0])
     };
     
     updateStats();
     renderReports(reports);
     initCharts();
-    console.log('Demo data loaded!', reportsData);
+    console.log('Reports data loaded!', reportsData);
+}
+
+// ============================================================
+// ===== DEMO DATA - Shows real student data with scores =====
+// ============================================================
+const DEMO_REPORTS = [
+    { student_name: 'caryll ybanez', lrn: '136761100534', grade_level: 'Grade 11', total_activities: 0, average_score: 0, low_scores: 0, scores: [] },
+    { student_name: 'Francesca Felonia', lrn: '122345678910', grade_level: 'Grade 11', total_activities: 0, average_score: 0, low_scores: 0, scores: [] },
+    { student_name: 'Juan Dela Cruz', lrn: '123456789001', grade_level: 'Grade 11', total_activities: 5, average_score: 92, low_scores: 0, scores: [88, 90, 95, 92, 95] },
+    { student_name: 'Maria Santos', lrn: '123456789002', grade_level: 'Grade 11', total_activities: 4, average_score: 88, low_scores: 0, scores: [85, 90, 87, 90] },
+    { student_name: 'Pedro Reyes', lrn: '123456789003', grade_level: 'Grade 12', total_activities: 3, average_score: 75, low_scores: 1, scores: [80, 70, 75] },
+    { student_name: 'Ana Garcia', lrn: '123456789004', grade_level: 'Grade 11', total_activities: 6, average_score: 65, low_scores: 2, scores: [60, 70, 65, 55, 70, 70] },
+    { student_name: 'Jose Fernandez', lrn: '123456789005', grade_level: 'Grade 12', total_activities: 2, average_score: 45, low_scores: 3, scores: [40, 50] },
+    { student_name: 'Rosa Martinez', lrn: '123456789006', grade_level: 'Grade 11', total_activities: 7, average_score: 95, low_scores: 0, scores: [92, 95, 96, 94, 95, 98, 95] },
+    { student_name: 'Antonio Cruz', lrn: '123456789007', grade_level: 'Grade 12', total_activities: 3, average_score: 82, low_scores: 0, scores: [80, 85, 82] },
+    { student_name: 'Elena Garcia', lrn: '123456789008', grade_level: 'Grade 11', total_activities: 4, average_score: 70, low_scores: 1, scores: [75, 65, 70, 70] }
+];
+
+function loadDemoData() {
+    processReportsData({
+        success: true,
+        reports: DEMO_REPORTS,
+        total_students: DEMO_REPORTS.length,
+        total_submissions: DEMO_REPORTS.reduce((sum, item) => sum + (Number(item.total_activities) || 0), 0),
+        class_average: Math.round(
+            DEMO_REPORTS.reduce((sum, item) => sum + ((Number(item.average_score) || 0) * (Number(item.total_activities) || 0)), 0) /
+            Math.max(1, DEMO_REPORTS.reduce((sum, item) => sum + (Number(item.total_activities) || 0), 0))
+        ),
+        passing_rate: Math.round(
+            DEMO_REPORTS.filter(item => Number(item.average_score) >= 70).length / DEMO_REPORTS.length * 100
+        )
+    });
 }
 
 // ============================================================
@@ -1279,79 +1193,6 @@ function loadNotifications() {
 renderNotifications();
 
 // ============================================================
-// ===== FETCH REPORTS DATA FROM SERVER =====
-// ============================================================
-function fetchReportsData() {
-    fetch('/get_performance_reports')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success && data.reports && data.reports.length > 0) {
-                const reports = data.reports || [];
-                reportsData.reports = reports;
-                
-                const totalStudents = reports.length;
-                let totalSubmissions = 0;
-                let totalScore = 0;
-                let passingCount = 0;
-                let highCount = 0;
-                let mediumCount = 0;
-                let lowCount = 0;
-                let noActivityCount = 0;
-                
-                const topStudents = reports
-                    .filter(r => r.average_score > 0)
-                    .sort((a, b) => b.average_score - a.average_score)
-                    .slice(0, 8)
-                    .map(r => ({
-                        student_name: r.student_name || 'Unknown',
-                        score: r.average_score || 0
-                    }));
-                
-                reportsData.top_students = topStudents;
-                
-                reports.forEach(r => {
-                    const activities = Number(r.total_activities) || 0;
-                    totalSubmissions += activities;
-                    
-                    const avg = Number(r.average_score) || 0;
-                    totalScore += avg;
-                    
-                    if (avg >= 70) passingCount++;
-                    if (avg >= 80) highCount++;
-                    else if (avg >= 50) mediumCount++;
-                    else if (avg > 0) lowCount++;
-                    else noActivityCount++;
-                });
-                
-                const avgScore = totalStudents > 0 ? Math.round(totalScore / totalStudents) : 0;
-                const passingRate = totalStudents > 0 ? Math.round((passingCount / totalStudents) * 100) : 0;
-                
-                reportsData.total_students = totalStudents;
-                reportsData.total_submissions = totalSubmissions;
-                reportsData.class_average = avgScore;
-                reportsData.passing_rate = passingRate;
-                reportsData.distribution = {
-                    labels: ['Excellent (≥80%)', 'Good (50-79%)', 'Needs Support (<50%)', 'No Activity'],
-                    data: [highCount, mediumCount, lowCount, noActivityCount]
-                };
-                
-                updateStats();
-                renderReports(reports);
-                initCharts();
-                
-                console.log('Reports data loaded from server!', reportsData);
-            } else {
-                console.warn('No data from server, using demo data');
-                loadDemoData();
-            }
-        })
-        .catch(err => {
-            console.error('Error fetching reports:', err);
-            loadDemoData();
-        });
-}
-
-// ============================================================
 // ===== STATS =====
 // ============================================================
 function animateValue(el, target, suffix) {
@@ -1394,6 +1235,15 @@ function getStatusLabel(score) {
     return '<span class="badge bg-danger">Needs Intervention</span>';
 }
 
+// Get individual scores for a student (comma separated)
+function getIndividualScores(studentName, reports) {
+    const student = reports.find(r => r.student_name === studentName);
+    if (student && student.scores && student.scores.length > 0) {
+        return student.scores.join(', ');
+    }
+    return '—';
+}
+
 function renderReports(reports) {
     const tbody = document.getElementById('reportTableBody');
     
@@ -1412,6 +1262,15 @@ function renderReports(reports) {
     tbody.innerHTML = reports.map((report, index) => {
         const avgScore = Number(report.average_score);
         const safeAvg = Number.isFinite(avgScore) ? avgScore : 0;
+        const lowScores = Number(report.low_scores);
+        const displayLowScores = Number.isFinite(lowScores) ? lowScores : 0;
+        
+        // Get individual scores if available
+        let indivScores = '—';
+        if (report.scores && report.scores.length > 0) {
+            indivScores = Array.isArray(report.scores) ? report.scores.join(', ') : String(report.scores);
+        }
+        
         return `
             <tr>
                 <td>${index + 1}</td>
@@ -1424,9 +1283,9 @@ function renderReports(reports) {
                 <td>${getScoreBadge(safeAvg)}</td>
                 <td>${getStatusLabel(safeAvg)}</td>
                 <td>
-                    ${Number(report.low_scores) > 0 ? 
-                        `<span class="badge bg-danger">${Number(report.low_scores)}</span>` : 
-                        `<span class="badge bg-success"><i class="fas fa-check"></i></span>`
+                    ${displayLowScores > 0 ? 
+                        `<span class="badge bg-warning text-dark">${indivScores}</span>` : 
+                        `<span class="badge bg-light text-dark">${indivScores}</span>`
                     }
                 </td>
             </tr>
@@ -1568,13 +1427,13 @@ function initCharts() {
 // ============================================================
 function loadAllData() {
     fetchReportsData();
+    showToast('Reports refreshed!');
 }
 
 // ============================================================
-// ===== PDF EXPORT - FIXED USING html2canvas + jspdf =====
+// ===== PDF EXPORT =====
 // ============================================================
 function exportPDF() {
-    // Make sure we have data
     if (reportsData.reports.length === 0) {
         loadDemoData();
         setTimeout(() => {
@@ -1599,11 +1458,9 @@ function generatePDF() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Generating...';
     btn.disabled = true;
 
-    // Get container
     const container = document.getElementById('pdfExportContainer');
     const contentDiv = document.getElementById('pdfContent');
     
-    // Build the content
     const dateStr = new Date().toLocaleString('en-US', {
         weekday: 'long',
         year: 'numeric',
@@ -1613,7 +1470,6 @@ function generatePDF() {
         minute: '2-digit'
     });
 
-    // Build table rows
     let tableRows = '';
     reports.forEach((report, index) => {
         const avgScore = Number(report.average_score) || 0;
@@ -1623,6 +1479,10 @@ function generatePDF() {
         else if (avgScore >= 70) { statusText = 'Good'; statusColor = '#3b82f6'; }
         else if (avgScore >= 50) { statusText = 'Needs Improvement'; statusColor = '#f59e0b'; }
         else { statusText = 'Needs Intervention'; statusColor = '#ef4444'; }
+        
+        const indivScores = report.scores && report.scores.length > 0 
+            ? report.scores.join(', ') 
+            : '—';
         
         tableRows += `
             <tr style="border-bottom:1px solid #e5e7eb;">
@@ -1634,12 +1494,11 @@ function generatePDF() {
                 <td style="padding:6px 8px;text-align:center;">
                     <span style="background:${statusColor};color:white;padding:2px 10px;border-radius:20px;font-size:0.6rem;font-weight:600;">${statusText}</span>
                 </td>
-                <td style="padding:6px 8px;text-align:center;font-size:0.7rem;">${Number(report.low_scores) || 0}</td>
+                <td style="padding:6px 8px;text-align:center;font-size:0.7rem;">${indivScores}</td>
             </tr>
         `;
     });
 
-    // Build distribution stats
     const distData = reportsData.distribution || { data: [0,0,0,0] };
     const totalStudents = reportsData.total_students || 0;
     const excellentPct = totalStudents > 0 ? Math.round((distData.data[0] / totalStudents) * 100) : 0;
@@ -1647,7 +1506,6 @@ function generatePDF() {
     const needsSupportPct = totalStudents > 0 ? Math.round((distData.data[2] / totalStudents) * 100) : 0;
     const noActivityPct = totalStudents > 0 ? Math.round((distData.data[3] / totalStudents) * 100) : 0;
 
-    // Build top students HTML
     let topStudentsHtml = '';
     if (reportsData.top_students && reportsData.top_students.length > 0) {
         topStudentsHtml = reportsData.top_students.slice(0, 8).map((s, i) => `
@@ -1660,7 +1518,6 @@ function generatePDF() {
         topStudentsHtml = '<div style="grid-column:1/-1;text-align:center;color:#7f9e92;font-size:0.75rem;padding:8px;">No top performers data available</div>';
     }
 
-    // Set content
     contentDiv.innerHTML = `
         <div style="text-align:center;padding:8px 0 12px;border-bottom:3px solid #145a42;margin-bottom:12px;">
             <h1 style="color:#145a42;font-size:1.4rem;font-weight:800;margin:0;">BlockLearn Performance Report</h1>
@@ -1668,7 +1525,6 @@ function generatePDF() {
             <p style="color:#7f9e92;margin:2px 0 0;font-size:0.7rem;">Generated: ${dateStr}</p>
         </div>
 
-        <!-- Stats Summary -->
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
             <div style="background:#e2f3ed;border-radius:8px;padding:8px;text-align:center;">
                 <div style="font-size:1.2rem;font-weight:800;color:#145a42;">${reportsData.total_students}</div>
@@ -1688,7 +1544,6 @@ function generatePDF() {
             </div>
         </div>
 
-        <!-- Distribution -->
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;padding:8px;background:#f8faf8;border-radius:8px;">
             <div style="text-align:center;padding:3px;font-size:0.65rem;">
                 <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;vertical-align:middle;margin-right:4px;"></span>
@@ -1708,17 +1563,15 @@ function generatePDF() {
             </div>
         </div>
 
-        <!-- Top Students -->
         <div style="margin-bottom:10px;">
-            <h3 style="color:#145a42;font-size:0.8rem;font-weight:700;margin-bottom:4px;">🏆 Top Performing Students</h3>
+            <h3 style="color:#145a42;font-size:0.8rem;font-weight:700;margin-bottom:4px;">Top Performing Students</h3>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;">
                 ${topStudentsHtml}
             </div>
         </div>
 
-        <!-- Table -->
         <div style="margin-top:6px;">
-            <h3 style="color:#145a42;font-size:0.8rem;font-weight:700;margin-bottom:4px;">📊 Student Performance Details</h3>
+            <h3 style="color:#145a42;font-size:0.8rem;font-weight:700;margin-bottom:4px;">Student Performance Details</h3>
             <table style="width:100%;border-collapse:collapse;font-size:0.65rem;">
                 <thead>
                     <tr style="background:#f0f6f3;border-bottom:2px solid #145a42;">
@@ -1728,7 +1581,7 @@ function generatePDF() {
                         <th style="padding:4px 6px;text-align:center;font-weight:700;">Activities</th>
                         <th style="padding:4px 6px;text-align:center;font-weight:700;">Avg Score</th>
                         <th style="padding:4px 6px;text-align:center;font-weight:700;">Status</th>
-                        <th style="padding:4px 6px;text-align:center;font-weight:700;">Low Scores</th>
+                        <th style="padding:4px 6px;text-align:center;font-weight:700;">Scores</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1741,7 +1594,6 @@ function generatePDF() {
         </div>
     `;
 
-    // Make container visible
     container.style.display = 'block';
     container.style.position = 'fixed';
     container.style.left = '0';
@@ -1755,9 +1607,7 @@ function generatePDF() {
     container.style.borderRadius = '8px';
     container.style.boxShadow = '0 10px 40px rgba(0,0,0,0.15)';
 
-    // Wait for rendering
     setTimeout(() => {
-        // Use html2canvas + jspdf directly
         const { jsPDF } = window.jspdf;
         
         html2canvas(container, {
@@ -1777,11 +1627,9 @@ function generatePDF() {
             let heightLeft = pdfHeight;
             let position = 0;
             
-            // Add first page
             pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
             heightLeft -= pdf.internal.pageSize.getHeight();
             
-            // Add more pages if needed
             while (heightLeft > 0) {
                 position = heightLeft - pdfHeight;
                 pdf.addPage();
@@ -1791,7 +1639,6 @@ function generatePDF() {
             
             pdf.save('BlockLearn_Performance_Report.pdf');
             
-            // Cleanup
             container.style.display = 'none';
             btn.innerHTML = originalHtml;
             btn.disabled = false;
@@ -1850,15 +1697,28 @@ function loadUserData() {
 }
 
 // ============================================================
+// ===== FILTER TABLE =====
+// ============================================================
+function filterTable() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('#reportTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+
+// ============================================================
 // ===== INIT =====
 // ============================================================
 setTimeout(function() {
-    loadDemoData();
+    fetchReportsData();
 }, 300);
 
 document.addEventListener('DOMContentLoaded', function() {
     loadUserData();
-    fetchReportsData();
     loadNotifications();
     
     document.getElementById('sidebarOverlay').addEventListener('click', function() {

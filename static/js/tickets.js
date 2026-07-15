@@ -159,6 +159,9 @@
             .catch(() => ({}));
     };
 
+    // Keep existing student-page call sites working
+    window.loadStudentTickets = window.loadTickets;
+
     // Auto-run loadTickets for pages that include ticket form
     document.addEventListener('DOMContentLoaded', function(){
         if (document.getElementById('ticketForm')) {

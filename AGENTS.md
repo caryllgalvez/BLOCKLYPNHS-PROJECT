@@ -7,7 +7,7 @@ Flask-based visual programming learning platform for PNHS students. Students lea
 - **Backend**: Flask + MySQL
 - **Frontend**: HTML5, Bootstrap 5, Vanilla JavaScript
 - **Visual Programming**: Blockly v10.4.3 (CDN) → Python code generation
-- **Security**: SHA256 password hashing (⚠️ no salt - security concern)
+- **Security**: SHA256 password hashing ( no salt - security concern)
 
 ## Architecture Decisions
 - **Dual User Model**: Students (LRN login) vs Teachers (username login)

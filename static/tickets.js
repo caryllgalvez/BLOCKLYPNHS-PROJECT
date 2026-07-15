@@ -54,7 +54,7 @@ function submitTicket() {
     .then(r => r.json())
     .then(d => {
         if (d.success) {
-            showToast('✅ Ticket submitted successfully!', 'success');
+            showToast(' Ticket submitted successfully!', 'success');
             document.getElementById('ticketSubject').value = '';
             document.getElementById('ticketMessage').value = '';
             loadStudentTickets();
@@ -265,7 +265,7 @@ function updateTicketStatus(ticketId) {
     .then(r => r.json())
     .then(d => {
         if (d.success) {
-            showToast('✅ Ticket updated successfully!', 'success');
+            showToast(' Ticket updated successfully!', 'success');
             const modal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
             if (modal) modal.hide();
             loadTeacherTickets(currentFilter || 'all');

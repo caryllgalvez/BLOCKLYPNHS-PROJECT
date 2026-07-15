@@ -1,0 +1,220 @@
+Here is a clean and professional standalone "Contact" page for BlockLearn. It matches the forest green theme and includes contact information, a contact form, and links back to the homepage.
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockLearn · Contact</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#2e6f40',
+              'green-dark': '#1f4f2e',
+              'green-light': '#3d8c52',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::selection { background-color: #2e6f40; color: #ffffff; }
+    body { background: #f7faf8; }
+  </style>
+</head>
+<body class="font-sans text-neutral-900 min-h-screen">
+
+  <!-- Navigation Bar -->
+  <nav class="fixed top-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-md z-50 border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <iconify-icon icon="lucide:blocks" width="28" height="28" class="text-[#2e6f40]"></iconify-icon>
+        <span class="text-2xl font-semibold tracking-tight text-[#2e6f40]">BlockLearn</span>
+      </a>
+      <div class="flex items-center gap-8">
+        <a href="/about" class="text-sm font-medium text-neutral-600 hover:text-[#2e6f40] transition-colors duration-150">About</a>
+        <a href="/contact" class="text-sm font-medium text-[#2e6f40] transition-colors duration-150">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pt-24 pb-12 px-6 max-w-5xl mx-auto">
+
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold text-[#2e6f40] tracking-tight">Contact Us</h1>
+      <p class="text-neutral-500 mt-2 text-sm max-w-md mx-auto">Have questions or feedback? We'd love to hear from you.</p>
+    </div>
+
+    <!-- Contact Grid: Info + Form -->
+    <div class="grid md:grid-cols-2 gap-8">
+
+      <!-- Contact Information -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-8">
+          <h2 class="text-lg font-semibold text-neutral-900 mb-6">Get in Touch</h2>
+
+          <div class="space-y-5">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                <iconify-icon icon="lucide:mail" width="20" height="20" class="text-[#2e6f40]"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Email</p>
+                <p class="text-sm text-neutral-700">support@blocklearn.edu</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                <iconify-icon icon="lucide:phone" width="20" height="20" class="text-[#2e6f40]"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Phone</p>
+                <p class="text-sm text-neutral-700">+63 (2) 8123 4567</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                <iconify-icon icon="lucide:map-pin" width="20" height="20" class="text-[#2e6f40]"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Address</p>
+                <p class="text-sm text-neutral-700">PNHS Campus, Manila, Philippines</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                <iconify-icon icon="lucide:clock" width="20" height="20" class="text-[#2e6f40]"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Office Hours</p>
+                <p class="text-sm text-neutral-700">Mon–Fri, 8:00 AM – 5:00 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social / Quick Links -->
+        <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-8">
+          <h3 class="text-sm font-semibold text-neutral-900 mb-4">Connect With Us</h3>
+          <div class="flex gap-4">
+            <a href="#" class="w-10 h-10 rounded-full bg-[#2e6f40] text-white flex items-center justify-center hover:bg-[#1f4f2e] transition-colors duration-150">
+              <iconify-icon icon="lucide:facebook" width="20" height="20"></iconify-icon>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-[#2e6f40] text-white flex items-center justify-center hover:bg-[#1f4f2e] transition-colors duration-150">
+              <iconify-icon icon="lucide:twitter" width="20" height="20"></iconify-icon>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-[#2e6f40] text-white flex items-center justify-center hover:bg-[#1f4f2e] transition-colors duration-150">
+              <iconify-icon icon="lucide:instagram" width="20" height="20"></iconify-icon>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-[#2e6f40] text-white flex items-center justify-center hover:bg-[#1f4f2e] transition-colors duration-150">
+              <iconify-icon icon="lucide:youtube" width="20" height="20"></iconify-icon>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-8">
+        <h2 class="text-lg font-semibold text-neutral-900 mb-6">Send a Message</h2>
+        <form id="contactForm" onsubmit="return handleContact(event)" class="space-y-4">
+          <div>
+            <label for="contactName" class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">Full Name</label>
+            <input type="text" id="contactName" placeholder="Juan Dela Cruz" required
+              class="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2e6f40] focus:border-transparent transition-all duration-150 placeholder:text-neutral-400">
+          </div>
+          <div>
+            <label for="contactEmail" class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">Email Address</label>
+            <input type="email" id="contactEmail" placeholder="you@example.com" required
+              class="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2e6f40] focus:border-transparent transition-all duration-150 placeholder:text-neutral-400">
+          </div>
+          <div>
+            <label for="contactSubject" class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">Subject</label>
+            <input type="text" id="contactSubject" placeholder="How can we help?" required
+              class="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2e6f40] focus:border-transparent transition-all duration-150 placeholder:text-neutral-400">
+          </div>
+          <div>
+            <label for="contactMessage" class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">Message</label>
+            <textarea id="contactMessage" rows="4" placeholder="Write your message here..." required
+              class="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2e6f40] focus:border-transparent transition-all duration-150 placeholder:text-neutral-400 resize-none"></textarea>
+          </div>
+          <button type="submit" id="contactBtn"
+            class="w-full py-3 bg-[#2e6f40] text-white text-sm font-semibold rounded-lg hover:bg-[#1f4f2e] focus:outline-none focus:ring-2 focus:ring-[#2e6f40] focus:ring-offset-2 transition-all duration-150 flex items-center justify-center gap-2">
+            <span id="contactBtnText">Send Message</span>
+            <iconify-icon id="contactSpinner" icon="lucide:loader-2" width="18" height="18" class="hidden animate-spin"></iconify-icon>
+          </button>
+          <div id="contactToast" class="hidden mt-3 p-3 rounded-lg text-sm font-medium text-center transition-all duration-300"></div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-12 text-center text-xs text-neutral-500 border-t border-neutral-200 pt-6">
+      &copy; 2026 BlockLearn — Building the future of learning, one block at a time.
+    </div>
+  </main>
+
+  <script>
+    // Contact form handler
+    function handleContact(e) {
+      e.preventDefault();
+      const btn = document.getElementById('contactBtn');
+      const txt = document.getElementById('contactBtnText');
+      const spin = document.getElementById('contactSpinner');
+      const toast = document.getElementById('contactToast');
+      
+      const name = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const subject = document.getElementById('contactSubject').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+
+      if (!name || !email || !subject || !message) {
+        toast.textContent = 'Please fill in all fields.';
+        toast.className = 'mt-3 p-3 rounded-lg text-sm font-medium text-center bg-red-50 text-red-700 border border-red-200';
+        toast.classList.remove('hidden');
+        return false;
+      }
+
+      btn.disabled = true;
+      btn.classList.add('opacity-80');
+      txt.textContent = 'Sending...';
+      spin.classList.remove('hidden');
+      toast.classList.add('hidden');
+
+      // Simulate sending
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('opacity-80');
+        txt.textContent = 'Send Message';
+        spin.classList.add('hidden');
+        
+        toast.textContent = 'Thank you! Your message has been sent successfully.';
+        toast.className = 'mt-3 p-3 rounded-lg text-sm font-medium text-center bg-green-50 text-[#1f4f2e] border border-green-200';
+        toast.classList.remove('hidden');
+        
+        // Reset form
+        document.getElementById('contactForm').reset();
+      }, 1500);
+      
+      return false;
+    }
+  </script>
+
+</body>
+</html>
+```

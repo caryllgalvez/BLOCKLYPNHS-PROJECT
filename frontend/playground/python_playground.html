@@ -1318,7 +1318,7 @@
             </div>
             <div class="output-section">
                 <div class="output-label"><i class="fas fa-terminal me-1"></i> Output</div>
-                <div class="output-area" id="outputArea">🐍 Use IF-ELSE with COMPARE: 85 >= 80, print "Access Granted" or "Access Denied"</div>
+                <div class="output-area" id="outputArea">Use IF-ELSE with COMPARE: 85 >= 80, print "Access Granted" or "Access Denied"</div>
                 <div class="action-buttons">
                     <button class="btn-run-custom" onclick="runPracticeCode()"><i class="fas fa-play me-2"></i> Run Code</button>
                     <button class="btn-save-custom" onclick="savePractice()"><i class="fas fa-paper-plane me-2"></i> Submit</button>
@@ -1792,12 +1792,12 @@
                     Blockly.svgResize(workspace);
                 }
                 const msgs = {
-                    'print-statement': '🐍 Drag a PRINT block from Output, add a TEXT block inside, and type "Hello World"',
-                    'variables-print': '🐍 Create SET VARIABLE "name" = "Juan", then PRINT using GET VARIABLE "name"',
-                    'if-else': '🐍 Use IF-ELSE with 10 > 5, print "Positive" or "Negative"',
-                    'age-checker': '🐍 Use IF-ELSE with COMPARE: 20 >= 18, print "You are an adult." or "You are a minor."',
-                    'access-granted': '🐍 Use IF-ELSE with COMPARE: 85 >= 80, print "Access Granted" or "Access Denied"',
-                    'free-play': '🐍 Free Play — drag any blocks and build your own Python program!'
+                    'print-statement': 'Drag a PRINT block from Output, add a TEXT block inside, and type "Hello World"',
+                    'variables-print': 'Create SET VARIABLE "name" = "Juan", then PRINT using GET VARIABLE "name"',
+                    'if-else': 'Use IF-ELSE with 10 > 5, print "Positive" or "Negative"',
+                    'age-checker': 'Use IF-ELSE with COMPARE: 20 >= 18, print "You are an adult." or "You are a minor."',
+                    'access-granted': 'Use IF-ELSE with COMPARE: 85 >= 80, print "Access Granted" or "Access Denied"',
+                    'free-play': 'Free Play — drag any blocks and build your own Python program!'
                 };
                 outArea.innerHTML = msgs[activityId] || 'Activity loaded. Follow the instructions above.';
                 outArea.className = 'output-area';
@@ -2114,24 +2114,54 @@
 
     function savePractice() {
         let code = Blockly.Python.workspaceToCode(workspace).trim();
-        if (!code) { 
+        if (!code) {
             showToast('Add some blocks before submitting!', 'error');
-            return; 
+            return;
         }
 
-        let activityName = activities[currentActivity].name;
+        const activity = activities[currentActivity] || activities['free-play'];
+        const activityName = activity ? activity.name : 'Free Play';
 
         fetch('/submit_activity', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ activity_name: activityName, code_blocks: code, language: 'python' })
-        }).then(r => r.json()).then(result => {
+        })
+        .then(async response => {
+            const text = await response.text();
+            if (!response.ok) {
+                let msg = text || `HTTP ${response.status}`;
+                try {
+                    const errorJson = JSON.parse(text);
+                    if (errorJson && errorJson.message) {
+                        msg = errorJson.message;
+                    }
+                } catch (e) {
+                    // ignore parse errors
+                }
+                throw new Error(msg);
+            }
+
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error('Unexpected server response. Please try again.');
+            }
+        })
+        .then(result => {
             if (result.success) {
                 showToast('Submitted Successfully!');
+                if (typeof loadStats === 'function') loadStats();
+                if (typeof loadActivity === 'function') loadActivity(currentActivity);
+                try { localStorage.setItem('student_dashboard_refresh', Date.now().toString()); } catch(e) {}
             } else {
                 showToast(result.message || 'Submission failed', 'error');
             }
-        }).catch(() => showToast('Connection error.', 'error'));
+        })
+        .catch(error => {
+            console.error('Submit activity failed:', error);
+            showToast(error.message || 'Unable to submit. Please try again.', 'error');
+        });
     }
 
     // ===== LOAD USER DATA =====
