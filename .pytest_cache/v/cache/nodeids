@@ -1,0 +1,12 @@
+[
+  "backend/debug/debug_submit_test.py::test_submit_activity_endpoint_import",
+  "test_example.py::test_add",
+  "test_selenium.py::test_pytest_placeholder",
+  "tests/test_get_activity_scores.py::test_get_activity_scores_uses_assessment_attempts_fallback",
+  "tests/test_get_activity_scores.py::test_leaderboard_uses_activity_and_assessment_scores",
+  "tests/test_init_database_is_idempotent.py::test_init_database_does_not_reinsert_assessments_when_records_exist",
+  "tests/test_init_database_is_idempotent.py::test_init_database_removes_duplicate_assessment_rows_before_seed",
+  "tests/test_progress_uses_real_completion_data.py::test_get_activity_progress_includes_submitted_activity_assessments",
+  "tests/test_progress_uses_real_completion_data.py::test_get_progress_uses_assessment_and_activity_tables",
+  "tests/test_submit_assessment.py::test_submit_assessment_returns_max_points"
+]
