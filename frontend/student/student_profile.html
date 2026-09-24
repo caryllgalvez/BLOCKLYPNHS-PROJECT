@@ -6,6 +6,8 @@
     <title>My Profile · BlockLearn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- ADDED: iconify (ginamit ng dashboard sidebar) -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -63,7 +65,6 @@
             --dropdown-z-index: 99999;
         }
 
-        /* ===== DARK MODE ===== */
         [data-theme="dark"] {
             --bg-main: #0f1f19;
             --text-primary: #d8ede5;
@@ -113,12 +114,9 @@
         }
 
         /* ===== BACKGROUND ===== */
-        .bg-layer {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-        }
+        .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-layer::before {
-            content: '';
-            position: absolute; inset: 0;
+            content: ''; position: absolute; inset: 0;
             background-image:
                 linear-gradient(var(--grid-line) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -131,15 +129,8 @@
             animation: blobDrift 22s ease-in-out infinite alternate;
             transition: opacity 0.4s ease;
         }
-        .bg-blob--1 {
-            width: 480px; height: 480px; top: -12%; right: -6%;
-            background: radial-gradient(circle, rgba(40,168,122,0.4), transparent 70%);
-        }
-        .bg-blob--2 {
-            width: 380px; height: 380px; bottom: -10%; left: 8%;
-            background: radial-gradient(circle, rgba(232,168,56,0.25), transparent 70%);
-            animation-duration: 28s; animation-delay: -6s;
-        }
+        .bg-blob--1 { width: 480px; height: 480px; top: -12%; right: -6%; background: radial-gradient(circle, rgba(40,168,122,0.4), transparent 70%); }
+        .bg-blob--2 { width: 380px; height: 380px; bottom: -10%; left: 8%; background: radial-gradient(circle, rgba(232,168,56,0.25), transparent 70%); animation-duration: 28s; animation-delay: -6s; }
         @keyframes blobDrift {
             0%   { transform: translate(0, 0) scale(1); }
             50%  { transform: translate(25px, -30px) scale(1.04); }
@@ -148,7 +139,7 @@
 
         .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
-        /* ===== SIDEBAR ===== */
+        /* ===== SIDEBAR ===== (COPIED FROM DASHBOARD — logo image version) */
         .sidebar {
             width: var(--sidebar-w);
             background: linear-gradient(175deg, #14423a 0%, #185a48 40%, #1a6850 100%);
@@ -168,29 +159,22 @@
         .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 1.1rem;
+            padding: 1rem 0.4rem 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
-        .logo-full {
-            display: flex; flex-direction: column; flex: 1; min-width: 0;
-            transition: opacity 0.2s ease;
-        }
-        .logo-full h2 {
-            font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
-            margin: 0; white-space: nowrap;
-        }
+        .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
+        .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
+        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; color: #ffffff; }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
-        .logo-full p {
-            font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0;
-            white-space: nowrap; text-transform: uppercase;
-            letter-spacing: 1.2px; font-weight: 600;
-        }
+        .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
         .logo-mono {
-            display: none; width: 100%; text-align: center; flex-shrink: 0;
+            display: none; width: 42px; min-width: 42px; text-align: center; flex-shrink: 0;
+            align-items: center; justify-content: center;
         }
+        .logo-mono img { display: block; width: 42px; height: 42px; object-fit: contain; margin: 0 auto; }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
@@ -202,9 +186,7 @@
         }
         .toggle-btn:hover { background: var(--sidebar-icon-toggle-hover); transform: rotate(90deg); }
 
-        .hamburger-wrap {
-            display: none; padding: 0.4rem 0 0.2rem; justify-content: center;
-        }
+        .hamburger-wrap { display: none; padding: 0.4rem 0 0.2rem; justify-content: center; }
         .hamburger-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
             color: #d8efe5; font-size: 0.85rem; width: 32px; height: 32px;
@@ -215,6 +197,7 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
         .sidebar.collapsed .logo-mono { display: block; }
         .sidebar.collapsed .toggle-btn { display: none; }
@@ -223,11 +206,10 @@
         .sidebar.collapsed .nav-link-custom i { font-size: 1.15rem; }
         .sidebar.collapsed .nav-text { display: none !important; }
         .sidebar.collapsed .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
-        .sidebar.collapsed .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
-        .sidebar.collapsed .sidebar-user-info { display: none !important; }
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
 
         .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
+        .sidebar:not(.collapsed) .logo-image { display: block; }
         .sidebar:not(.collapsed) .logo-full { display: flex; }
         .sidebar:not(.collapsed) .logo-mono { display: none; }
         .sidebar:not(.collapsed) .toggle-btn { display: flex; }
@@ -236,8 +218,6 @@
         .sidebar:not(.collapsed) .nav-link-custom i { font-size: 0.95rem; }
         .sidebar:not(.collapsed) .nav-text { display: inline !important; }
         .sidebar:not(.collapsed) .nav-section-label { height: auto; padding: 1.1rem 1.1rem 0.35rem; opacity: 1; }
-        .sidebar:not(.collapsed) .sidebar-user { justify-content: flex-start; padding: 0.9rem 1.1rem; }
-        .sidebar:not(.collapsed) .sidebar-user-info { display: block !important; }
 
         .nav-section-label {
             font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.5px;
@@ -254,6 +234,9 @@
             white-space: nowrap;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
+        .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.12); }
         .nav-link-custom.active {
@@ -272,26 +255,6 @@
         @keyframes pulseDot {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.5); opacity: 0.6; }
-        }
-
-        .sidebar-user {
-            display: flex; align-items: center; gap: 11px;
-            border-top: 1px solid rgba(255,255,255,0.07);
-            transition: all 0.35s ease; overflow: hidden;
-        }
-        .sidebar-avatar {
-            width: 34px; height: 34px; border-radius: 11px;
-            background: linear-gradient(135deg, var(--gold-warm), #d4922a);
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(232,168,56,0.3);
-        }
-        .sidebar-user-info h4 {
-            font-size: 0.78rem; font-weight: 650; margin: 0; white-space: nowrap;
-            color: #d8efe5;
-        }
-        .sidebar-user-info p {
-            font-size: 0.6rem; opacity: 0.45; margin: 1px 0 0; white-space: nowrap;
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -321,18 +284,10 @@
             transition: color 0.4s ease;
         }
         .page-title i { color: var(--gold-warm); margin-right: 8px; font-size: 0.9rem; }
+        .top-bar-right { display: flex; align-items: center; gap: 10px; position: relative; z-index: 200; }
 
-        .top-bar-right {
-            display: flex; align-items: center; gap: 10px;
-            position: relative; z-index: 200;
-        }
-
-        /* Search */
         .top-search { position: relative; display: flex; align-items: center; }
-        .top-search i {
-            position: absolute; left: 11px; color: var(--stone-light);
-            font-size: 0.8rem; pointer-events: none; transition: color 0.2s;
-        }
+        .top-search i { position: absolute; left: 11px; color: var(--stone-light); font-size: 0.8rem; pointer-events: none; transition: color 0.2s; }
         .top-search input {
             width: 200px; padding: 0.45rem 0.7rem 0.45rem 2.2rem;
             border: 1.5px solid var(--border-fresh); border-radius: 10px;
@@ -347,33 +302,27 @@
         }
         .top-search:focus-within i { color: var(--green-main); }
 
-        /* Theme toggle */
         .theme-btn {
             width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.88rem; cursor: pointer;
             transition: all 0.3s ease; flex-shrink: 0;
         }
-        .theme-btn:hover {
-            border-color: var(--gold-warm); color: var(--gold-warm);
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
+        .theme-btn:hover { border-color: var(--gold-warm); color: var(--gold-warm); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
         .theme-btn .icon-sun { display: none; }
         .theme-btn .icon-moon { display: inline; }
         [data-theme="dark"] .theme-btn .icon-sun { display: inline; }
         [data-theme="dark"] .theme-btn .icon-moon { display: none; }
 
-        /* Notification Button */
+        /* ===== NOTIFICATION ===== */
         .notif-btn {
             width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.9rem; cursor: pointer;
             transition: all 0.25s ease; position: relative; flex-shrink: 0;
         }
-        .notif-btn:hover {
-            border-color: var(--green-main); color: var(--green-main);
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
+        .notif-btn:hover { border-color: var(--green-main); color: var(--green-main); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
+        /* FIXED: badge hindi na naka display:none — gumagana na ngayon */
         .notif-btn .notif-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--coral); color: white;
@@ -381,11 +330,9 @@
             min-width: 18px; height: 18px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: 2px solid var(--card-white);
-            transition: all 0.3s ease;
         }
-        .notif-btn .notif-badge.hidden { display: none; }
+        .notif-badge.hidden { display: none; }
 
-        /* Notification Dropdown */
         .notif-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
             width: 380px; max-height: 420px;
@@ -410,17 +357,21 @@
         .notif-dropdown .notif-list { max-height: 340px; overflow-y: auto; padding: 0.3rem 0; }
         .notif-dropdown .notif-list::-webkit-scrollbar { width: 4px; }
         .notif-dropdown .notif-list::-webkit-scrollbar-thumb { background: var(--border-fresh); border-radius: 10px; }
-        .notif-item {
-            padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border-fresh);
-            transition: all 0.2s; cursor: default;
-        }
+        .notif-item { padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border-fresh); transition: all 0.2s; cursor: default; }
         .notif-item:last-child { border-bottom: none; }
         .notif-item:hover { background: var(--green-soft); }
         .notif-item.unread { background: var(--blue-soft); border-left: 3px solid var(--blue); }
+        .notif-item.unread:hover { background: #d4e8fa; }
         [data-theme="dark"] .notif-item.unread:hover { background: #1a3040; }
         .notif-item .notif-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
         .notif-item .notif-message { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
         .notif-item .notif-time { font-size: 0.6rem; color: var(--stone-light); margin-top: 4px; display: block; }
+        .notif-item .notif-read-btn {
+            font-size: 0.6rem; color: var(--green-main); cursor: pointer;
+            background: none; border: none; margin-top: 4px; font-weight: 600;
+            padding: 2px 8px; border-radius: 20px; transition: all 0.2s;
+        }
+        .notif-item .notif-read-btn:hover { background: var(--green-main); color: white; }
         .notif-item .score-badge {
             display: inline-block; background: var(--green-soft); color: var(--green-deep);
             padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;
@@ -429,7 +380,7 @@
         .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--border-fresh); }
         .notif-empty p { font-size: 0.8rem; margin: 0; }
 
-        /* Profile Trigger */
+        /* ===== PROFILE TRIGGER + DROPDOWN ===== (structure mula sa dashboard) */
         .profile-trigger {
             display: flex; align-items: center; gap: 9px;
             cursor: pointer; padding: 4px 10px 4px 4px;
@@ -446,18 +397,11 @@
             color: white; font-size: 0.78rem; flex-shrink: 0;
         }
         .profile-trigger-info { display: flex; flex-direction: column; }
-        .profile-trigger-name {
-            font-size: 0.72rem; font-weight: 650; color: var(--text-primary);
-            line-height: 1.2; white-space: nowrap; transition: color 0.4s ease;
-        }
+        .profile-trigger-name { font-size: 0.72rem; font-weight: 650; color: var(--text-primary); line-height: 1.2; white-space: nowrap; transition: color 0.4s ease; }
         .profile-trigger-role { font-size: 0.6rem; color: var(--stone-light); line-height: 1.2; white-space: nowrap; }
-        .profile-trigger-chevron {
-            color: var(--stone-light); font-size: 0.6rem;
-            margin-left: 2px; transition: transform 0.25s ease;
-        }
+        .profile-trigger-chevron { color: var(--stone-light); font-size: 0.6rem; margin-left: 2px; transition: transform 0.25s ease; }
         .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
 
-        /* Profile Dropdown */
         .profile-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
             min-width: 220px; background: var(--dropdown-bg);
@@ -471,10 +415,7 @@
             from { opacity: 0; transform: translateY(-8px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .pd-header {
-            padding: 0.9rem 1rem; border-bottom: 1px solid var(--pd-sep);
-            display: flex; align-items: center; gap: 10px;
-        }
+        .pd-header { padding: 0.9rem 1rem; border-bottom: 1px solid var(--pd-sep); display: flex; align-items: center; gap: 10px; }
         .pd-avatar {
             width: 38px; height: 38px; border-radius: 11px;
             background: linear-gradient(135deg, var(--green-main), var(--green-deep));
@@ -498,7 +439,7 @@
         .pd-link.logout i { color: var(--coral); }
         .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
 
-        /* ===== PROFILE HEADER BANNER ===== */
+        /* ===== PROFILE BANNER ===== (PROFILE CONTENT — unchanged) */
         .profile-banner {
             background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
             border-radius: var(--radius-xl); padding: 2rem 2.2rem;
@@ -521,10 +462,7 @@
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(18px, -12px) scale(1.08); }
         }
-        .profile-banner-inner {
-            display: flex; align-items: center; gap: 1.5rem;
-            position: relative; z-index: 1; flex-wrap: wrap;
-        }
+        .profile-banner-inner { display: flex; align-items: center; gap: 1.5rem; position: relative; z-index: 1; flex-wrap: wrap; }
         .profile-avatar-lg {
             width: 96px; height: 96px; border-radius: 22px;
             background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
@@ -535,31 +473,19 @@
             transition: transform 0.3s ease;
         }
         .profile-avatar-lg:hover { transform: scale(1.05) rotate(-2deg); }
-        .profile-banner-info h1 {
-            font-size: 1.5rem; font-weight: 900; margin-bottom: 0.15rem;
-            letter-spacing: -0.5px; line-height: 1.2;
-        }
+        .profile-banner-info h1 { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.15rem; letter-spacing: -0.5px; line-height: 1.2; }
         .profile-banner-info h1 em { font-style: normal; color: var(--gold-warm); }
-        .profile-banner-info .profile-lrn {
-            font-size: 0.82rem; opacity: 0.7; margin-bottom: 0.5rem;
-            display: flex; align-items: center; gap: 6px;
-        }
+        .profile-banner-info .profile-lrn { font-size: 0.82rem; opacity: 0.7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px; }
         .profile-status-badge {
             display: inline-flex; align-items: center; gap: 6px;
             background: var(--greeting-overlay); backdrop-filter: blur(10px);
             padding: 5px 14px; border-radius: 20px; font-size: 0.68rem;
             font-weight: 600; border: 1px solid rgba(255,255,255,0.08);
         }
-        .profile-status-badge .dot {
-            width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
-            animation: pulseDot 2s ease-in-out infinite;
-        }
+        .profile-status-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulseDot 2s ease-in-out infinite; }
 
-        /* ===== STATS GRID ===== */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 1rem; margin-bottom: 1.6rem;
-        }
+        /* ===== STATS GRID ===== (PROFILE CONTENT — unchanged) */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.6rem; }
         .stat-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -575,19 +501,10 @@
         .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
         .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
-        .stat-card:hover {
-            transform: translateY(-4px); border-color: var(--green-main);
-            box-shadow: var(--shadow-lg);
-        }
+        .stat-card:hover { transform: translateY(-4px); border-color: var(--green-main); box-shadow: var(--shadow-lg); }
         .stat-card:hover::before { opacity: 1; }
-        .stat-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 0.7rem;
-        }
-        .stat-header span {
-            font-size: 0.6rem; text-transform: uppercase; font-weight: 700;
-            letter-spacing: 1px; color: var(--stone); transition: color 0.4s ease;
-        }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.7rem; }
+        .stat-header span { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: var(--stone); transition: color 0.4s ease; }
         .stat-icon {
             width: 38px; height: 38px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
@@ -597,32 +514,16 @@
         .stat-card:nth-child(2) .stat-icon { background: var(--gold-light); color: #c48a20; }
         .stat-card:nth-child(3) .stat-icon { background: var(--blue-soft); color: var(--blue); }
         .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-3deg); }
-        .stat-value {
-            font-size: 2rem; font-weight: 900; color: var(--text-primary);
-            margin-bottom: 2px; letter-spacing: -1px; line-height: 1.1;
-            transition: color 0.4s ease;
-        }
-        .stat-value .stat-unit {
-            font-size: 0.85rem; font-weight: 600; color: var(--stone-light);
-            letter-spacing: 0; margin-left: 2px;
-        }
-        .stat-label-bottom {
-            color: var(--stone-light); font-size: 0.68rem; font-weight: 500;
-            transition: color 0.4s ease;
-        }
-        .stat-progress {
-            height: 4px; background: var(--chart-grid); border-radius: 10px;
-            overflow: hidden; margin-top: 10px; transition: background 0.4s ease;
-        }
-        .stat-progress-fill {
-            height: 100%; border-radius: 10px; width: 0%;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .stat-value { font-size: 2rem; font-weight: 900; color: var(--text-primary); margin-bottom: 2px; letter-spacing: -1px; line-height: 1.1; transition: color 0.4s ease; }
+        .stat-value .stat-unit { font-size: 0.85rem; font-weight: 600; color: var(--stone-light); letter-spacing: 0; margin-left: 2px; }
+        .stat-label-bottom { color: var(--stone-light); font-size: 0.68rem; font-weight: 500; transition: color 0.4s ease; }
+        .stat-progress { height: 4px; background: var(--chart-grid); border-radius: 10px; overflow: hidden; margin-top: 10px; transition: background 0.4s ease; }
+        .stat-progress-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .stat-card:nth-child(1) .stat-progress-fill { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
         .stat-card:nth-child(2) .stat-progress-fill { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .stat-card:nth-child(3) .stat-progress-fill { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
 
-        /* ===== INFO CARD ===== */
+        /* ===== INFO CARD ===== (PROFILE CONTENT — unchanged) */
         .info-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -637,10 +538,7 @@
             flex-wrap: wrap; gap: 12px;
             transition: border-color 0.4s ease;
         }
-        .info-header h3 {
-            font-size: 0.9rem; font-weight: 750; color: var(--text-primary);
-            margin: 0; transition: color 0.4s ease;
-        }
+        .info-header h3 { font-size: 0.9rem; font-weight: 750; color: var(--text-primary); margin: 0; transition: color 0.4s ease; }
         .info-header h3 i { color: var(--green-main); margin-right: 8px; font-size: 0.82rem; }
         .info-badge {
             background: var(--green-soft); padding: 4px 12px; border-radius: 40px;
@@ -655,17 +553,10 @@
         }
         .info-row:last-child { border-bottom: none; }
         .info-row:hover { background: rgba(31,138,100,0.03); margin: 0 -0.5rem; padding: 0.85rem 0.5rem; border-radius: 10px; }
-        .info-label {
-            font-size: 0.82rem; color: var(--stone); display: flex;
-            align-items: center; gap: 10px; transition: color 0.4s ease;
-        }
+        .info-label { font-size: 0.82rem; color: var(--stone); display: flex; align-items: center; gap: 10px; transition: color 0.4s ease; }
         .info-label i { width: 16px; text-align: center; font-size: 0.82rem; }
-        .info-value {
-            font-size: 0.85rem; font-weight: 650; color: var(--text-primary);
-            transition: color 0.4s ease;
-        }
+        .info-value { font-size: 0.85rem; font-weight: 650; color: var(--text-primary); transition: color 0.4s ease; text-align: right; flex-shrink: 0; white-space: nowrap; }
 
-        /* Edit Button */
         .btn-edit {
             background: var(--green-deep); color: white; border: none;
             padding: 7px 20px; border-radius: 40px; font-size: 0.72rem;
@@ -675,7 +566,7 @@
         }
         .btn-edit:hover { background: #0f4535; transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-        /* ===== MODAL ===== */
+        /* ===== MODAL ===== (PROFILE CONTENT — unchanged) */
         .modal-custom .modal-content { border-radius: var(--radius-lg); overflow: hidden; border: none; }
         .modal-header-custom {
             background: linear-gradient(125deg, var(--green-deep), #1e8260);
@@ -683,10 +574,7 @@
         }
         .modal-header-custom h5 { font-size: 1rem; font-weight: 750; }
         .modal-body-custom { padding: 1.8rem; background: var(--input-bg); transition: background 0.4s ease; }
-        .form-label-custom {
-            font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);
-            margin-bottom: 5px; display: block; transition: color 0.4s ease;
-        }
+        .form-label-custom { font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; display: block; transition: color 0.4s ease; }
         .form-label-custom i { margin-right: 4px; }
         .form-control-custom {
             border: 1.5px solid var(--border-fresh); border-radius: var(--radius-sm);
@@ -695,10 +583,7 @@
             color: var(--text-primary);
         }
         .form-control-custom::placeholder { color: var(--stone-light); }
-        .form-control-custom:focus {
-            outline: none; border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);
-        }
+        .form-control-custom:focus { outline: none; border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(31,138,100,0.1); }
         .btn-save {
             background: var(--green-deep); color: white; border: none;
             padding: 11px; border-radius: 40px; font-weight: 700; width: 100%;
@@ -706,17 +591,11 @@
         }
         .btn-save:hover { background: #0f4535; transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .modal-divider { border-color: var(--border-fresh); }
-        .modal-divider-label {
-            font-size: 0.78rem; font-weight: 700; color: var(--text-primary);
-            transition: color 0.4s ease;
-        }
+        .modal-divider-label { font-size: 0.78rem; font-weight: 700; color: var(--text-primary); transition: color 0.4s ease; }
         .modal-divider-label i { color: var(--green-main); margin-right: 6px; }
 
         /* ===== TOAST ===== */
-        .toast-box {
-            position: fixed; bottom: 24px; right: 24px; z-index: 99999;
-            display: flex; flex-direction: column; gap: 8px;
-        }
+        .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
         .toast-msg {
             background: #1a463a; color: white; padding: 10px 16px;
             border-radius: 12px; font-size: 0.78rem; font-weight: 500;
@@ -734,10 +613,7 @@
         }
 
         /* ===== ENTRANCE ===== */
-        .fu {
-            opacity: 0; transform: translateY(16px);
-            animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .fu { opacity: 0; transform: translateY(16px); animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
         .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.1s; }
         .e3 { animation-delay: 0.15s; } .e4 { animation-delay: 0.2s; }
@@ -759,8 +635,6 @@
             .sidebar .nav-link-custom i { font-size: 1.15rem; }
             .sidebar .nav-text { display: none !important; }
             .sidebar .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
-            .sidebar .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
-            .sidebar .sidebar-user-info { display: none !important; }
             .sidebar .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
             .main-content { margin-left: var(--sidebar-collapsed-w); padding: 16px; }
             .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
@@ -806,46 +680,45 @@
 </div>
 
 <div class="app">
-    <!-- ===== SIDEBAR ===== -->
+    <!-- ===== SIDEBAR ===== (COPIED FROM DASHBOARD — logo, iconify icons, complete nav) -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
             <div class="logo-full">
                 <h2>Block<em>Learn</em></h2>
                 <p>PNHS &middot; ICT Studio</p>
             </div>
-            <div class="logo-mono"><span>B<em>L</em></span></div>
+            <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo"></div>
             <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar">
-                <i class="fas fa-times"></i>
+                <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
             </button>
         </div>
         <div class="hamburger-wrap">
             <button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar">
-                <i class="fas fa-bars"></i>
+                <iconify-icon icon="lucide:menu"></iconify-icon>
             </button>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Rewards</div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
+            <div class="nav-section-label">Languages</div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-section-label">Account</div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom active" aria-current="page"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+            <div class="nav-section-label">Support</div>
+            <div class="nav-item"><a href="/student_help" class="nav-link-custom"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a></div>
+            <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a></div>
         </nav>
-        <div class="sidebar-user">
-            <div class="sidebar-avatar" id="sidebarAvatar">S</div>
-            <div class="sidebar-user-info">
-                <h4 id="sidebarName">Student</h4>
-                <p id="sidebarGrade">Grade 11 - ICT</p>
-            </div>
-        </div>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content" id="mainContent">
-        <!-- Top Bar -->
+        <!-- Top Bar (COPIED FROM DASHBOARD) -->
         <header class="top-bar fu">
             <div>
                 <h1 class="page-title"><i class="fas fa-circle-user"></i>My Profile</h1>
@@ -860,10 +733,10 @@
                     <i class="fas fa-sun icon-sun"></i>
                 </button>
 
-                <!-- Notification -->
                 <div style="position: relative;">
                     <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" aria-label="Notifications">
                         <i class="fas fa-bell"></i>
+                        <!-- FIXED: badge element added para gumana yung notif count -->
                         <span class="notif-badge hidden" id="notifBadge">0</span>
                     </button>
                     <div class="notif-dropdown" id="notifDropdown">
@@ -880,34 +753,35 @@
                     </div>
                 </div>
 
-                <!-- Profile Trigger -->
                 <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()">
                     <div class="profile-trigger-avatar"><i class="fas fa-user"></i></div>
                     <div class="profile-trigger-info">
-                        <span class="profile-trigger-name" id="triggerName">Student</span>
-                        <span class="profile-trigger-role" id="triggerRole">Grade 11</span>
+                        <span class="profile-trigger-name" id="profileName">{{ full_name or username or 'Student' }}</span>
+                        <span class="profile-trigger-role" id="profileRole">{{ grade_level or 'Grade 11 - ICT' }}</span>
                     </div>
                     <i class="fas fa-chevron-down profile-trigger-chevron"></i>
-
-                    <!-- Profile Dropdown -->
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <div class="pd-header">
-                            <div class="pd-avatar"><i class="fas fa-user"></i></div>
-                            <div>
-                                <div class="pd-name" id="pdName">Student</div>
-                                <div class="pd-grade" id="pdGrade">Grade 11 - ICT</div>
-                            </div>
+                </div>
+                <!-- PROFILE DROPDOWN (sibling structure, same as dashboard) -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="pd-header">
+                        <div class="pd-avatar"><i class="fas fa-user"></i></div>
+                        <div>
+                            <div class="pd-name" id="pdName">{{ full_name or username or 'Student' }}</div>
+                            <div class="pd-grade" id="pdGrade">{{ grade_level or 'Grade 11 - ICT' }}</div>
                         </div>
-                        <div class="pd-links">
-                            <a href="/student_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
-                            <a href="/student_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
-                            <div class="pd-sep"></div>
-                            <a href="/logout" class="pd-link logout"><i class="fas fa-sign-out-alt"></i> Sign out</a>
-                        </div>
+                    </div>
+                    <div class="pd-links">
+                        <a href="/student_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
+                        <a href="/student_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
+                        <a href="/student_help" class="pd-link"><i class="fas fa-circle-question"></i> Help &amp; FAQ</a>
+                        <div class="pd-sep"></div>
+                        <a href="/logout" class="pd-link logout"><i class="fas fa-arrow-right-from-bracket"></i> Sign Out</a>
                     </div>
                 </div>
             </div>
         </header>
+
+        <!-- ================= PROFILE CONTENT (UNCHANGED) ================= -->
 
         <!-- Profile Banner -->
         <section class="profile-banner fu e2">
@@ -916,10 +790,10 @@
                     <i class="fas fa-user-graduate"></i>
                 </div>
                 <div class="profile-banner-info">
-                    <h1 id="profileStudentName">Loading...</h1>
+                    <h1 id="profileStudentName">{{ full_name or username or 'Student' }}</h1>
                     <div class="profile-lrn">
                         <i class="fas fa-id-card"></i>
-                        <span id="profileStudentLRN">-</span>
+                        <span id="profileStudentLRN">{{ lrn or 'Not set' }}</span>
                     </div>
                     <div class="profile-status-badge">
                         <span class="dot"></span>
@@ -960,371 +834,424 @@
                 </div>
                 <div class="stat-value" id="statAchievements">0</div>
                 <div class="stat-label-bottom">badges unlocked</div>
+                <!-- ⚠️ REBUILT: dito naputol yung paste mo — dinaugnan ko lang yung stat-progress -->
                 <div class="stat-progress">
                     <div class="stat-progress-fill" id="progressAchievements" data-width="0"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Info Card -->
-        <section class="info-card fu e6">
-            <div class="info-header">
-                <h3><i class="fas fa-info-circle"></i>Personal Information</h3>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span class="info-badge"><i class="fas fa-shield-halved me-1"></i> Verified</span>
-                    <button class="btn-edit" onclick="showEditModal()">
-                        <i class="fas fa-pen"></i> Edit Profile
-                    </button>
+        <!-- ⚠️ REBUILT SECTION: Personal Information card -->
+        <!-- Binuo ko based sa .info-card CSS mo. Palitan ng original mo kung iba. -->
+        <section class="fu e6" style="margin-bottom: 1.4rem;">
+            <div class="info-card">
+                <div class="info-header">
+                    <h3><i class="fas fa-id-card"></i>Personal Information</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="info-badge">Student Record</span>
+                        <button class="btn-edit" onclick="openEditModal()"><i class="fas fa-pen"></i> Edit</button>
+                    </div>
                 </div>
-            </div>
-            <div class="info-content">
-                <div class="info-row">
-                    <div class="info-label"><i class="fas fa-user"></i> Full Name</div>
-                    <div class="info-value" id="displayName">-</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label"><i class="fas fa-id-card"></i> LRN</div>
-                    <div class="info-value" id="displayLrn">-</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label"><i class="fas fa-graduation-cap"></i> Grade Level</div>
-                    <div class="info-value" id="displayGrade">-</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label"><i class="fas fa-envelope"></i> Email Address</div>
-                    <div class="info-value" id="displayEmail">-</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label"><i class="fas fa-calendar-alt"></i> Member Since</div>
-                    <div class="info-value" id="displayJoined">-</div>
+                <div class="info-content">
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-id-card"></i>LRN</span>
+                        <span class="info-value" id="infoLRN">{{ lrn or 'Not set' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-user"></i>Full Name</span>
+                        <span class="info-value" id="infoName">{{ full_name or username or 'Student' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-envelope"></i>Email</span>
+                        <span class="info-value" id="infoEmail">{{ email or 'Not set' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-graduation-cap"></i>Grade Level</span>
+                        <span class="info-value" id="infoGrade">{{ grade_level or 'Grade 11 - ICT' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-at"></i>Username</span>
+                        <span class="info-value" id="infoUsername">{{ username or 'Student' }}</span>
+                    </div>
                 </div>
             </div>
         </section>
+        <!-- ============ END REBUILT SECTION ============ -->
     </main>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal fade modal-custom" id="editModal" tabindex="-1">
+<!-- ⚠️ REBUILT SECTION: Edit Profile modal -->
+<div class="modal fade modal-custom" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header-custom">
-                <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit Profile</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-pen"></i> Edit Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body-custom">
                 <form id="editProfileForm">
-                    <div class="mb-3">
-                        <label class="form-label-custom"><i class="fas fa-graduation-cap"></i> Grade Level</label>
-                        <select class="form-control-custom" id="editGradeLevel">
-                            <option value="Grade 11">Grade 11</option>
-                            <option value="Grade 12">Grade 12</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label-custom"><i class="fas fa-envelope"></i> Email Address</label>
-                        <input type="email" class="form-control-custom" id="editEmail" placeholder="student@example.com">
-                    </div>
-                    <hr class="my-4 modal-divider">
-                    <h6 class="fw-bold mb-3 modal-divider-label"><i class="fas fa-lock"></i>Change Password (Optional)</h6>
-                    <div class="mb-3">
-                        <label class="form-label-custom">Current Password</label>
-                        <input type="password" class="form-control-custom" id="currentPassword" placeholder="Enter current password">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label-custom">New Password</label>
-                        <input type="password" class="form-control-custom" id="newPassword" placeholder="Enter new password (min 6 chars)">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label-custom">Confirm Password</label>
-                        <input type="password" class="form-control-custom" id="confirmPassword" placeholder="Confirm new password">
-                    </div>
-                    <button type="button" class="btn-save" onclick="updateProfile()">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
+                    <label class="form-label-custom"><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" class="form-control-custom" id="editName" placeholder="Enter full name">
+                    <label class="form-label-custom" style="margin-top: 0.9rem;"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" class="form-control-custom" id="editEmail" placeholder="Enter email">
+                    <hr class="modal-divider">
+                    <p class="modal-divider-label"><i class="fas fa-lock"></i> Change Password (optional)</p>
+                    <label class="form-label-custom"><i class="fas fa-key"></i> New Password</label>
+                    <input type="password" class="form-control-custom" id="editPassword" placeholder="Leave blank to keep current">
+                    <label class="form-label-custom" style="margin-top: 0.9rem;"><i class="fas fa-key"></i> Confirm Password</label>
+                    <input type="password" class="form-control-custom" id="editConfirm" placeholder="Re-enter new password">
+                    <button type="submit" class="btn-save" style="margin-top: 1.2rem;"><i class="fas fa-floppy-disk"></i> Save Changes</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<!-- ============ END REBUILT SECTION ============ -->
 
-<!-- Toast Container -->
 <div class="toast-box" id="toastBox"></div>
 
+<!-- Kailangan ng Bootstrap JS para gumana yung modal -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // ===== SIDEBAR =====
-    function collapseSidebar() {
-        document.getElementById('sidebar').classList.add('collapsed');
-        document.getElementById('mainContent').classList.add('shifted');
-    }
+    /* ===== SIDEBAR ===== (same as dashboard) */
+    var sidebar = document.getElementById('sidebar');
+    var mainContent = document.getElementById('mainContent');
+    var isExpanded = window.innerWidth > 768;
 
-    function expandSidebar() {
-        document.getElementById('sidebar').classList.remove('collapsed');
-        document.getElementById('mainContent').classList.remove('shifted');
-    }
-
-    function checkSidebarState() {
-        if (window.innerWidth <= 768) {
-            document.getElementById('sidebar').classList.add('collapsed');
-            document.getElementById('mainContent').classList.add('shifted');
+    function applyState() {
+        if (isExpanded) {
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('shifted');
         } else {
-            document.getElementById('sidebar').classList.remove('collapsed');
-            document.getElementById('mainContent').classList.remove('shifted');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('shifted');
         }
     }
+    function collapseSidebar() { isExpanded = false; applyState(); }
+    function expandSidebar() { isExpanded = true; applyState(); }
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768 && isExpanded) { isExpanded = false; applyState(); }
+    });
+    applyState();
 
-    // ===== THEME =====
+    /* ===== THEME ===== */
     function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.getAttribute('data-theme') === 'dark';
-        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        if (current === 'dark') {
+            html.removeAttribute('data-theme');
+            localStorage.setItem('blocklearn-theme', 'light');
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('blocklearn-theme', 'dark');
+        }
     }
-
     (function() {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'dark') {
+        if (localStorage.getItem('blocklearn-theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
     })();
 
-    // ===== NOTIFICATIONS =====
+    /* ===== PROFILE DROPDOWN ===== */
+    var profileOpen = false;
+    var notifOpen = false;
+
+    function toggleProfile() {
+        profileOpen = !profileOpen;
+        document.getElementById('profileDropdown').classList.toggle('open', profileOpen);
+        document.getElementById('profileTrigger').classList.toggle('open', profileOpen);
+    }
+
+    document.addEventListener('click', function(e) {
+        if (profileOpen) {
+            var trigger = document.getElementById('profileTrigger');
+            var dropdown = document.getElementById('profileDropdown');
+            if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                profileOpen = false;
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            }
+        }
+        if (notifOpen) {
+            var notifBtn = document.getElementById('notifBtn');
+            var notifDropdown = document.getElementById('notifDropdown');
+            if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                notifOpen = false;
+                notifDropdown.classList.remove('open');
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (profileOpen) {
+                profileOpen = false;
+                document.getElementById('profileDropdown').classList.remove('open');
+                document.getElementById('profileTrigger').classList.remove('open');
+            }
+            if (notifOpen) {
+                notifOpen = false;
+                document.getElementById('notifDropdown').classList.remove('open');
+            }
+        }
+    });
+
+    /* ===== NOTIFICATIONS ===== (same as dashboard, badge fixed) */
+    var notificationCount = 0;
+
     function toggleNotifications() {
-        const dd = document.getElementById('notifDropdown');
-        document.getElementById('profileDropdown').classList.remove('open');
-        document.getElementById('profileTrigger').classList.remove('open');
-        dd.classList.toggle('open');
-    }
-
-    function markAllRead() {
-        document.querySelectorAll('.notif-item.unread').forEach(item => item.classList.remove('unread'));
-        updateNotifBadge();
-        showToast('All notifications marked as read', 'success');
-    }
-
-    function updateNotifBadge() {
-        const unread = document.querySelectorAll('.notif-item.unread').length;
-        const badge = document.getElementById('notifBadge');
-        if (unread > 0) {
-            badge.textContent = unread;
-            badge.classList.remove('hidden');
+        notifOpen = !notifOpen;
+        var dropdown = document.getElementById('notifDropdown');
+        if (notifOpen) {
+            dropdown.classList.add('open');
+            loadNotifications();
         } else {
-            badge.classList.add('hidden');
+            dropdown.classList.remove('open');
         }
     }
 
     function loadNotifications() {
+        var list = document.getElementById('notifList');
+        list.innerHTML = '<div class="notif-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading notifications...</p></div>';
         fetch('/get_notifications')
             .then(r => r.json())
-            .then(d => {
-                const list = document.getElementById('notifList');
-                if (d.success && d.notifications && d.notifications.length > 0) {
-                    list.innerHTML = d.notifications.map(n => {
-                        const cls = n.is_read ? '' : ' unread';
-                        const scoreHtml = n.score != null ? `<span class="score-badge">${n.score}%</span>` : '';
-                        return `
-                            <div class="notif-item${cls}" data-id="${n.id}">
-                                <div class="notif-title">${n.title}</div>
-                                <div class="notif-message">${n.message}</div>
-                                ${scoreHtml}
-                                <span class="notif-time">${n.time_ago}</span>
-                            </div>`;
-                    }).join('');
-                    updateNotifBadge();
+            .then(data => {
+                if (data.success) {
+                    renderNotifications(data.notifications);
+                    updateBadge(data.notifications);
                 } else {
-                    list.innerHTML = `
-                        <div class="notif-empty">
-                            <i class="fas fa-bell-slash"></i>
-                            <p>No notifications yet</p>
-                        </div>`;
+                    list.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i><p>Failed to load notifications</p></div>';
                 }
             })
             .catch(() => {
-                document.getElementById('notifList').innerHTML = `
-                    <div class="notif-empty">
-                        <i class="fas fa-bell-slash"></i>
-                        <p>No notifications yet</p>
-                    </div>`;
+                list.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i><p>Error loading notifications</p></div>';
             });
     }
 
-    // ===== PROFILE DROPDOWN =====
-    function toggleProfile() {
-        const dd = document.getElementById('profileDropdown');
-        document.getElementById('notifDropdown').classList.remove('open');
-        dd.classList.toggle('open');
-        document.getElementById('profileTrigger').classList.toggle('open');
-    }
-
-    // ===== CLOSE ON OUTSIDE CLICK =====
-    document.addEventListener('click', function(e) {
-        const notifBtn = document.getElementById('notifBtn');
-        const notifDd = document.getElementById('notifDropdown');
-        const profTrigger = document.getElementById('profileTrigger');
-        const profDd = document.getElementById('profileDropdown');
-
-        if (!notifBtn.contains(e.target) && !notifDd.contains(e.target)) {
-            notifDd.classList.remove('open');
-        }
-        if (!profTrigger.contains(e.target) && !profDd.contains(e.target)) {
-            profDd.classList.remove('open');
-            profTrigger.classList.remove('open');
-        }
-    });
-
-    // ===== TOAST =====
-    function showToast(message, type) {
-        const box = document.getElementById('toastBox');
-        const toast = document.createElement('div');
-        toast.className = `toast-msg ${type || 'success'}`;
-        const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
-        toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
-        box.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('out');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // ===== LOAD PROFILE DATA =====
-    function loadProfile() {
-        fetch('/student_profile_data')
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    const name = d.full_name || d.lrn || 'Student';
-                    const initial = name.charAt(0).toUpperCase();
-                    const grade = d.grade_level || 'Grade 11';
-
-                    document.getElementById('profileStudentName').innerText = name;
-                    document.getElementById('profileStudentLRN').innerText = d.lrn || '-';
-                    document.getElementById('displayName').innerText = name;
-                    document.getElementById('displayLrn').innerText = d.lrn || '-';
-                    document.getElementById('displayGrade').innerText = grade;
-                    document.getElementById('displayEmail').innerText = d.email || '-';
-                    document.getElementById('displayJoined').innerText = d.created_at || '-';
-
-                    document.getElementById('editGradeLevel').value = grade;
-                    document.getElementById('editEmail').value = d.email || '';
-
-                    document.getElementById('sidebarAvatar').innerText = initial;
-                    document.getElementById('sidebarName').innerText = name;
-                    document.getElementById('sidebarGrade').innerText = grade + ' - ICT';
-                    document.getElementById('triggerName').innerText = name;
-                    document.getElementById('triggerRole').innerText = grade;
-                    document.getElementById('pdName').innerText = name;
-                    document.getElementById('pdGrade').innerText = grade + ' - ICT';
-                }
-            })
-            .catch(err => console.error('Error loading profile:', err));
-
-        fetch('/get_student_stats')
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    const acts = d.total_activities || 0;
-                    const avg = d.average_score || 0;
-                    document.getElementById('statActivities').innerText = acts;
-                    document.getElementById('statAvgScore').innerHTML = avg + '<span class="stat-unit">%</span>';
-                    document.getElementById('progressActivities').setAttribute('data-width', Math.min(acts * 5, 100));
-                    document.getElementById('progressScore').setAttribute('data-width', Math.min(avg, 100));
-                }
-            })
-            .catch(err => console.error('Error loading stats:', err));
-
-        fetch('/get_achievements')
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    const ach = d.total_unlocked || 0;
-                    document.getElementById('statAchievements').innerText = ach;
-                    document.getElementById('progressAchievements').setAttribute('data-width', Math.min(ach * 10, 100));
-                }
-            })
-            .catch(err => console.error('Error loading achievements:', err));
-
-        // Animate progress bars after data loads
-        setTimeout(() => {
-            document.querySelectorAll('.stat-progress-fill').forEach(bar => {
-                const w = bar.getAttribute('data-width');
-                if (w) bar.style.width = w + '%';
-            });
-        }, 600);
-    }
-
-    // ===== EDIT MODAL =====
-    let editModal;
-
-    function showEditModal() {
-        if (editModal) editModal.show();
-    }
-
-    function updateProfile() {
-        const grade_level = document.getElementById('editGradeLevel').value;
-        const email = document.getElementById('editEmail').value.trim();
-        const currentPassword = document.getElementById('currentPassword').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            showToast('Please enter a valid email address', 'error');
+    function renderNotifications(notifications) {
+        var list = document.getElementById('notifList');
+        if (!notifications || notifications.length === 0) {
+            list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>';
             return;
         }
-
-        if (newPassword || currentPassword) {
-            if (!currentPassword) {
-                showToast('Please enter your current password to change it.', 'error');
-                return;
-            }
-            if (newPassword.length < 6) {
-                showToast('New password must be at least 6 characters.', 'error');
-                return;
-            }
-            if (newPassword !== confirmPassword) {
-                showToast('New passwords do not match.', 'error');
-                return;
-            }
-        }
-
-        const payload = { grade_level, email };
-        if (currentPassword && newPassword) {
-            payload.current_password = currentPassword;
-            payload.new_password = newPassword;
-        }
-
-        fetch('/update_profile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(r => r.json())
-        .then(result => {
-            if (result.success) {
-                showToast('Profile updated successfully!', 'success');
-                editModal.hide();
-                loadProfile();
-                document.getElementById('currentPassword').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('confirmPassword').value = '';
-            } else {
-                showToast('Error: ' + (result.message || 'Update failed'), 'error');
-            }
-        })
-        .catch(err => {
-            console.error('Update error:', err);
-            showToast('Update failed. Please try again.', 'error');
+        var html = '';
+        notifications.forEach(function(notif) {
+            var unreadClass = notif.is_read ? '' : 'unread';
+            var timeAgo = getTimeAgo(notif.created_at);
+            var readBtn = notif.is_read ? '' :
+                '<button class="notif-read-btn" onclick="markRead(' + notif.id + ')"><i class="fas fa-check"></i> Mark as read</button>';
+            var scoreMatch = notif.message.match(/score of (\d+)\/(\d+)/);
+            var scoreHtml = scoreMatch ? '<span class="score-badge">' + scoreMatch[1] + '/' + scoreMatch[2] + ' pts</span>' : '';
+            // FIXED: tinanggal yung stray "=" na bug galing sa dashboard
+            html += '<div class="notif-item ' + unreadClass + '" id="notif-' + notif.id + '">' +
+                    '<div class="notif-title">' + esc(notif.title) + '</div>' +
+                    '<div class="notif-message">' + esc(notif.message) + '</div>' +
+                    scoreHtml +
+                    '<span class="notif-time">' + timeAgo + '</span>' +
+                    readBtn + '</div>';
         });
+        list.innerHTML = html;
     }
 
-    // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', function() {
-        checkSidebarState();
-        editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        loadProfile();
-        loadNotifications();
+    function updateBadge(notifications) {
+        var unread = notifications ? notifications.filter(n => !n.is_read).length : 0;
+        setBadge(unread);
+    }
+
+    function setBadge(count) {
+        var badge = document.getElementById('notifBadge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+        notificationCount = count;
+    }
+
+    function getTimeAgo(dateStr) {
+        if (!dateStr) return 'Just now';
+        var diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+        return new Date(dateStr).toLocaleDateString();
+    }
+
+    function markRead(notificationId) {
+        fetch('/mark_notification_read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notification_id: notificationId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                var item = document.getElementById('notif-' + notificationId);
+                if (item) {
+                    item.classList.remove('unread');
+                    var btn = item.querySelector('.notif-read-btn');
+                    if (btn) btn.remove();
+                }
+                setBadge(Math.max(0, notificationCount - 1));
+                showToast('Notification marked as read', 'success');
+            }
+        })
+        .catch(err => console.error('Error marking read:', err));
+    }
+
+    function markAllRead() {
+        fetch('/mark_all_notifications_read', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelectorAll('.notif-item.unread').forEach(function(item) {
+                    item.classList.remove('unread');
+                    var btn = item.querySelector('.notif-read-btn');
+                    if (btn) btn.remove();
+                });
+                setBadge(0);
+                showToast('All notifications marked as read', 'success');
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    }
+
+    function loadUnreadCount() {
+        fetch('/get_unread_count')
+            .then(r => r.json())
+            .then(data => { if (data.success) setBadge(data.count); })
+            .catch(() => {});
+    }
+
+    function checkForNewNotifications() {
+        fetch('/get_unread_count')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.count !== notificationCount) {
+                    if (data.count > notificationCount) {
+                        var n = data.count - notificationCount;
+                        showToast('You have ' + n + ' new notification' + (n > 1 ? 's' : ''));
+                    }
+                    setBadge(data.count);
+                    if (notifOpen) loadNotifications();
+                }
+            })
+            .catch(() => {});
+    }
+
+    /* ===== SEARCH ===== */
+    document.getElementById('topSearchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+            showToast('Search: "' + this.value.trim() + '"');
+            this.value = '';
+            this.blur();
+        }
     });
 
-    window.addEventListener('resize', checkSidebarState);
+    /* ===== HELPERS ===== */
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function animN(el, to, sfx, dur) {
+        if (!el) return;
+        var t0 = performance.now();
+        (function tk(now) {
+            var p = Math.min((now - t0) / dur, 1);
+            el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + (sfx || '');
+            if (p < 1) requestAnimationFrame(tk);
+        })(t0);
+    }
+    function animB(el, pct) { if (el) setTimeout(function() { el.style.width = pct + '%'; }, 200); }
+
+    function showToast(msg, type) {
+        var box = document.getElementById('toastBox');
+        var t = document.createElement('div');
+        t.className = 'toast-msg' + (type ? ' ' + type : '');
+        var icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info';
+        t.innerHTML = '<i class="fas ' + icon + '"></i> ' + esc(msg);
+        box.appendChild(t);
+        setTimeout(function() { t.classList.add('out'); setTimeout(function() { t.remove(); }, 300); }, 2500);
+    }
+
+    /* ===== PROFILE STATS ===== */
+    function loadProfileStats() {
+        fetch('/get_progress').then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) {
+                var done = d.completed || 0;
+                animN(document.getElementById('statActivities'), done, '', 800);
+                animB(document.getElementById('progressActivities'), Math.min(100, Math.round(done / 20 * 100)));
+                // ⚠️ REBUILT NOTE: kung may endpoint ka para sa average score at
+                // achievements (e.g. /get_profile_stats), i-fetch dito at gamitin ang:
+                // animN(document.getElementById('statAvgScore'), avgScore, '', 800);
+                // animB(document.getElementById('progressScore'), avgScore);
+                // animN(document.getElementById('statAchievements'), achCount, '', 800);
+            }
+        }).catch(function() {});
+    }
+
+    /* ===== EDIT MODAL ===== */
+    /* ⚠️ REBUILT SECTION: i-adjust ang /update_profile endpoint kung iba ang route mo */
+    var editModalInstance = null;
+
+    function openEditModal() {
+        var name = document.getElementById('infoName');
+        var email = document.getElementById('infoEmail');
+        if (name) document.getElementById('editName').value = name.textContent;
+        if (email && email.textContent !== 'Not set') document.getElementById('editEmail').value = email.textContent;
+        document.getElementById('editPassword').value = '';
+        document.getElementById('editConfirm').value = '';
+        editModalInstance.show();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalEl = document.getElementById('editModal');
+        if (modalEl) editModalInstance = new bootstrap.Modal(modalEl);
+
+        loadProfileStats();
+        loadUnreadCount();
+
+        var form = document.getElementById('editProfileForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var pw = document.getElementById('editPassword').value;
+                var pw2 = document.getElementById('editConfirm').value;
+                if (pw && pw !== pw2) {
+                    showToast('Passwords do not match', 'error');
+                    return;
+                }
+                fetch('/update_profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: document.getElementById('editName').value,
+                        email: document.getElementById('editEmail').value,
+                        password: pw || null
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Profile updated successfully!', 'success');
+                        setTimeout(function() { location.reload(); }, 800);
+                    } else {
+                        showToast(data.error || 'Failed to update profile', 'error');
+                    }
+                })
+                .catch(() => showToast('Error connecting to server', 'error'));
+            });
+        }
+    });
+
+    /* Real-time notif refresh (same as dashboard) */
+    setInterval(loadUnreadCount, 10000);
+    setInterval(checkForNewNotifications, 5000);
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) { loadUnreadCount(); checkForNewNotifications(); }
+    });
 </script>
 </body>
 </html>

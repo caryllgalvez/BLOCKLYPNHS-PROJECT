@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML/CSS Activities · BlockLearn</title>
+    <title>C++ Activities · BlockLearn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,9 +62,9 @@
             --greeting-overlay: rgba(255,255,255,0.1);
             --search-bg: var(--card-white);
             --dropdown-z-index: 99999;
-            --html-color: #e44d26;
-            --html-light: #fff0eb;
-            --html-dark: #a83820;
+            --cpp-color: #004482;
+            --cpp-light: #e8edf3;
+            --cpp-dark: #003366;
         }
 
         [data-theme="dark"] {
@@ -103,7 +104,7 @@
             --chart-tick: #5a7a6d;
             --greeting-overlay: rgba(255,255,255,0.06);
             --search-bg: #1a3329;
-            --html-light: #2e1e16;
+            --cpp-light: #1a2a3a;
         }
 
         body {
@@ -135,7 +136,7 @@
         }
         .bg-blob--1 {
             width: 480px; height: 480px; top: -12%; right: -6%;
-            background: radial-gradient(circle, rgba(228,77,38,0.3), transparent 70%);
+            background: radial-gradient(circle, rgba(0,68,130,0.25), transparent 70%);
         }
         .bg-blob--2 {
             width: 380px; height: 380px; bottom: -10%; left: 8%;
@@ -169,17 +170,24 @@
         .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 1.1rem;
+            padding: 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
+        .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
         .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
-        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; }
+        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; color: #ffffff; }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
         .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
-        .logo-mono { display: none; width: 100%; text-align: center; flex-shrink: 0; }
+        .logo-mono {
+            display: none; width: 42px; min-width: 42px; text-align: center; flex-shrink: 0;
+            align-items: center; justify-content: center;
+        }
+        .logo-mono img {
+            display: block; width: 42px; height: 42px; object-fit: contain; margin: 0 auto;
+        }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
@@ -187,7 +195,7 @@
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
             color: #d8efe5; font-size: 0.9rem; width: 28px; height: 28px;
             border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 8px;
         }
         .toggle-btn:hover { background: var(--sidebar-icon-toggle-hover); transform: rotate(90deg); }
 
@@ -202,8 +210,9 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
-        .sidebar.collapsed .logo-mono { display: block; }
+        .sidebar.collapsed .logo-mono { display: flex; }
         .sidebar.collapsed .toggle-btn { display: none; }
         .sidebar.collapsed .hamburger-wrap { display: flex; }
         .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.55rem 0; margin: 0 0.3rem; }
@@ -215,6 +224,7 @@
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
 
         .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
+        .sidebar:not(.collapsed) .logo-image { display: block; }
         .sidebar:not(.collapsed) .logo-full { display: flex; }
         .sidebar:not(.collapsed) .logo-mono { display: none; }
         .sidebar:not(.collapsed) .toggle-btn { display: flex; }
@@ -240,13 +250,16 @@
             font-size: 0.86rem; font-weight: 500; position: relative; white-space: nowrap;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
+        .nav-link-custom iconify-icon { width: 22px; height: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.12); }
         .nav-link-custom.active {
             background: var(--card-white); color: #145a42; font-weight: 650;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-radius: var(--radius-sm);
         }
-        .nav-link-custom.active i { color: var(--html-color); }
+        .nav-link-custom.active i { color: var(--cpp-color); }
         .nav-badge {
             position: absolute; top: 5px; left: 24px;
             width: 7px; height: 7px; background: var(--coral);
@@ -260,7 +273,8 @@
         }
 
         .sidebar-user {
-            display: flex; align-items: center; gap: 11px;
+            display: none !important;
+            align-items: center; gap: 11px;
             border-top: 1px solid rgba(255,255,255,0.07);
             transition: all 0.35s ease; overflow: hidden;
         }
@@ -297,7 +311,8 @@
             font-size: 1.1rem; font-weight: 800; color: var(--text-primary);
             letter-spacing: -0.4px; margin: 0; transition: color 0.4s ease;
         }
-        .page-title i { color: var(--html-color); margin-right: 8px; font-size: 0.9rem; }
+        .page-title i { color: var(--cpp-color); margin-right: 8px; font-size: 0.9rem; }
+        .page-title iconify-icon { margin-right: 8px; font-size: 0.95rem; vertical-align: -0.12em; }
         .top-bar-right {
             display: flex; align-items: center; gap: 10px;
             position: relative; z-index: 200;
@@ -342,8 +357,6 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px solid var(--card-white); transition: all 0.3s ease;
         }
-        .notif-btn .notif-badge.hidden { display: none; }
-
         .notif-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
             width: 380px; max-height: 420px;
@@ -442,22 +455,72 @@
         .pd-link.logout i { color: var(--coral); }
         .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
 
-        .language-tabs { display: flex; gap: 0.6rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+        .tabs-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1.6rem;
+        }
+
+        .language-tabs {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
         .lang-tab {
-            padding: 0.5rem 1.4rem; border-radius: 40px;
-            background: var(--card-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem 1.4rem;
+            border-radius: 40px;
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
             border: 1.5px solid var(--glass-border);
-            color: var(--stone); font-weight: 600; font-size: 0.78rem;
-            cursor: pointer; transition: all 0.3s ease;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            color: var(--stone);
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             box-shadow: var(--shadow-xs);
         }
         .lang-tab:hover { border-color: var(--green-main); color: var(--green-main); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
         .lang-tab.active {
-            background: var(--html-color); border-color: var(--html-color); color: white;
-            box-shadow: 0 4px 16px rgba(228,77,38,0.35);
+            background: var(--cpp-color);
+            border-color: var(--cpp-color);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,68,130,0.35);
         }
         .lang-tab.active:hover { color: white; transform: translateY(-2px); }
+
+        .assessments-btn {
+            padding: 0.5rem 1.6rem;
+            border-radius: 40px;
+            background: var(--gold-warm);
+            border: none;
+            color: #1a4235;
+            font-weight: 700;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(232,168,56,0.25);
+        }
+        .assessments-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,168,56,0.35); background: #d49a2a; }
+        .assessments-btn .badge-count {
+            background: #1a4235;
+            color: white;
+            font-size: 0.55rem;
+            padding: 1px 8px;
+            border-radius: 20px;
+            margin-left: 2px;
+        }
 
         .level-section { margin-bottom: 2rem; }
         .level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
@@ -478,19 +541,29 @@
         }
 
         .activity-card {
-            background: var(--card-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: var(--radius-lg); padding: 1.3rem 1.4rem;
-            cursor: pointer; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
+            background: var(--card-glass);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            padding: 1.3rem 1.4rem;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
             border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-sm); height: 100%;
-            position: relative; overflow: hidden; text-decoration: none;
-            color: inherit; display: flex; flex-direction: column;
+            box-shadow: var(--shadow-sm);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
         }
         .card-accent-bar {
             position: absolute; top: 0; left: 0; right: 0; height: 3px;
             border-radius: 3px 3px 0 0; opacity: 0; transition: opacity 0.35s;
         }
-        .activity-card:hover { transform: translateY(-5px); border-color: var(--html-color); box-shadow: var(--shadow-xl); }
+        .activity-card:hover { transform: translateY(-5px); border-color: var(--cpp-color); box-shadow: var(--shadow-xl); }
+        .activity-card.activity-locked { opacity: 0.62; cursor: not-allowed; filter: grayscale(0.25); }
+        .activity-card.activity-locked:hover { transform: none; border-color: var(--glass-border); box-shadow: var(--shadow-sm); }
         .activity-card:hover .card-accent-bar { opacity: 1; }
         .activity-card:hover .card-arrow { opacity: 1; transform: translateY(0); }
 
@@ -502,10 +575,11 @@
         .status-badge { font-size: 0.6rem; padding: 3px 11px; border-radius: 20px; font-weight: 650; }
         .status-completed { background: var(--green-soft); color: var(--green-deep); }
         .status-pending { background: var(--gold-light); color: #9a7020; }
+        .status-locked { background: var(--coral-soft); color: #a33a2e; }
 
         .activity-card h6 { font-size: 0.95rem; font-weight: 750; margin: 0 0 4px; color: var(--text-primary); transition: color 0.4s ease; }
         .step-badge {
-            display: inline-block; background: var(--html-color); color: white;
+            display: inline-block; background: var(--cpp-color); color: white;
             padding: 2px 10px; border-radius: 20px; font-size: 0.56rem;
             font-weight: 700; margin-left: 6px;
         }
@@ -515,8 +589,8 @@
         }
         .blocks-available { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
         .block-pill {
-            background: var(--html-light); padding: 2px 10px; border-radius: 20px;
-            font-size: 0.58rem; font-weight: 700; color: var(--html-dark);
+            background: var(--cpp-light); padding: 2px 10px; border-radius: 20px;
+            font-size: 0.58rem; font-weight: 700; color: var(--cpp-dark);
             letter-spacing: 0.3px; transition: background 0.4s ease, color 0.4s ease;
         }
         .block-pill i { margin-right: 2px; }
@@ -533,27 +607,11 @@
 
         .card-arrow {
             display: inline-flex; align-items: center; gap: 5px;
-            margin-top: 10px; color: var(--html-color); font-size: 0.75rem; font-weight: 650;
+            margin-top: 10px; color: var(--cpp-color); font-size: 0.75rem; font-weight: 650;
             opacity: 0; transform: translateY(5px); transition: all 0.35s ease;
         }
         .card-arrow i { transition: transform 0.3s; }
         .activity-card:hover .card-arrow i { transform: translateX(3px); }
-
-        .free-play-card {
-            border: 2px dashed var(--html-color); background: var(--html-light);
-            text-decoration: none; color: inherit; transition: all 0.35s ease;
-        }
-        .free-play-card::before { display: none; }
-        .free-play-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); border-color: var(--green-main); background: var(--card-glass); }
-        .free-play-icon { font-size: 2.5rem; margin-bottom: 0.5rem; transition: transform 0.4s ease; }
-        .free-play-card:hover .free-play-icon { transform: scale(1.15) rotate(-5deg); }
-        .free-play-card h6 { font-weight: 750; color: var(--green-deep); transition: color 0.4s ease; }
-        .free-play-launch {
-            display: inline-flex; align-items: center; gap: 6px;
-            margin-top: 10px; font-size: 0.78rem; font-weight: 650;
-            color: var(--html-color); transition: all 0.3s;
-        }
-        .free-play-card:hover .free-play-launch { gap: 10px; }
 
         .instruction-panel {
             position: fixed; top: 0; right: -520px; width: 500px; height: 100vh;
@@ -574,43 +632,43 @@
         .instruction-panel .close-btn:hover { background: var(--coral-soft); border-color: var(--coral); color: var(--coral); }
         .instruction-panel h4 { font-weight: 800; color: var(--text-primary); margin-bottom: 0.3rem; font-size: 1.25rem; letter-spacing: -0.4px; transition: color 0.4s ease; }
         .instruction-panel .step-number {
-            display: inline-block; background: var(--html-color); color: white;
+            display: inline-block; background: var(--cpp-color); color: white;
             padding: 3px 13px; border-radius: 20px; font-size: 0.65rem;
             font-weight: 700; margin-bottom: 0.8rem;
         }
         .instruction-panel .meta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.2rem; }
         .instruction-panel .meta-row span {
-            background: var(--html-light); padding: 3px 14px; border-radius: 40px;
-            font-size: 0.68rem; font-weight: 650; color: var(--html-dark);
+            background: var(--cpp-light); padding: 3px 14px; border-radius: 40px;
+            font-size: 0.68rem; font-weight: 650; color: var(--cpp-dark);
             display: inline-flex; align-items: center; gap: 4px;
             transition: background 0.4s ease, color 0.4s ease;
         }
         .instruction-panel .instruction-text {
-            background: var(--html-light); padding: 1.2rem 1.4rem; border-radius: var(--radius-md);
-            border-left: 4px solid var(--html-color); font-size: 0.9rem;
+            background: var(--cpp-light); padding: 1.2rem 1.4rem; border-radius: var(--radius-md);
+            border-left: 4px solid var(--cpp-color); font-size: 0.9rem;
             color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem;
             flex: 1; transition: background 0.4s ease, color 0.4s ease;
         }
         .instruction-panel .instruction-text .step-item { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border-fresh); transition: border-color 0.4s ease; }
         .instruction-panel .instruction-text .step-item:last-child { border-bottom: none; }
-        .instruction-panel .instruction-text .step-num { font-weight: 800; color: var(--html-color); min-width: 28px; font-size: 0.82rem; }
+        .instruction-panel .instruction-text .step-num { font-weight: 800; color: var(--cpp-color); min-width: 28px; font-size: 0.82rem; }
         .instruction-panel .instruction-text .step-desc { flex: 1; font-size: 0.85rem; }
         .instruction-panel .instruction-text .step-desc code {
             background: var(--card-white); padding: 1px 7px; border-radius: 6px;
-            font-size: 0.78rem; color: var(--html-dark); border: 1px solid var(--border-fresh);
+            font-size: 0.78rem; color: var(--cpp-dark); border: 1px solid var(--border-fresh);
             transition: all 0.4s ease;
         }
         .instruction-panel .instruction-text .step-desc strong { color: var(--text-primary); transition: color 0.4s ease; }
         .instruction-panel .block-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
         .instruction-panel .block-list .block-pill { font-size: 0.7rem; padding: 4px 13px; }
         .instruction-panel .btn-start {
-            background: var(--html-color); border: none; color: white;
+            background: var(--cpp-color); border: none; color: white;
             font-weight: 700; padding: 12px 20px; border-radius: 40px;
             width: 100%; transition: all 0.3s; margin-top: auto;
             font-family: inherit; font-size: 0.85rem;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .instruction-panel .btn-start:hover { background: #c04020; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .instruction-panel .btn-start:hover { background: #003366; transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .instruction-panel .hint-box {
             background: var(--gold-light); border-radius: var(--radius-sm);
             padding: 0.8rem 1.1rem; margin-bottom: 1rem;
@@ -621,7 +679,8 @@
         .instruction-panel .expected-output {
             background: #1e1e1e; color: #d4d4d4;
             padding: 10px 16px; border-radius: var(--radius-sm);
-            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
             margin-bottom: 1rem; border: 1px solid #333;
         }
         .instruction-panel .expected-output label {
@@ -660,7 +719,12 @@
         .e5 { animation-delay: 0.25s; } .e6 { animation-delay: 0.3s; }
         .e7 { animation-delay: 0.35s; }
 
-        @media (max-width: 992px) { .activity-grid-2 { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 992px) {
+            .activity-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            .tabs-wrapper { flex-direction: column; align-items: stretch; }
+            .assessments-btn { justify-content: center; width: 100%; }
+            .language-tabs { justify-content: center; }
+        }
         @media (max-width: 768px) {
             .sidebar { width: var(--sidebar-collapsed-w); }
             .sidebar .logo-full { display: none !important; }
@@ -686,6 +750,7 @@
             .language-tabs { gap: 0.4rem; }
             .lang-tab { font-size: 0.7rem; padding: 0.4rem 1rem; }
             .instruction-panel { width: 100%; right: -100%; padding: 1.5rem; }
+            .activity-grid-2 { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 576px) {
             .main-content { padding: 12px; }
@@ -696,6 +761,8 @@
             .top-search input { width: 100% !important; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
             .notif-dropdown { width: 290px; right: 0; left: auto; }
+            .language-tabs { flex-direction: column; width: 100%; }
+            .lang-tab { justify-content: center; width: 100%; }
         }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -712,24 +779,24 @@
 <div class="app">
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
-            <div class="logo-full"><h2>Block<em>Learn</em></h2><p>PNHS &middot; ICT Studio</p></div>
-            <div class="logo-mono"><span>B<em>L</em></span></div>
-            <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar"><i class="fas fa-times"></i></button>
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image"><div class="logo-full"><h2>Block<em>Learn</em></h2><p>PNHS &middot; ICT Studio</p></div>
+            <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo"></div>
+            <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar"><iconify-icon icon="lucide:panel-left-close"></iconify-icon></button>
         </div>
         <div class="hamburger-wrap"><button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar"><i class="fas fa-bars"></i></button></div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Languages</div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fab fa-python"></i><span class="nav-text">Python</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><i class="fab fa-js"></i><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom active" aria-current="page"><i class="fab fa-html5"></i><span class="nav-text">HTML/CSS</span></a></div>
-            <div class="nav-section-label">Account</div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+            <div class="nav-section-label">Support</div>
+            <div class="nav-item"><a href="/student_help" class="nav-link-custom"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a></div>
+            <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a></div>
         </nav>
         <div class="sidebar-user">
             <div class="sidebar-avatar" id="sidebarAvatar">S</div>
@@ -738,11 +805,11 @@
     </aside>
 
     <main class="main-content" id="mainContent">
-        <header class="top-bar fu">
-            <div><h1 class="page-title"><i class="fab fa-html5"></i>HTML/CSS Activities</h1></div>
+        <header class="top-bar fu e1">
+            <div><h1 class="page-title"><iconify-icon icon="logos:cplusplus"></iconify-icon>C++ Activities</h1></div>
             <div class="top-bar-right">
                 <div class="top-search"><input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search"><i class="fas fa-search"></i></div>
-                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
+                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <i class="fas fa-moon icon-moon"></i><i class="fas fa-sun icon-sun"></i>
                 </button>
                 <div style="position: relative;">
@@ -769,13 +836,20 @@
             </div>
         </header>
 
-        <nav class="language-tabs fu e2" aria-label="Programming language">
-            <a href="/student_activities" class="lang-tab"><i class="fab fa-python"></i> Python</a>
-            <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js"></i> JavaScript</a>
-            <a href="/student_activities_html" class="lang-tab active"><i class="fab fa-html5"></i> HTML/CSS</a>
-        </nav>
+        <!-- Tabs Wrapper -->
+        <div class="tabs-wrapper fu e2">
+            <button class="assessments-btn" onclick="window.location.href='/assessments'">
+                <i class="fas fa-clipboard-list"></i> Assessments &amp; Quizzes
+                <span class="badge-count">5</span>
+            </button>
+            <nav class="language-tabs" aria-label="Programming language">
+                <a href="/student_activities_php" class="lang-tab"><i class="fab fa-php"></i> PHP</a>
+                <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js"></i> JavaScript</a>
+                <a href="/student_activities_cpp" class="lang-tab active"><iconify-icon icon="logos:cplusplus"></iconify-icon> C++</a>
+            </nav>
+        </div>
 
-        <!-- ===== EASY ===== -->
+        <!-- Easy Level -->
         <section class="level-section fu e3">
             <div class="level-header">
                 <div class="level-icon easy-icon"><i class="fas fa-seedling"></i></div>
@@ -784,15 +858,15 @@
             </div>
             <div class="row g-3 activity-grid-2" style="display:grid; grid-template-columns: repeat(2, 1fr);">
                 <div>
-                    <div class="activity-card" data-activity="create-heading">
-                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--html-color), #f07050);"></div>
+                    <div class="activity-card" data-activity="hello-cpp">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--cpp-color), #0066b3);"></div>
                         <div class="card-top">
                             <span class="difficulty-badge easy">Easy</span>
-                            <span class="status-badge status-pending" id="status-createheading">Not Started</span>
+                            <span class="status-badge status-pending" id="status-hellocpp">Not Started</span>
                         </div>
-                        <h6>Create Heading <span class="step-badge">Step 1</span></h6>
-                        <p class="card-desc">Create an h1 heading with "Welcome to HTML!"</p>
-                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-heading"></i> HEADING</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <h6>Hello, C++! <span class="step-badge">Activity 1</span></h6>
+                        <p class="card-desc">Create a C++ program that displays "Hello, C++!"</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-print"></i> cout</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
                         <div class="card-meta">
                             <span class="card-meta-badge"><i class="far fa-clock"></i> 5 min</span>
                             <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
@@ -801,15 +875,15 @@
                     </div>
                 </div>
                 <div>
-                    <div class="activity-card" data-activity="create-paragraph">
-                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--html-color), #f07050);"></div>
+                    <div class="activity-card" data-activity="store-age">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--cpp-color), #0066b3);"></div>
                         <div class="card-top">
                             <span class="difficulty-badge easy">Easy</span>
-                            <span class="status-badge status-pending" id="status-createparagraph">Not Started</span>
+                            <span class="status-badge status-pending" id="status-storeage">Not Started</span>
                         </div>
-                        <h6>Create Paragraph <span class="step-badge">Step 2</span></h6>
-                        <p class="card-desc">Create a paragraph with "This is my first HTML page!"</p>
-                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-paragraph"></i> PARAGRAPH</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <h6>Store an Age <span class="step-badge">Activity 2</span></h6>
+                        <p class="card-desc">Create an integer variable "age" with value 17 and display it</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-cube"></i> int variable</span><span class="block-pill"><i class="fas fa-print"></i> cout</span><span class="block-pill"><i class="fas fa-hashtag"></i> NUMBER</span></div>
                         <div class="card-meta">
                             <span class="card-meta-badge"><i class="far fa-clock"></i> 5 min</span>
                             <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
@@ -820,27 +894,44 @@
             </div>
         </section>
 
-        <!-- ===== MEDIUM ===== -->
+        <!-- Medium Level -->
         <section class="level-section fu e5">
             <div class="level-header">
                 <div class="level-icon medium-icon"><i class="fas fa-chart-line"></i></div>
                 <h5>Medium Level</h5>
-                <span class="level-count">1 activity</span>
+                <span class="level-count">2 activities</span>
             </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="activity-card" data-activity="heading-with-style">
+            <div class="row g-3 activity-grid-2" style="display:grid; grid-template-columns: repeat(2, 1fr);">
+                <div>
+                    <div class="activity-card" data-activity="multiply-numbers">
                         <div class="card-accent-bar" style="background: linear-gradient(90deg, #f07050, #f09070);"></div>
                         <div class="card-top">
                             <span class="difficulty-badge medium">Medium</span>
-                            <span class="status-badge status-pending" id="status-headingwithstyle">Not Started</span>
+                            <span class="status-badge status-pending" id="status-multiply">Not Started</span>
                         </div>
-                        <h6>Heading with Style <span class="step-badge">Step 3</span></h6>
-                        <p class="card-desc">Create a blue h1 heading with "Styled Heading!"</p>
-                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-heading"></i> HEADING</span><span class="block-pill"><i class="fas fa-paint-brush"></i> STYLE</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <h6>Multiply Two Numbers <span class="step-badge">Activity 3</span></h6>
+                        <p class="card-desc">Multiply 6 by 5 and display the result</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-print"></i> cout</span><span class="block-pill"><i class="fas fa-times"></i> MULTIPLY</span><span class="block-pill"><i class="fas fa-hashtag"></i> NUMBER</span></div>
                         <div class="card-meta">
                             <span class="card-meta-badge"><i class="far fa-clock"></i> 8 min</span>
-                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 15 pts</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
+                        </div>
+                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="activity-card" data-activity="less-than">
+                        <div class="card-accent-bar" style="background: linear-gradient(90deg, #f07050, #f09070);"></div>
+                        <div class="card-top">
+                            <span class="difficulty-badge medium">Medium</span>
+                            <span class="status-badge status-pending" id="status-lessthan">Not Started</span>
+                        </div>
+                        <h6>Less Than <span class="step-badge">Activity 4</span></h6>
+                        <p class="card-desc">Check if 15 is less than 20 and display result</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-code-branch"></i> if</span><span class="block-pill"><i class="fas fa-less-than"></i> LESS THAN</span><span class="block-pill"><i class="fas fa-print"></i> cout</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <div class="card-meta">
+                            <span class="card-meta-badge"><i class="far fa-clock"></i> 10 min</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
                         </div>
                         <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
                     </div>
@@ -848,7 +939,7 @@
             </div>
         </section>
 
-        <!-- ===== HARD ===== -->
+        <!-- Hard Level -->
         <section class="level-section fu e7">
             <div class="level-header">
                 <div class="level-icon hard-icon"><i class="fas fa-trophy"></i></div>
@@ -857,38 +948,21 @@
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="activity-card" data-activity="html-page">
+                    <div class="activity-card" data-activity="display-numbers">
                         <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--coral), #f08070);"></div>
                         <div class="card-top">
                             <span class="difficulty-badge hard">Hard</span>
-                            <span class="status-badge status-pending" id="status-htmlpage">Not Started</span>
+                            <span class="status-badge status-pending" id="status-displaynumbers">Not Started</span>
                         </div>
-                        <h6>HTML Page <span class="step-badge">Step 4</span></h6>
-                        <p class="card-desc">Build a simple HTML page with heading and paragraph</p>
-                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-heading"></i> HEADING</span><span class="block-pill"><i class="fas fa-paragraph"></i> PARAGRAPH</span><span class="block-pill"><i class="fas fa-font"></i> TEXT</span></div>
+                        <h6>Display Numbers 1 to 5 <span class="step-badge">Activity 5</span></h6>
+                        <p class="card-desc">Display numbers 1 to 5 using a loop</p>
+                        <div class="blocks-available"><span class="block-pill"><i class="fas fa-sync"></i> FOR LOOP</span><span class="block-pill"><i class="fas fa-print"></i> cout</span><span class="block-pill"><i class="fas fa-hashtag"></i> NUMBER</span></div>
                         <div class="card-meta">
-                            <span class="card-meta-badge"><i class="far fa-clock"></i> 10 min</span>
-                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 20 pts</span>
+                            <span class="card-meta-badge"><i class="far fa-clock"></i> 12 min</span>
+                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
                         </div>
                         <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== FREE PLAY ===== -->
-        <section class="fu e7" style="margin-top: 0.5rem;">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <a href="/student_playground_html?activity=free-play" class="activity-card free-play-card">
-                        <div style="text-align: center; padding: 0.5rem 0;">
-                            <div class="free-play-icon"></div>
-                            <h6>Free Play</h6>
-                            <p class="card-desc" style="margin-bottom: 8px;">Build anything you want with HTML blocks</p>
-                            <span class="block-pill" style="background: var(--html-color); color: white; padding: 4px 14px; font-size: 0.65rem;"><i class="fas fa-play" style="margin-right: 4px;"></i>Free Play</span>
-                            <div class="free-play-launch">Launch <i class="fas fa-arrow-right"></i></div>
-                        </div>
-                    </a>
                 </div>
             </div>
         </section>
@@ -899,8 +973,8 @@
 
 <div class="instruction-panel" id="instructionPanel">
     <button class="close-btn" id="closePanelBtn"><i class="fas fa-times"></i></button>
-    <h4 id="panelTitle">Create Heading</h4>
-    <span class="step-number" id="panelStep">Step 1</span>
+    <h4 id="panelTitle">Hello, C++!</h4>
+    <span class="step-number" id="panelStep">Activity 1</span>
     <div class="meta-row" id="panelMeta">
         <span class="difficulty-badge easy" id="panelDifficulty">Easy</span>
         <span><i class="far fa-clock me-1"></i><span id="panelTime">5 min</span></span>
@@ -909,10 +983,7 @@
     <div class="instruction-text" id="panelInstructions"></div>
     <div class="expected-output" id="panelOutput">
         <label><i class="fas fa-eye me-1"></i> Expected Output</label>
-        <span id="outputText">&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</span>
-    </div>
-    <div class="hint-box" id="panelHint">
-        <i class="fas fa-lightbulb"></i> <strong>Hint:</strong> <span id="hintText"></span>
+        <span id="outputText">Hello, C++!</span>
     </div>
     <div class="block-list" id="panelBlocks"></div>
     <button class="btn-start" id="panelStartBtn"><i class="fas fa-play"></i> Start Activity</button>
@@ -995,69 +1066,77 @@
         setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3000);
     }
 
-    document.querySelectorAll('.activity-card:not(.free-play-card)').forEach(card => {
+    document.querySelectorAll('.activity-card').forEach(card => {
         card.addEventListener('mouseenter', function() { const b = this.querySelector('.card-accent-bar'); if (b) b.style.opacity = '1'; });
         card.addEventListener('mouseleave', function() { const b = this.querySelector('.card-accent-bar'); if (b) b.style.opacity = '0'; });
     });
 
     const activityData = {
-        'create-heading': {
-            title: 'Create Heading', step: 'Step 1', difficulty: 'Easy', time: '5 min', points: '10 pts',
+        'hello-cpp': {
+            title: 'Hello, C++!', step: 'Activity 1', difficulty: 'Easy', time: '5 min', points: '10 pts',
             steps: [
-                'Find the <strong>HEADING</strong> block in the STRUCTURE category.',
-                'Drag the <strong>HEADING</strong> block to the workspace.',
-                'Change the heading level dropdown to <strong>h1</strong>.',
-                'Find the <strong>TEXT</strong> block in the BASIC category.',
-                'Drag the <strong>TEXT</strong> block inside the HEADING block.',
-                'Click the text block and type: <strong>"Welcome to HTML!"</strong>',
-                'Click <strong>RUN CODE</strong> to see your heading in the preview!'
+                'Find the <strong>cout</strong> block in the <span class="category-name">BASIC</span> category.',
+                'Drag the <strong>cout</strong> block to the workspace.',
+                'Find the <strong>TEXT</strong> block in the <span class="category-name">VARIABLES</span> category.',
+                'Drag the <strong>TEXT</strong> block and attach it <span class="highlight">inside</span> the cout block.',
+                'Click on the <strong>TEXT</strong> block and type: <span class="highlight">"Hello, C++!"</span>',
+                'Click <span class="highlight">Start Activity</span> to continue to the playground.'
             ],
-            output: '<h1>Welcome to HTML!</h1>',
-            hint: 'Use <code>&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</code> — the h1 tag creates the largest heading.',
-            blocks: ['HEADING', 'TEXT']
+            output: 'Hello, C++!',
+            hint: 'Use <code>cout << "Hello, C++!";</code> in C++.',
+            blocks: ['cout', 'TEXT']
         },
-        'create-paragraph': {
-            title: 'Create Paragraph', step: 'Step 2', difficulty: 'Easy', time: '5 min', points: '10 pts',
+        'store-age': {
+            title: 'Store an Age', step: 'Activity 2', difficulty: 'Easy', time: '5 min', points: '10 pts',
             steps: [
-                'Find the <strong>PARAGRAPH</strong> block in the STRUCTURE category.',
-                'Drag the <strong>PARAGRAPH</strong> block to the workspace.',
-                'Find the <strong>TEXT</strong> block in the BASIC category.',
-                'Drag the <strong>TEXT</strong> block inside the PARAGRAPH block.',
-                'Click the text block and type: <strong>"This is my first HTML page!"</strong>',
-                'Click <strong>RUN CODE</strong> to see your paragraph in the preview!'
+                'Find the <strong>int variable</strong> block in the <span class="category-name">VARIABLES</span> category.',
+                'Set the variable name to <span class="highlight">"age"</span>.',
+                'Set the value to <span class="highlight">17</span> using a NUMBER block.',
+                'Find the <strong>cout</strong> block in the <span class="category-name">BASIC</span> category.',
+                'Inside the cout block, add a <strong>GET VARIABLE</strong> block and select <span class="highlight">"age"</span>.',
+                'Click <span class="highlight">Start Activity</span> to continue to the playground.'
             ],
-            output: '<p>This is my first HTML page!</p>',
-            hint: 'Use <code>&lt;p&gt;This is my first HTML page!&lt;/p&gt;</code> — the p tag creates a paragraph.',
-            blocks: ['PARAGRAPH', 'TEXT']
+            output: '17',
+            hint: 'Use <code>int age = 17; cout << age;</code>',
+            blocks: ['int variable', 'cout', 'NUMBER', 'GET VARIABLE']
         },
-        'heading-with-style': {
-            title: 'Heading with Style', step: 'Step 3', difficulty: 'Medium', time: '8 min', points: '15 pts',
+        'multiply-numbers': {
+            title: 'Multiply Two Numbers', step: 'Activity 3', difficulty: 'Medium', time: '8 min', points: '10 pts',
             steps: [
-                'Find the <strong>HEADING</strong> block and drag it to the workspace.',
-                'Set the heading level to <strong>h1</strong>.',
-                'Find the <strong>STYLE</strong> block in the STYLE category.',
-                'Drag the <strong>STYLE</strong> block and attach it to the HEADING block.',
-                'In the style block, set the color property to <strong>"blue"</strong>.',
-                'Add a <strong>TEXT</strong> block inside the heading and type: <strong>"Styled Heading!"</strong>',
-                'Click <strong>RUN CODE</strong> to see your styled heading!'
+                'Find the <strong>cout</strong> block in the <span class="category-name">BASIC</span> category.',
+                'Inside the cout block, add a <strong>MULTIPLY</strong> block from the <span class="category-name">MATH</span> category.',
+                'Add two <strong>NUMBER</strong> blocks: <span class="highlight">6</span> and <span class="highlight">5</span>.',
+                'Click <span class="highlight">Start Activity</span> to continue to the playground.'
             ],
-            output: '<h1 style="color: blue;">Styled Heading!</h1>',
-            hint: 'Use inline style: <code>&lt;h1 style="color: blue;"&gt;Styled Heading!&lt;/h1&gt;</code>',
-            blocks: ['HEADING', 'STYLE', 'TEXT']
+            output: '30',
+            hint: 'Use <code>cout << 6 * 5;</code>',
+            blocks: ['cout', 'MULTIPLY', 'NUMBER']
         },
-        'html-page': {
-            title: 'HTML Page', step: 'Step 4', difficulty: 'Hard', time: '10 min', points: '20 pts',
+        'less-than': {
+            title: 'Less Than', step: 'Activity 4', difficulty: 'Medium', time: '10 min', points: '10 pts',
             steps: [
-                'Drag a <strong>HEADING</strong> block and set it to <strong>h1</strong>.',
-                'Add a <strong>TEXT</strong> block inside with: <strong>"My Webpage"</strong>',
-                'Below the heading, drag a <strong>PARAGRAPH</strong> block.',
-                'Add a <strong>TEXT</strong> block inside the paragraph with: <strong>"Welcome to my website!"</strong>',
-                'Make sure both blocks are properly nested.',
-                'Click <strong>RUN CODE</strong> to see your complete HTML page!'
+                'Find the <strong>if</strong> block in the <span class="category-name">LOGIC</span> category.',
+                'Add a <strong>LESS THAN</strong> block from the <span class="category-name">LOGIC</span> category as the condition.',
+                'Set the values: <span class="highlight">15</span> and <span class="highlight">20</span>.',
+                'Inside the if block, add a <strong>cout</strong> block with the text <span class="highlight">"15 is less than 20"</span>.',
+                'Click <span class="highlight">Start Activity</span> to continue to the playground.'
             ],
-            output: '<h1>My Webpage</h1>\n<p>Welcome to my website!</p>',
-            hint: 'Structure: heading first, then paragraph. Both need text blocks inside them.',
-            blocks: ['HEADING', 'PARAGRAPH', 'TEXT']
+            output: '15 is less than 20',
+            hint: 'Use <code>if (15 < 20) { cout << "15 is less than 20"; }</code>',
+            blocks: ['if', 'LESS THAN', 'cout', 'NUMBER', 'TEXT']
+        },
+        'display-numbers': {
+            title: 'Display Numbers 1 to 5', step: 'Activity 5', difficulty: 'Hard', time: '12 min', points: '10 pts',
+            steps: [
+                'Find the <strong>FOR LOOP</strong> block in the <span class="category-name">LOOPS</span> category.',
+                'Set the counter variable to <span class="highlight">"i"</span>.',
+                'Set the start value to <span class="highlight">1</span> and end value to <span class="highlight">5</span>.',
+                'Inside the loop, add a <strong>cout</strong> block with a <strong>GET VARIABLE</strong> block for <span class="highlight">"i"</span>.',
+                'Click <span class="highlight">Start Activity</span> to continue to the playground.'
+            ],
+            output: '1\n2\n3\n4\n5',
+            hint: 'Use <code>for (int i = 1; i <= 5; i++) { cout << i; }</code>',
+            blocks: ['FOR LOOP', 'cout', 'NUMBER', 'GET VARIABLE']
         }
     };
 
@@ -1068,6 +1147,11 @@
     function openPanel(key) {
         const d = activityData[key];
         if (!d) return;
+        const card = document.querySelector(`[data-activity="${key}"]`);
+        if (card && card.classList.contains('activity-locked')) {
+            showToast('Complete all required assessments to unlock activities.', 'error');
+            return;
+        }
         document.getElementById('panelTitle').textContent = d.title;
         document.getElementById('panelStep').textContent = d.step;
         const db = document.getElementById('panelDifficulty');
@@ -1079,9 +1163,8 @@
             `<div class="step-item"><span class="step-num">${i + 1}.</span><span class="step-desc">${s}</span></div>`
         ).join('');
         document.getElementById('outputText').textContent = d.output;
-        document.getElementById('hintText').textContent = d.hint;
         document.getElementById('panelBlocks').innerHTML = d.blocks.map(b => `<span class="block-pill">${b}</span>`).join('');
-        document.getElementById('panelStartBtn').onclick = function() { window.location.href = `/student_playground_html?activity=${key}`; };
+        document.getElementById('panelStartBtn').onclick = function() { window.location.href = `/playground_cpp?activity=${key}`; };
         panel.classList.add('open');
         overlay.classList.add('show');
     }
@@ -1092,16 +1175,27 @@
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePanel(); });
 
     document.querySelectorAll('.activity-card[data-activity]').forEach(card => {
-        card.addEventListener('click', function(e) { e.preventDefault(); openPanel(this.dataset.activity); });
+        card.addEventListener('click', function(e) { e.preventDefault(); if (!this.classList.contains('activity-locked')) openPanel(this.dataset.activity); });
     });
 
     function loadActivityStatuses() {
         fetch('/get_activities').then(r => r.json()).then(data => {
             if (data.success && data.activities) {
-                const m = { 'Create Heading': 'status-createheading', 'Create Paragraph': 'status-createparagraph', 'Heading with Style': 'status-headingwithstyle', 'HTML Page': 'status-htmlpage' };
+                const m = { 'Hello, C++!': 'status-hellocpp', 'Store an Age': 'status-storeage', 'Multiply Two Numbers': 'status-multiply', 'Less Than': 'status-lessthan', 'Display Numbers 1 to 5': 'status-displaynumbers' };
                 data.activities.forEach(a => {
                     const id = m[a.name];
-                    if (id) { const el = document.getElementById(id); if (el && a.completed) { el.textContent = ' Completed'; el.className = 'status-badge status-completed'; } }
+                    if (id) {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            const done = a.status === 'COMPLETED' || a.status === 'passed' || a.status === 'done';
+                            const inProgress = a.status === 'in_progress';
+                            const locked = a.status === 'LOCKED';
+                            const card = el.closest('.activity-card');
+                            el.textContent = done ? ' Passed' : inProgress ? ' In Progress' : locked ? ' Locked' : ' Unlocked';
+                            el.className = `status-badge ${done ? 'status-completed' : locked ? 'status-locked' : 'status-pending'}`;
+                            if (card) card.classList.toggle('activity-locked', locked);
+                        }
+                    }
                 });
             }
         }).catch(e => console.error('Error loading statuses:', e));
@@ -1122,7 +1216,11 @@
         }).catch(err => console.error('Error loading user info:', err));
     }
 
-    document.addEventListener('DOMContentLoaded', function() { checkSidebarState(); loadActivityStatuses(); loadNotifications(); loadUserInfo(); });
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.activity-card[data-activity]').forEach(card => card.classList.add('activity-locked'));
+        checkSidebarState(); loadActivityStatuses(); loadNotifications(); loadUserInfo();
+        window.activityStatusTimer = window.setInterval(loadActivityStatuses, 10000);
+    });
     window.addEventListener('resize', checkSidebarState);
 </script>
 </body>

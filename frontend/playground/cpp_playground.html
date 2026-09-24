@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Playground · BlockLearn Studio</title>
+    <title>C++ Playground · BlockLearn Studio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blockly.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blocks/javascript_compressed.js"></script>
     <style>
@@ -25,6 +26,9 @@
             --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 72px;
+            --cpp-color: #004482;
+            --cpp-light: #e8edf3;
+            --cpp-dark: #003366;
         }
 
         body::before {
@@ -90,22 +94,23 @@
             display: flex;
             align-items: center;
             transition: all 0.3s ease;
-            gap: 12px;
+            gap: 0;
             overflow: hidden;
-            padding: 1rem 1.2rem;
+            padding: 1rem 0.4rem;
         }
 
-        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; color: #ffffff; }
         .sidebar-logo h2 span { color: var(--gold-warm); }
         .sidebar-logo p { font-size: 0.6rem; opacity: 0.6; margin: 2px 0 0 0; transition: all 0.3s ease; white-space: nowrap; }
         .sidebar-logo-left { display: flex; flex-direction: column; align-items: flex-start; transition: all 0.3s ease; }
+        .sidebar-logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
 
         .sidebar-toggle-btn {
             background: rgba(255,255,255,0.10);
             border: none;
             color: #e2f0ea;
             font-size: 1.1rem;
-            padding: 6px 10px;
+            padding: 6px 10px; margin-right: 8px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -357,33 +362,6 @@
 
         .btn-clear-activity:hover { background: rgba(255,255,220,0.35); }
 
-        /* Expected Output Box */
-        .expected-output-box {
-            background: rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 8px 16px;
-            margin-top: 6px;
-            display: inline-block;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .expected-output-box .label {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.7;
-            display: block;
-            margin-bottom: 2px;
-            color: #f5ffe0;
-        }
-
-        .expected-output-box .value {
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.85rem;
-            color: #4ade80;
-            font-weight: 700;
-        }
-
         .workspace-card {
             background: var(--card-white);
             border-radius: 24px;
@@ -406,12 +384,12 @@
         .card-header-custom h3 { font-size: 1rem; font-weight: 700; color: #1a4a3a; margin: 0; }
 
         .lang-badge {
-            background: var(--green-light);
+            background: var(--cpp-light);
             padding: 4px 12px;
             border-radius: 40px;
             font-size: 0.65rem;
             font-weight: 600;
-            color: var(--green-dark);
+            color: var(--cpp-dark);
         }
 
         .window-controls { display: flex; gap: 6px; align-items: center; }
@@ -502,25 +480,30 @@
         .blocklyTrash { opacity: 1 !important; transition: all 0.3s ease; }
         .blocklyTrash:hover { transform: scale(1.2); }
 
-        /* Success Notification */
-        .submit-success {
-            display: none;
-            background: #d1fae5;
-            color: #065f46;
-            padding: 16px 20px;
-            border-radius: 16px;
-            border: 2px solid #065f46;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            text-align: center;
+        .expected-output-box {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 8px 16px;
+            margin-top: 6px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .submit-success.show {
+
+        .expected-output-box .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
             display: block;
-            animation: fadeInUp 0.5s ease;
+            margin-bottom: 2px;
+            color: #f5ffe0;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .expected-output-box .value {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #4ade80;
+            font-weight: 700;
         }
 
         @media (max-width: 768px) {
@@ -558,24 +541,26 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar expanded" id="sidebar">
         <div class="sidebar-logo">
-            <div class="sidebar-logo-left">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="sidebar-logo-image"><div class="sidebar-logo-left">
                 <h2>Block<span>Learn</span></h2>
                 <p>PNHS · ICT Studio</p>
             </div>
             <button class="sidebar-toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
-                <i class="fas fa-times icon-x"></i>
-                <i class="fas fa-bars icon-bars"></i>
+                <iconify-icon icon="lucide:panel-left-close" class="icon-x"></iconify-icon>
+                <iconify-icon icon="lucide:menu" class="icon-bars"></iconify-icon>
             </button>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span>Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span>Python</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><i class="fab fa-js"></i><span>JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom active"><i class="fab fa-html5"></i><span>HTML</span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span>Progress</span></a></div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span>Achievements</span></a></div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span>Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i><span>Settings</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="/assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span>Assessments</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span>Progress</span></a></div>
+            <div class="nav-section-label">Languages</div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span>PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span>JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom active"><iconify-icon icon="logos:cplusplus"></iconify-icon><span>C++</span></a></div>
+            <div class="nav-section-label">Account</div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span>Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span>Settings</span></a></div>
         </nav>
         <div class="sidebar-footer">
             <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Sign out</span></a>
@@ -589,8 +574,8 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="greeting">
-                    <h1>HTML Playground</h1>
-                    <p>Drag, drop, and build HTML structures</p>
+                    <h1> C++ Playground</h1>
+                    <p>Drag, drop, and experiment with C++ code blocks</p>
                 </div>
             </div>
             <div class="user-card">
@@ -604,27 +589,32 @@
 
         <!-- Activity Selector -->
         <div class="activity-selector">
-            <div class="title"><i class="fas fa-graduation-cap me-2"></i>HTML Activities</div>
+            <div class="title"><i class="fas fa-graduation-cap me-2"></i>C++ Activities</div>
             <div class="activity-btns">
-                <button class="activity-btn active" data-activity="create-heading" onclick="loadActivity('create-heading')">
-                    <i class="fas fa-heading me-1"></i> Create Heading
+                <button class="activity-btn active" data-activity="hello-cpp" onclick="loadActivity('hello-cpp')">
+                    <i class="fas fa-terminal me-1"></i> Hello C++
                     <span class="difficulty-tag difficulty-easy">Easy</span>
                     <span class="step-badge">1</span>
                 </button>
-                <button class="activity-btn" data-activity="create-paragraph" onclick="loadActivity('create-paragraph')">
-                    <i class="fas fa-paragraph me-1"></i> Create Paragraph
+                <button class="activity-btn" data-activity="store-age" onclick="loadActivity('store-age')">
+                    <i class="fas fa-cube me-1"></i> Store Age
                     <span class="difficulty-tag difficulty-easy">Easy</span>
                     <span class="step-badge">2</span>
                 </button>
-                <button class="activity-btn" data-activity="heading-with-style" onclick="loadActivity('heading-with-style')">
-                    <i class="fas fa-paint-brush me-1"></i> Heading with Style
+                <button class="activity-btn" data-activity="multiply-numbers" onclick="loadActivity('multiply-numbers')">
+                    <i class="fas fa-calculator me-1"></i> Multiply Numbers
                     <span class="difficulty-tag difficulty-medium">Medium</span>
                     <span class="step-badge">3</span>
                 </button>
-                <button class="activity-btn" data-activity="html-page" onclick="loadActivity('html-page')">
-                    <i class="fas fa-file-code me-1"></i> HTML Page
-                    <span class="difficulty-tag difficulty-hard">Hard</span>
+                <button class="activity-btn" data-activity="less-than" onclick="loadActivity('less-than')">
+                    <i class="fas fa-code-branch me-1"></i> Less Than
+                    <span class="difficulty-tag difficulty-medium">Medium</span>
                     <span class="step-badge">4</span>
+                </button>
+                <button class="activity-btn" data-activity="display-numbers" onclick="loadActivity('display-numbers')">
+                    <i class="fas fa-list-ol me-1"></i> Display Numbers
+                    <span class="difficulty-tag difficulty-hard">Hard</span>
+                    <span class="step-badge">5</span>
                 </button>
                 <button class="activity-btn" data-activity="free-play" onclick="loadActivity('free-play')">
                     <i class="fas fa-play me-1"></i> Free Play
@@ -637,13 +627,13 @@
             <div class="activity-banner-info">
                 <h4>
                     <i class="fas fa-code me-2"></i>
-                    <span id="bannerActivityName">Create Heading</span>
+                    <span id="bannerActivityName">Hello C++</span>
                     <span class="difficulty-tag difficulty-easy" id="bannerDifficulty">Easy</span>
                 </h4>
-                <p id="bannerInstructions">Build an HTML heading (h1) with the text "Welcome to HTML!"</p>
+                <p id="bannerInstructions">Build a C++ program that prints "Hello, C++!"</p>
                 <div class="expected-output-box">
                     <span class="label"><i class="fas fa-eye me-1"></i>Expected Output</span>
-                    <span class="value" id="bannerExpectedOutput">&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</span>
+                    <span class="value" id="bannerExpectedOutput">"Hello, C++!"</span>
                 </div>
             </div>
             <button class="btn-clear-activity" onclick="clearWorkspace()">
@@ -651,18 +641,10 @@
             </button>
         </div>
 
-        <!-- Success Notification -->
-        <div class="submit-success" id="submitSuccess">
-            <i class="fas fa-check-circle me-2"></i>
-            <span id="successMessage">Submitted Successfully! </span>
-            <br>
-            <small style="font-weight: 400;">Your activity has been submitted for review. You will receive your score and feedback from your teacher.</small>
-        </div>
-
         <!-- Workspace -->
         <div class="workspace-card">
             <div class="card-header-custom">
-                <h3><i class="fas fa-cubes me-2" style="color:var(--green-main)"></i>HTML Blockly</h3>
+                <h3><i class="fas fa-cubes me-2" style="color:var(--green-main)"></i>C++ Blockly</h3>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <div class="window-controls">
                         <button class="window-btn minimize" onclick="minimizeWorkspace()" title="Minimize">
@@ -681,19 +663,18 @@
                     <button class="trash-btn" onclick="clearWorkspace()" title="Clear all blocks">
                         <i class="fas fa-trash-alt"></i> Clear All
                     </button>
-                    <span class="lang-badge"><i class="fab fa-html5 me-1"></i>HTML</span>
+                    <span class="lang-badge"><i class="fas fa-plus-circle me-1"></i>C++</span>
                 </div>
             </div>
             <div class="workspace-wrapper" id="workspaceWrapper">
                 <div id="blocklyDiv"></div>
             </div>
-            
             <div class="output-section">
-                <div class="output-label"><i class="fas fa-code me-1"></i> HTML OUTPUT</div>
-                <div class="output-area" id="outputArea">Build your HTML using blocks. Click RUN to see the code!</div>
+                <div class="output-label"><i class="fas fa-terminal me-1"></i> C++ Output</div>
+                <div class="output-area" id="outputArea">Build your solution using blocks. Click RUN to see the output!</div>
                 <div class="action-buttons">
-                    <button class="btn-run-custom" onclick="runHTMLCode()"><i class="fas fa-play me-2"></i> Run Code</button>
-                    <button class="btn-submit-custom" onclick="submitHTMLPractice()"><i class="fas fa-paper-plane me-2"></i> Submit</button>
+                    <button class="btn-run-custom" onclick="runCppCode()"><i class="fas fa-play me-2"></i> Run Code</button>
+                    <button class="btn-submit-custom" onclick="saveCppPractice()"><i class="fas fa-paper-plane me-2"></i> Submit</button>
                 </div>
             </div>
         </div>
@@ -708,66 +689,172 @@
     console.log('Blockly version:', Blockly.version || 'unknown');
 
     // ===== 1. REGISTER BLOCK DEFINITIONS =====
+    
+    // C++ cout (output) block
+    Blockly.Blocks['cpp_cout'] = {
+        init: function() {
+            this.appendValueInput('TEXT')
+                .setCheck(['String', 'Number'])
+                .appendField('cout <<');
+            this.setInputsInline(true);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#004482');
+            this.setTooltip('Print to console in C++');
+        }
+    };
 
-    // Heading Block
-    Blockly.Blocks['html_heading'] = {
+    // C++ variable declaration block
+    Blockly.Blocks['cpp_variable'] = {
         init: function() {
             this.appendDummyInput()
                 .appendField(new Blockly.FieldDropdown([
-                    ['h1', 'h1'],
-                    ['h2', 'h2'],
-                    ['h3', 'h3'],
-                    ['h4', 'h4']
-                ]), 'TAG')
-                .appendField(new Blockly.FieldTextInput('Heading'), 'TEXT');
+                    ['int', 'int'],
+                    ['double', 'double'],
+                    ['string', 'string'],
+                    ['bool', 'bool']
+                ]), 'TYPE')
+                .appendField(new Blockly.FieldTextInput('myVar'), 'NAME')
+                .appendField('=');
+            this.appendValueInput('VALUE');
+            this.setInputsInline(true);
             this.setPreviousStatement(true, null);
             this.setNextStatement(true, null);
-            this.setColour('#e34c26');
-            this.setTooltip('Create an HTML heading');
+            this.setColour('#8b5cf6');
+            this.setTooltip('Create a C++ variable');
         }
     };
 
-    // Paragraph Block
-    Blockly.Blocks['html_paragraph'] = {
+    // C++ get variable block
+    Blockly.Blocks['cpp_variable_get'] = {
         init: function() {
             this.appendDummyInput()
-                .appendField('p')
-                .appendField(new Blockly.FieldTextInput('Paragraph text'), 'TEXT');
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour('#e34c26');
-            this.setTooltip('Create an HTML paragraph');
+                .appendField(new Blockly.FieldTextInput('myVar'), 'NAME');
+            this.setOutput(true, ['String', 'Number']);
+            this.setColour('#8b5cf6');
+            this.setTooltip('Get variable value');
         }
     };
 
-    // Style Block
-    Blockly.Blocks['html_style'] = {
+    // C++ math operation block
+    Blockly.Blocks['cpp_math_operation'] = {
+        init: function() {
+            this.appendValueInput('A')
+                .setCheck('Number')
+                .appendField('math');
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldDropdown([
+                    ['+', 'ADD'],
+                    ['-', 'SUBTRACT'],
+                    ['×', 'MULTIPLY'],
+                    ['÷', 'DIVIDE']
+                ]), 'OP');
+            this.appendValueInput('B')
+                .setCheck('Number')
+                .appendField('');
+            this.setInputsInline(true);
+            this.setOutput(true, 'Number');
+            this.setColour('#10b981');
+            this.setTooltip('Perform math operation');
+        }
+    };
+
+    // C++ number block
+    Blockly.Blocks['cpp_number'] = {
         init: function() {
             this.appendDummyInput()
-                .appendField('style')
-                .appendField(new Blockly.FieldTextInput('color: blue; font-size: 20px;'), 'STYLE');
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour('#2965f1');
-            this.setTooltip('Add CSS style');
+                .appendField(new Blockly.FieldNumber(0, -Infinity, Infinity, 1), 'NUM');
+            this.setOutput(true, 'Number');
+            this.setColour('#10b981');
+            this.setTooltip('A number');
         }
     };
 
-    // Div Container Block
-    Blockly.Blocks['html_div'] = {
+    // C++ text block
+    Blockly.Blocks['cpp_text'] = {
         init: function() {
             this.appendDummyInput()
-                .appendField('div');
-            this.appendStatementInput('CONTENT')
-                .setCheck(null);
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour('#e34c26');
-            this.setTooltip('Create a div container');
+                .appendField(new Blockly.FieldTextInput(''), 'TEXT');
+            this.setOutput(true, 'String');
+            this.setColour('#8b5cf6');
+            this.setTooltip('A text string');
         }
     };
 
-    // ===== 2. REGISTER JAVASCRIPT GENERATORS =====
+    // C++ if-else block
+    Blockly.Blocks['cpp_if'] = {
+        init: function() {
+            this.appendValueInput('IF0')
+                .setCheck('Boolean')
+                .appendField('if');
+            this.appendStatementInput('DO0')
+                .appendField('then');
+            this.appendStatementInput('ELSE')
+                .appendField('else');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#f0b84d');
+            this.setTooltip('If-Else statement in C++');
+        }
+    };
+
+    // C++ compare block
+    Blockly.Blocks['cpp_compare'] = {
+        init: function() {
+            this.appendValueInput('A')
+                .setCheck(['Number', 'String']);
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldDropdown([
+                    ['=', 'EQ'],
+                    ['≠', 'NEQ'],
+                    ['>', 'GT'],
+                    ['<', 'LT'],
+                    ['≥', 'GTE'],
+                    ['≤', 'LTE']
+                ]), 'OP');
+            this.appendValueInput('B')
+                .setCheck(['Number', 'String']);
+            this.setInputsInline(true);
+            this.setOutput(true, 'Boolean');
+            this.setColour('#f0b84d');
+            this.setTooltip('Compare two values');
+        }
+    };
+
+    // C++ for loop block
+    Blockly.Blocks['cpp_for'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('for (int')
+                .appendField(new Blockly.FieldTextInput('i'), 'VAR')
+                .appendField('=');
+            this.appendValueInput('FROM')
+                .setCheck('Number');
+            this.appendDummyInput()
+                .appendField(';')
+                .appendField(new Blockly.FieldTextInput('i'), 'VAR2')
+                .appendField('<= ');
+            this.appendValueInput('TO')
+                .setCheck('Number');
+            this.appendDummyInput()
+                .appendField(';')
+                .appendField(new Blockly.FieldTextInput('i'), 'VAR3')
+                .appendField('++) {');
+            this.appendStatementInput('DO')
+                .appendField('body');
+            this.appendDummyInput()
+                .appendField('}');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#d97706');
+            this.setTooltip('For loop in C++');
+        }
+    };
+
+    // ============================================================
+    // JAVASCRIPT GENERATORS (for C++ code generation)
+    // ============================================================
+
     if (typeof Blockly.JavaScript === 'undefined') {
         console.warn('Blockly.JavaScript not available, trying to get generator...');
         try {
@@ -785,28 +872,84 @@
     }
 
     if (Blockly.JavaScript) {
-        Blockly.JavaScript['html_heading'] = function(block) {
-            var tag = block.getFieldValue('TAG');
-            var text = block.getFieldValue('TEXT') || 'Heading';
-            return '<' + tag + '>' + text + '</' + tag + '>\n';
+        // C++ cout generator
+        Blockly.JavaScript['cpp_cout'] = function(block) {
+            var text = Blockly.JavaScript.valueToCode(block, 'TEXT', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'cout << ' + text + ';\n';
         };
 
-        Blockly.JavaScript['html_paragraph'] = function(block) {
-            var text = block.getFieldValue('TEXT') || 'Paragraph text';
-            return '<p>' + text + '</p>\n';
+        // C++ variable generator
+        Blockly.JavaScript['cpp_variable'] = function(block) {
+            var type = block.getFieldValue('TYPE');
+            var name = block.getFieldValue('NAME');
+            var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            if (type === 'string') {
+                value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            }
+            if (type === 'bool') {
+                value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC) || 'false';
+            }
+            return type + ' ' + name + ' = ' + value + ';\n';
         };
 
-        Blockly.JavaScript['html_style'] = function(block) {
-            var style = block.getFieldValue('STYLE') || 'color: blue;';
-            return '<style>' + style + '</style>\n';
+        // C++ get variable generator
+        Blockly.JavaScript['cpp_variable_get'] = function(block) {
+            var name = block.getFieldValue('NAME');
+            return [name, Blockly.JavaScript.ORDER_ATOMIC];
         };
 
-        Blockly.JavaScript['html_div'] = function(block) {
-            var content = Blockly.JavaScript.statementToCode(block, 'CONTENT');
-            return '<div>\n' + content + '</div>\n';
+        // C++ math operation generator
+        Blockly.JavaScript['cpp_math_operation'] = function(block) {
+            var a = Blockly.JavaScript.valueToCode(block, 'A', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var b = Blockly.JavaScript.valueToCode(block, 'B', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var op = block.getFieldValue('OP');
+            var symbol = op === 'ADD' ? '+' : op === 'SUBTRACT' ? '-' : op === 'MULTIPLY' ? '*' : '/';
+            return ['(' + a + ' ' + symbol + ' ' + b + ')', Blockly.JavaScript.ORDER_ATOMIC];
         };
 
-        console.log('HTML JavaScript generators registered successfully');
+        // C++ number generator
+        Blockly.JavaScript['cpp_number'] = function(block) {
+            var num = block.getFieldValue('NUM');
+            return [num, Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        // C++ text generator
+        Blockly.JavaScript['cpp_text'] = function(block) {
+            var text = block.getFieldValue('TEXT') || '';
+            return ['"' + text + '"', Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        // C++ compare generator
+        Blockly.JavaScript['cpp_compare'] = function(block) {
+            var a = Blockly.JavaScript.valueToCode(block, 'A', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var b = Blockly.JavaScript.valueToCode(block, 'B', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var op = block.getFieldValue('OP');
+            var symbol = op === 'EQ' ? '==' : op === 'NEQ' ? '!=' : op === 'GT' ? '>' : op === 'LT' ? '<' : op === 'GTE' ? '>=' : '<=';
+            return ['(' + a + ' ' + symbol + ' ' + b + ')', Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        // C++ if-else generator
+        Blockly.JavaScript['cpp_if'] = function(block) {
+            var condition = Blockly.JavaScript.valueToCode(block, 'IF0', Blockly.JavaScript.ORDER_ATOMIC) || 'false';
+            var doCode = Blockly.JavaScript.statementToCode(block, 'DO0') || '';
+            var elseCode = Blockly.JavaScript.statementToCode(block, 'ELSE') || '';
+            var code = 'if (' + condition + ') {\n' + doCode + '}';
+            if (elseCode) {
+                code += ' else {\n' + elseCode + '}';
+            }
+            return code + '\n';
+        };
+
+        // C++ for loop generator
+        Blockly.JavaScript['cpp_for'] = function(block) {
+            var varName = block.getFieldValue('VAR');
+            var from = Blockly.JavaScript.valueToCode(block, 'FROM', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var to = Blockly.JavaScript.valueToCode(block, 'TO', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var doCode = Blockly.JavaScript.statementToCode(block, 'DO') || '';
+            return 'for (int ' + varName + ' = ' + from + '; ' + varName + ' <= ' + to + '; ' + varName + '++) {\n' + doCode + '}\n';
+        };
+
+        console.log('C++ generators registered successfully');
     } else {
         console.error('Blockly.JavaScript is not available!');
     }
@@ -849,82 +992,100 @@
 
     // ===== BLOCKLY SETUP =====
     let workspace;
-    let currentActivity = 'create-heading';
+    let currentActivity = 'hello-cpp';
     let isMaximized = false;
     let previousHeight = 460;
     let currentZoom = 1;
 
     // ===== ACTIVITY CONFIGURATIONS =====
-    const htmlActivities = {
-        'create-heading': {
-            name: 'Create Heading',
+    const cppActivities = {
+        'hello-cpp': {
+            name: 'Hello C++',
             difficulty: 'Easy',
             step: 1,
-            toolboxCategories: ['HTML Basic'],
+            toolboxCategories: ['CPP Basic'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Create an h1 heading with the text "Welcome to HTML!"\n\nBLOCKS NEEDED: html_heading\n\nSTEPS:\n1. Drag "html_heading" block\n2. Select "h1" from dropdown\n3. Type "Welcome to HTML!" in the text field\n4. Click RUN CODE`,
-            expected: '<h1>Welcome to HTML!</h1>',
+            instructions: `TASK: Print "Hello, C++!" to the console.\n\nBLOCKS NEEDED: cout, TEXT\n\nSTEPS:\n1. Drag cout from BASIC\n2. Drag TEXT from BASIC and attach INSIDE cout\n3. Type "Hello, C++!" in TEXT\n4. Click RUN CODE`,
+            expected: '"Hello, C++!"',
             checkCode: function(code) {
-                if (code.includes('<h1>Welcome to HTML!</h1>')) {
-                    return { correct: true, message: 'Correct! Output: <span class="highlight">&lt;h1&gt;Welcome to HTML!&lt;/h1&gt;</span>' };
-                } else if (code.includes('<h1>')) {
-                    return { correct: false, message: 'Error: You used h1, but the text should be <span class="highlight">"Welcome to HTML!"</span>' };
+                if (code.includes('cout << "Hello, C++!";')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">"Hello, C++!"</span>' };
+                } else if (code.includes('cout')) {
+                    return { correct: false, message: 'Error: You used cout, but the message should be <span class="highlight">"Hello, C++!"</span>.' };
                 } else {
-                    return { correct: false, message: 'Error: Need an h1 heading with <span class="highlight">"Welcome to HTML!"</span>' };
+                    return { correct: false, message: 'Error: You need cout to print <span class="highlight">"Hello, C++!"</span>.' };
                 }
             }
         },
-        'create-paragraph': {
-            name: 'Create Paragraph',
+        'store-age': {
+            name: 'Store Age',
             difficulty: 'Easy',
             step: 2,
-            toolboxCategories: ['HTML Basic'],
+            toolboxCategories: ['CPP Basic', 'CPP Variables'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Create a paragraph with the text "This is my first HTML page!"\n\nBLOCKS NEEDED: html_paragraph\n\nSTEPS:\n1. Drag "html_paragraph" block\n2. Type "This is my first HTML page!" in the text field\n3. Click RUN CODE`,
-            expected: '<p>This is my first HTML page!</p>',
+            instructions: `TASK: Create a variable called "age" with value 17 and print it.\n\nBLOCKS NEEDED: int variable, cout, NUMBER, variable_get\n\nSTEPS:\n1. Drag "int myVar =" from VARIABLES\n2. Change "myVar" to "age"\n3. Attach a NUMBER block with value 17\n4. Drag cout from BASIC\n5. Drag variable_get from VARIABLES and attach INSIDE cout\n6. Change variable_get to "age"\n7. Click RUN CODE`,
+            expected: '17',
             checkCode: function(code) {
-                if (code.includes('<p>This is my first HTML page!</p>')) {
-                    return { correct: true, message: 'Correct! Output: <span class="highlight">&lt;p&gt;This is my first HTML page!&lt;/p&gt;</span>' };
-                } else if (code.includes('<p>')) {
-                    return { correct: false, message: 'Error: You used p, but the text should be <span class="highlight">"This is my first HTML page!"</span>' };
+                if (code.includes('int age = 17;') && code.includes('cout << age;')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">17</span>' };
+                } else if (code.includes('int age') && code.includes('cout')) {
+                    return { correct: false, message: 'Error: Make sure age = 17 and you printed the variable.' };
                 } else {
-                    return { correct: false, message: 'Error: Need a paragraph with <span class="highlight">"This is my first HTML page!"</span>' };
+                    return { correct: false, message: 'Error: Need: int age = 17; cout << age;' };
                 }
             }
         },
-        'heading-with-style': {
-            name: 'Heading with Style',
+        'multiply-numbers': {
+            name: 'Multiply Numbers',
             difficulty: 'Medium',
             step: 3,
-            toolboxCategories: ['HTML Basic', 'HTML Style'],
+            toolboxCategories: ['CPP Basic', 'CPP Math'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Create a blue h1 heading with "Styled Heading!"\n\nBLOCKS NEEDED: html_heading, html_style\n\nSTEPS:\n1. Drag "html_heading" block\n2. Select "h1", type "Styled Heading!"\n3. Drag "html_style" block\n4. Type "color: blue;" in the style field\n5. Click RUN CODE`,
-            expected: '<style>color: blue;</style>\n<h1>Styled Heading!</h1>',
+            instructions: `TASK: Multiply 6 × 5 and print the result.\n\nBLOCKS NEEDED: cout, math_operation, number\n\nSTEPS:\n1. Drag cout\n2. Inside cout, add math_operation (×)\n3. Add two number blocks: 6 and 5\n4. Click RUN CODE`,
+            expected: '30',
             checkCode: function(code) {
-                if (code.includes('color: blue;') && code.includes('<h1>Styled Heading!</h1>')) {
-                    return { correct: true, message: 'Correct! Output: <span class="highlight">color: blue; &lt;h1&gt;Styled Heading!&lt;/h1&gt;</span>' };
-                } else if (code.includes('<h1>') && code.includes('style')) {
-                    return { correct: false, message: 'Error: You have heading and style, but check the text and color.' };
+                if (code.includes('cout << (6 * 5);')) {
+                    return { correct: true, message: 'Correct! 6 × 5 = <span class="highlight">30</span>' };
+                } else if (code.includes('cout') && code.includes('*')) {
+                    return { correct: false, message: 'Error: You used cout and *, but check your numbers. Should be 6 × 5.' };
                 } else {
-                    return { correct: false, message: 'Error: Need: style block and h1 heading with <span class="highlight">"Styled Heading!"</span>' };
+                    return { correct: false, message: 'Error: Need cout with math_operation (MULTIPLY) for 6 × 5.' };
                 }
             }
         },
-        'html-page': {
-            name: 'HTML Page',
-            difficulty: 'Hard',
+        'less-than': {
+            name: 'Less Than',
+            difficulty: 'Medium',
             step: 4,
-            toolboxCategories: ['All'],
+            toolboxCategories: ['CPP Basic', 'CPP Logic'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Build a simple HTML page with:\n- A heading (h1): "My Page"\n- A paragraph: "Welcome to my HTML page!"\n\nBLOCKS NEEDED: html_heading, html_paragraph\n\nSTEPS:\n1. Drag html_heading -> h1 -> "My Page"\n2. Drag html_paragraph -> "Welcome to my HTML page!"\n3. Click RUN CODE`,
-            expected: '<h1>My Page</h1>\n<p>Welcome to my HTML page!</p>',
+            instructions: `TASK: Check if 15 is less than 20. If true, print "15 is less than 20".\n\nBLOCKS NEEDED: if, compare, cout, number, text\n\nSTEPS:\n1. Drag if block\n2. Add compare (<) block as condition\n3. Set values: 15 and 20\n4. Inside if, add cout with text "15 is less than 20"\n5. Click RUN CODE`,
+            expected: '15 is less than 20',
             checkCode: function(code) {
-                if (code.includes('<h1>My Page</h1>') && code.includes('<p>Welcome to my HTML page!</p>')) {
-                    return { correct: true, message: 'Correct! Output: <span class="highlight">&lt;h1&gt;My Page&lt;/h1&gt; &lt;p&gt;Welcome to my HTML page!&lt;/p&gt;</span>' };
-                } else if (code.includes('<h1>') && code.includes('<p>')) {
-                    return { correct: false, message: 'Error: Check your heading text (should be "My Page") and paragraph text (should be "Welcome to my HTML page!")' };
+                if (code.includes('if (15 < 20)') && code.includes('cout << "15 is less than 20";')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">"15 is less than 20"</span>' };
+                } else if (code.includes('if') && code.includes('cout')) {
+                    return { correct: false, message: 'Error: Check your condition. Should be 15 < 20.' };
                 } else {
-                    return { correct: false, message: 'Error: Need: h1 heading and a paragraph.' };
+                    return { correct: false, message: 'Error: Need if (15 < 20) with cout inside.' };
+                }
+            }
+        },
+        'display-numbers': {
+            name: 'Display Numbers',
+            difficulty: 'Hard',
+            step: 5,
+            toolboxCategories: ['CPP Basic', 'CPP Loops'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Display numbers 1 to 5 using a for loop.\n\nBLOCKS NEEDED: for loop, cout, number, variable_get\n\nSTEPS:\n1. Drag for loop\n2. Set counter to "i"\n3. Set from: 1, to: 5\n4. Inside loop, add cout with variable_get "i"\n5. Click RUN CODE`,
+            expected: '1\n2\n3\n4\n5',
+            checkCode: function(code) {
+                if (code.includes('for (int i = 1; i <= 5; i++)') && code.includes('cout << i;')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">1 2 3 4 5</span>' };
+                } else if (code.includes('for') && code.includes('cout')) {
+                    return { correct: false, message: 'Error: Check your loop range. Should be 1 to 5.' };
+                } else {
+                    return { correct: false, message: 'Error: Need for loop with cout inside.' };
                 }
             }
         },
@@ -934,38 +1095,51 @@
             step: 0,
             toolboxCategories: ['All'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Build anything you want with HTML blocks!\n\nAvailable blocks:\n- html_heading (h1, h2, h3, h4)\n- html_paragraph (p)\n- html_style (CSS)\n- html_div (container)\n\nTry creating:\n- A webpage with heading and paragraph\n- Styled elements\n- A div with multiple elements`,
-            expected: 'Your HTML Code',
+            instructions: `TASK: Build anything you want!\n\nAvailable blocks:\nBASIC: cout, TEXT\nMATH: math_operation, number\nVARIABLES: int variable, variable_get\nLOGIC: if, compare\nLOOPS: for loop\n\nTry creating:\n- Calculator with +, -, ×, ÷\n- Any math expression\n- Variables with different values\n- If-else conditions`,
+            expected: 'Your Code',
             checkCode: function(code) {
-                return { correct: true, message: 'Free Play! Your HTML code:\n\n' + code };
+                return { correct: true, message: 'Free Play! Your code:\n\n' + code };
             }
         }
     };
 
     // ===== TOOLBOX GENERATOR =====
-    function getHTMLToolbox(categories) {
+    function getCppToolbox(categories) {
         const allCategories = {
-            'HTML Basic': `
-                <category name="HTML" colour="#e34c26">
-                    <block type="html_heading"></block>
-                    <block type="html_paragraph"></block>
+            'CPP Basic': `
+                <category name="BASIC" colour="#004482">
+                    <block type="cpp_cout"></block>
+                    <block type="cpp_text"></block>
                 </category>`,
-            'HTML Style': `
-                <category name="STYLE" colour="#2965f1">
-                    <block type="html_style"></block>
+            'CPP Math': `
+                <category name="MATH" colour="#10b981">
+                    <block type="cpp_math_operation"></block>
+                    <block type="cpp_number"></block>
                 </category>`,
-            'HTML Advanced': `
-                <category name="ADVANCED" colour="#f7df1e">
-                    <block type="html_div"></block>
+            'CPP Variables': `
+                <category name="VARIABLES" colour="#8b5cf6">
+                    <block type="cpp_variable"></block>
+                    <block type="cpp_variable_get"></block>
+                </category>`,
+            'CPP Logic': `
+                <category name="LOGIC" colour="#f0b84d">
+                    <block type="cpp_if"></block>
+                    <block type="cpp_compare"></block>
+                </category>`,
+            'CPP Loops': `
+                <category name="LOOPS" colour="#d97706">
+                    <block type="cpp_for"></block>
                 </category>`
         };
 
         if (categories.includes('All')) {
             return `
                 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">
-                    ${allCategories['HTML Basic']}
-                    ${allCategories['HTML Style']}
-                    ${allCategories['HTML Advanced']}
+                    ${allCategories['CPP Basic']}
+                    ${allCategories['CPP Math']}
+                    ${allCategories['CPP Variables']}
+                    ${allCategories['CPP Logic']}
+                    ${allCategories['CPP Loops']}
                 </xml>`;
         }
 
@@ -1008,11 +1182,8 @@
     // ===== ACTIVITY LOADING =====
     function loadActivity(activityId) {
         currentActivity = activityId;
-        const activity = htmlActivities[activityId];
+        const activity = cppActivities[activityId];
         if (!activity) return;
-
-        // Hide success message when switching activities
-        document.getElementById('submitSuccess').classList.remove('show');
 
         document.querySelectorAll('.activity-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.activity === activityId);
@@ -1030,8 +1201,7 @@
         else diffTag.classList.add('difficulty-easy');
         
         document.getElementById('bannerInstructions').innerHTML = activity.instructions.replace(/\n/g, '<br>');
-
-        // Update Expected Output in Banner
+        
         const expectedEl = document.getElementById('bannerExpectedOutput');
         if (activity.expected) {
             expectedEl.textContent = activity.expected;
@@ -1039,10 +1209,10 @@
         } else {
             expectedEl.textContent = '—';
         }
-
+        
         banner.style.display = 'flex';
 
-        const toolboxXml = getHTMLToolbox(activity.toolboxCategories);
+        const toolboxXml = getCppToolbox(activity.toolboxCategories);
         initBlockly(toolboxXml);
 
         setTimeout(() => {
@@ -1052,7 +1222,7 @@
                     Blockly.Xml.domToWorkspace(xmlDom, workspace);
                     Blockly.svgResize(workspace);
                 }
-                document.getElementById('outputArea').innerHTML = 'Build your HTML using blocks. Click RUN to see the code!';
+                document.getElementById('outputArea').innerHTML = 'Build your solution using blocks. Click RUN to see the output!';
                 document.getElementById('outputArea').className = 'output-area';
             } catch(e) {
                 console.error('Failed to load activity blocks:', e);
@@ -1064,9 +1234,6 @@
 
     // ===== WORKSPACE CONTROLS =====
     function clearWorkspace() {
-        // Hide success message when clearing
-        document.getElementById('submitSuccess').classList.remove('show');
-        
         if (confirm('Are you sure you want to clear all blocks?')) {
             try {
                 if (workspace) {
@@ -1133,11 +1300,8 @@
         }
     }
 
-    // ===== RUN HTML CODE =====
-    function runHTMLCode() {
-        // Hide success message when running again
-        document.getElementById('submitSuccess').classList.remove('show');
-        
+    // ===== RUN C++ CODE =====
+    function runCppCode() {
         try {
             if (!workspace) {
                 document.getElementById('outputArea').innerHTML = 'Workspace not initialized. Please reload.';
@@ -1146,7 +1310,7 @@
             }
 
             if (typeof Blockly.JavaScript === 'undefined') {
-                document.getElementById('outputArea').innerHTML = 'JavaScript generator not available.';
+                document.getElementById('outputArea').innerHTML = 'C++ generator not available.';
                 document.getElementById('outputArea').className = 'output-area error';
                 console.error('Blockly.JavaScript is undefined!');
                 return;
@@ -1155,54 +1319,110 @@
             let code = Blockly.JavaScript.workspaceToCode(workspace);
             
             if (!code || code.trim() === '') {
-                document.getElementById('outputArea').innerHTML = 'No code to run. Build your HTML first!';
+                document.getElementById('outputArea').innerHTML = 'No code to run. Build your solution first!';
                 document.getElementById('outputArea').className = 'output-area error';
                 return;
             }
 
-            document.getElementById('outputArea').innerHTML = 'HTML Code generated:\n\n' + code;
-            document.getElementById('outputArea').className = 'output-area';
+            const outputArea = document.getElementById('outputArea');
+            const originalConsoleLog = console.log;
+            window.lastCppOutput = '';
+            try {
+                let consoleOutput = [];
+                console.log = function(...args) {
+                    consoleOutput.push(args.join(' '));
+                };
+
+                const executableCode = code
+                    .replace(/\b(int|double|string|bool)\s+/g, 'let ')
+                    .replace(/\bcout\s*<<\s*(.+?);/g, 'console.log($1);');
+                eval(executableCode);
+
+                if (consoleOutput.length > 0) {
+                    window.lastCppOutput = consoleOutput.join('\n');
+                    outputArea.textContent = consoleOutput.join('\n');
+                    outputArea.className = 'output-area success';
+                } else {
+                    window.lastCppOutput = '';
+                    outputArea.textContent = 'Code ran successfully but no output was printed.';
+                    outputArea.className = 'output-area';
+                }
+            } catch(e) {
+                outputArea.textContent = 'Execution error: ' + e.message;
+                outputArea.className = 'output-area error';
+            } finally {
+                console.log = originalConsoleLog;
+            }
 
         } catch(e) {
             document.getElementById('outputArea').innerHTML = 'Error: ' + e.message;
             document.getElementById('outputArea').className = 'output-area error';
-            console.error('Run HTML error:', e);
+            console.error('Run C++ error:', e);
         }
     }
 
-    // ===== SUBMIT HTML PRACTICE =====
-    function submitHTMLPractice() {
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 18px;border-radius:12px;background:' + (type === 'error' ? '#b33a2a' : '#1a463a') + ';color:#fff;font-size:.8rem;box-shadow:0 8px 32px rgba(0,0,0,.2);';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+    }
+
+    function saveCppPractice() {
         if (!workspace) {
             alert('Workspace not ready. Please reload.');
             return;
         }
         
         if (typeof Blockly.JavaScript === 'undefined') {
-            alert('JavaScript generator not available.');
+            alert('C++ generator not available.');
             return;
         }
         
         let code = Blockly.JavaScript.workspaceToCode(workspace).trim();
         if (!code) { 
-            alert('Build your HTML before submitting!'); 
+            alert('Build your solution before submitting!'); 
             return; 
         }
 
-        let activityName = htmlActivities[currentActivity]?.name || 'HTML Activity';
+        const activityNumbers = {
+            'hello-cpp': 1,
+            'store-age': 2,
+            'multiply-numbers': 3,
+            'less-than': 4,
+            'display-numbers': 5
+        };
+        const assessmentNumber = activityNumbers[currentActivity];
+        if (!assessmentNumber) {
+            alert('Free Play cannot be submitted as an assessment.');
+            return;
+        }
+
+        const codeBlocks = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
+        const outputArea = document.getElementById('outputArea');
+        const output = String(window.lastCppOutput || outputArea?.textContent || '')
+            .replace(/^\s*✅\s*Submitted Successfully!\s*$/i, '')
+            .replace(/\r\n/g, '\n')
+            .trim();
+        if (!output || output.startsWith('No code to run') || output.startsWith('Execution error')) {
+            alert('Run your C++ code first and make sure it produces the expected output.');
+            return;
+        }
         
-        // Show loading state
         const submitBtn = document.querySelector('.btn-submit-custom');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Submitting...';
         submitBtn.disabled = true;
 
-        fetch('/submit_activity', {
+        fetch('/submit_assessment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                activity_name: activityName,
-                code_blocks: code,
-                language: 'html'
+                language: 'cpp',
+                assessment_number: assessmentNumber,
+                code_blocks: codeBlocks,
+                output: output
             })
         })
         .then(response => {
@@ -1218,19 +1438,17 @@
             submitBtn.disabled = false;
             
             if (result.success) {
-                // Show success message
-                const successDiv = document.getElementById('submitSuccess');
-                document.getElementById('successMessage').textContent = 'Submitted Successfully!';
-                successDiv.classList.add('show');
-                
-                document.getElementById('outputArea').innerHTML = 'Submitted Successfully!';
+                const earnedPoints = result.points || 0;
+                const maxPoints = result.max_points || 0;
+                const scoreMessage = `Successfully submitted ${earnedPoints}/${maxPoints}`;
+                showToast(scoreMessage, 'success');
+                document.getElementById('outputArea').innerHTML = scoreMessage;
                 document.getElementById('outputArea').className = 'output-area success';
-                
-                // Scroll to success message
-                successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 if (typeof loadStats === 'function') loadStats();
                 if (typeof loadActivity === 'function') loadActivity(currentActivity);
                 try { localStorage.setItem('student_dashboard_refresh', Date.now().toString()); } catch(e) {}
+                try { localStorage.setItem('progress_updated', Date.now().toString()); } catch(e) {}
+                try { localStorage.setItem('assessment_status_updated', Date.now().toString()); } catch(e) {}
             } else {
                 alert(result.message || 'Submission failed. Please try again.');
             }
@@ -1239,7 +1457,7 @@
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
             console.error('Submit activity failed:', error);
-            alert('Unable to submit. Please try again.');
+            alert(error.message || 'Unable to submit. Please try again.');
         });
     }
 
@@ -1247,10 +1465,10 @@
     function checkUrlForActivity() {
         const urlParams = new URLSearchParams(window.location.search);
         const activity = urlParams.get('activity');
-        if (activity && htmlActivities[activity]) {
+        if (activity && cppActivities[activity]) {
             loadActivity(activity);
         } else {
-            loadActivity('create-heading');
+            loadActivity('hello-cpp');
         }
     }
 

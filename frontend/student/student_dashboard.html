@@ -168,11 +168,14 @@
         .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 1.1rem;
+            padding: 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
+        }
+        .logo-image {
+            width: 70px; height: 70px; object-fit: contain; flex-shrink: 0;
         }
         .logo-full {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
@@ -191,6 +194,7 @@
         .logo-mono {
             display: none; width: 100%; text-align: center; flex-shrink: 0;
         }
+        .logo-mono .logo-image { width: 70px; height: 70px; }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
@@ -215,6 +219,7 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .sidebar-logo > .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
         .sidebar.collapsed .logo-mono { display: block; }
         .sidebar.collapsed .toggle-btn { display: none; }
@@ -251,11 +256,29 @@
             color: var(--sidebar-text); text-decoration: none;
             border-radius: var(--radius-sm); transition: all 0.25s ease;
             font-size: 0.86rem; font-weight: 500; position: relative;
-            white-space: nowrap;
+            white-space: nowrap; width: calc(100% - 0.8rem); border: 0;
+            background: transparent; cursor: pointer; text-align: left;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.12); }
+        .activities-chevron { margin-left: auto; font-size: 0.68rem !important; transition: transform 0.25s ease; }
+        .activities-toggle.open .activities-chevron { transform: rotate(180deg); }
+        .activities-submenu { display: none; padding: 0.15rem 0 0.3rem 2.55rem; }
+        .activities-submenu.open { display: block; }
+        .activities-submenu-label {
+            padding: 0.45rem 0.65rem 0.2rem; color: var(--sidebar-section);
+            font-size: 0.52rem; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+        .activities-submenu a {
+            display: block; padding: 0.38rem 0.65rem; color: var(--sidebar-text);
+            text-decoration: none; border-radius: 8px; font-size: 0.76rem;
+            transition: all 0.2s ease;
+        }
+        .activities-submenu a:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
+        .sidebar.collapsed .activities-submenu { display: none !important; }
+        .sidebar.collapsed .activities-chevron { display: none; }
         .nav-link-custom.active {
             background: var(--card-white); color: #145a42; font-weight: 650;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
@@ -738,6 +761,89 @@
         .stat-card:nth-child(3) .stat-progress-fill { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .stat-card:nth-child(4) .stat-progress-fill { background: linear-gradient(90deg, var(--coral), #f08070); }
 
+        /* ===== LEADERBOARD ===== */
+        .dashboard-lower-grid {
+            display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1.4rem; margin-top: 1.4rem; align-items: start;
+        }
+        .dashboard-leaderboard {
+            background: var(--card-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm); padding: 1.3rem 1.4rem; margin-top: 1.4rem;
+            width: 100%; margin: 0;
+        }
+        .dashboard-leaderboard-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            margin-bottom: 0.7rem;
+        }
+        .dashboard-leaderboard-head h3 {
+            color: var(--text-primary); font-size: 0.95rem; font-weight: 750; margin: 0;
+        }
+        .dashboard-leaderboard-head h3 i { color: var(--gold-warm); margin-right: 7px; }
+        .dashboard-leaderboard-head a {
+            color: var(--green-main); font-size: 0.7rem; font-weight: 650; text-decoration: none;
+        }
+        .dashboard-leaderboard-head a:hover { color: var(--green-deep); }
+        .leaderboard-list {
+            display: flex; flex-direction: column; gap: 0.45rem; max-height: 330px;
+            overflow-y: auto; padding-left: 0.35rem; direction: rtl;
+            scrollbar-width: thin; scrollbar-color: var(--green-main) var(--green-soft);
+        }
+        .leaderboard-list::-webkit-scrollbar { width: 6px; }
+        .leaderboard-list::-webkit-scrollbar-track { background: var(--green-soft); border-radius: 8px; }
+        .leaderboard-list::-webkit-scrollbar-thumb { background: var(--green-main); border-radius: 8px; }
+        .leaderboard-row {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.7rem;
+            border: 1px solid var(--border-fresh); border-radius: 12px; background: var(--card-white); direction: ltr;
+        }
+        .leaderboard-rank {
+            width: 28px; color: var(--gold-warm); font-size: 0.78rem; font-weight: 800; text-align: center;
+        }
+        .leaderboard-avatar {
+            width: 30px; height: 30px; border-radius: 9px; background: var(--green-soft);
+            color: var(--green-main); display: flex; align-items: center; justify-content: center;
+            font-size: 0.68rem; font-weight: 800; flex-shrink: 0;
+        }
+        .leaderboard-student { flex: 1; min-width: 0; }
+        .leaderboard-name {
+            color: var(--text-primary); font-size: 0.76rem; font-weight: 650;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .leaderboard-meta { color: var(--stone-light); font-size: 0.64rem; }
+        .leaderboard-score { color: var(--green-main); font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+        .leaderboard-empty { color: var(--stone-light); font-size: 0.78rem; padding: 1rem; text-align: center; }
+
+        .dashboard-modules {
+            background: var(--card-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm); padding: 1.3rem 1.4rem;
+        }
+        .dashboard-modules-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.7rem;
+        }
+        .dashboard-modules-head h3 {
+            color: var(--text-primary); font-size: 0.95rem; font-weight: 750; margin: 0;
+        }
+        .dashboard-modules-head h3 i { color: var(--blue); margin-right: 7px; }
+        .dashboard-modules-head a {
+            color: var(--green-main); font-size: 0.7rem; font-weight: 650; text-decoration: none;
+        }
+        .dashboard-module-list { display: flex; flex-direction: column; gap: 0.45rem; }
+        .dashboard-module-row {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem;
+            border: 1px solid var(--border-fresh); border-radius: 12px; background: var(--card-white);
+            color: var(--text-primary); text-decoration: none; transition: border-color 0.2s, transform 0.2s;
+        }
+        .dashboard-module-row:hover { border-color: var(--green-main); transform: translateX(3px); }
+        .dashboard-module-icon {
+            width: 32px; height: 32px; border-radius: 10px; background: var(--blue-soft);
+            color: var(--blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .dashboard-module-copy { flex: 1; min-width: 0; }
+        .dashboard-module-name { font-size: 0.76rem; font-weight: 700; }
+        .dashboard-module-meta { color: var(--stone-light); font-size: 0.64rem; }
+        .dashboard-module-arrow { color: var(--stone-light); font-size: 0.7rem; }
+
         /* ===== BOTTOM ===== */
         .bottom-section {
             display: grid; grid-template-columns: 1fr 1fr 1fr;
@@ -909,6 +1015,7 @@
         @media (max-width: 992px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .bottom-section { grid-template-columns: 1fr; }
+            .dashboard-lower-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
             .sidebar { width: var(--sidebar-collapsed-w); }
@@ -965,11 +1072,12 @@
 <div class="app">
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
             <div class="logo-full">
                 <h2>Block<em>Learn</em></h2>
-                <p>PNHS &middot; ICT </p>
+                <p>PNHS &middot; ICT STUDIO</p>
             </div>
-            <div class="logo-mono"><span>B<em>L</em></span></div>
+            <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image"></div>
             <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar">
                 <i class="fas fa-times"></i>
             </button>
@@ -982,21 +1090,28 @@
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
             <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom active" aria-current="page"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
+            <div class="nav-item"><a href="/assessments" class="nav-link-custom"><i class="fas fa-clipboard-list"></i><span class="nav-text">Assessment</span></a></div>
+            <div class="nav-item"><a href="/student_modules" class="nav-link-custom"><i class="fas fa-layer-group"></i><span class="nav-text">Modules</span></a></div>
+            <div class="nav-item">
+                <button type="button" class="nav-link-custom activities-toggle" id="activitiesToggle" onclick="toggleActivitiesNav()" aria-expanded="false" aria-controls="activitiesSubmenu">
+                    <i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span><i class="fas fa-chevron-down activities-chevron"></i>
+                </button>
+                <div class="activities-submenu" id="activitiesSubmenu">
+                    <a href="/student_activities">All Activities</a>
+                    <div class="activities-submenu-label">Languages</div>
+                    <a href="/student_activities_php">PHP</a>
+                    <a href="/student_activities_javascript">JavaScript</a>
+                    <a href="/student_activities_cpp">C++</a>
+                </div>
+            </div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Rewards</div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
             <div class="nav-section-label">Account</div>
             <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
             <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
+            <div class="nav-section-label">Support</div>
+            <div class="nav-item"><a href="/student_help" class="nav-link-custom"><i class="fas fa-circle-question"></i><span class="nav-text">Help &amp; FAQ</span></a></div>
+            <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><i class="fas fa-ticket"></i><span class="nav-text">Support Tickets</span></a></div>
         </nav>
-        <div class="sidebar-user">
-            <div class="sidebar-avatar" id="sidebarAvatar">{{ (full_name or username or 'S')[0] | upper }}</div>
-            <div class="sidebar-user-info">
-                <h4 id="sidebarName">{{ full_name or username or 'Student' }}</h4>
-                <p id="sidebarGrade">{{ grade_level or 'Grade 11 - ICT' }}</p>
-            </div>
-        </div>
     </aside>
 
     <main class="main-content" id="mainContent">
@@ -1088,44 +1203,53 @@
                 <div class="stat-label">keep improving</div>
                 <div class="stat-progress"><div class="stat-progress-fill" id="avgBar"></div></div>
             </div>
-            <div class="stat-card fu e5">
-                <div class="stat-header"><span>Current Streak</span><div class="stat-icon"><i class="fas fa-fire-flame-curved"></i></div></div>
-                <div class="stat-value" id="streak">0</div>
-                <div class="stat-label">days in a row</div>
-                <div class="stat-progress"><div class="stat-progress-fill" id="streakBar"></div></div>
-            </div>
         </section>
 
-        <section class="bottom-section">
-            <a href="/student_playground?activity=free-play" class="action-card fu e5">
-                <div class="action-icon"><i class="fas fa-cubes"></i></div>
-                <h3>Playground</h3>
-                <p>Open the Blockly workspace to write and test your code freely</p>
-                <span class="action-badge badge-free"><i class="fas fa-play"></i> Free Play</span>
-                <span class="action-arrow">Launch <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/student_activities" class="action-card fu e6">
-                <div class="action-icon"><i class="fas fa-puzzle-piece"></i></div>
-                <h3>Coding Activities</h3>
-                <p>Browse and complete guided coding challenges step by step</p>
-                <span class="action-badge badge-guided"><i class="fas fa-graduation-cap"></i> Guided</span>
-                <span class="action-arrow">Explore <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <div class="activity-panel fu e7">
-                <div class="panel-head">
-                    <h3><i class="fas fa-clock-rotate-left"></i>Recent Activity</h3>
-                    <a href="/student_progress">View all</a>
+        <div class="dashboard-lower-grid">
+            <section class="dashboard-leaderboard fu e5" aria-label="Class leaderboard">
+                <div class="dashboard-leaderboard-head">
+                    <h3><i class="fas fa-trophy"></i>Class Leaderboard</h3>
+                    <a href="/student_leaderboard">View all</a>
                 </div>
-                <div class="activity-list" id="activityList">
-                    <!-- Dynamic content will be loaded here -->
-                    <div class="activity-empty">
-                        <i class="fas fa-inbox"></i>
-                        <p>No activity yet</p>
-                        <a href="/student_activities">Start your first activity <i class="fas fa-arrow-right"></i></a>
-                    </div>
+                <div class="leaderboard-list" id="dashboardLeaderboardList">
+                    <div class="leaderboard-empty">Loading leaderboard...</div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <section class="dashboard-modules fu e6" aria-label="Learning modules">
+                <div class="dashboard-modules-head">
+                    <h3><i class="fas fa-layer-group"></i>Learning Modules</h3>
+                    <a href="/student_modules">View all</a>
+                </div>
+                <div class="dashboard-module-list">
+                    <a class="dashboard-module-row" href="/student_modules/python/1">
+                        <span class="dashboard-module-icon"><i class="fab fa-python"></i></span>
+                        <span class="dashboard-module-copy"><span class="dashboard-module-name">Python Basics</span><span class="dashboard-module-meta">Variables and fundamentals</span></span>
+                        <i class="fas fa-chevron-right dashboard-module-arrow"></i>
+                    </a>
+                    <a class="dashboard-module-row" href="/student_modules/java/1">
+                        <span class="dashboard-module-icon"><i class="fab fa-java"></i></span>
+                        <span class="dashboard-module-copy"><span class="dashboard-module-name">Java Basics</span><span class="dashboard-module-meta">Start the first lesson</span></span>
+                        <i class="fas fa-chevron-right dashboard-module-arrow"></i>
+                    </a>
+                    <a class="dashboard-module-row" href="/student_modules/php/1">
+                        <span class="dashboard-module-icon"><i class="fab fa-php"></i></span>
+                        <span class="dashboard-module-copy"><span class="dashboard-module-name">PHP Variables</span><span class="dashboard-module-meta">Build your first scripts</span></span>
+                        <i class="fas fa-chevron-right dashboard-module-arrow"></i>
+                    </a>
+                    <a class="dashboard-module-row" href="/student_modules/javascript/1">
+                        <span class="dashboard-module-icon"><i class="fab fa-js"></i></span>
+                        <span class="dashboard-module-copy"><span class="dashboard-module-name">JavaScript Variables</span><span class="dashboard-module-meta">Learn values and expressions</span></span>
+                        <i class="fas fa-chevron-right dashboard-module-arrow"></i>
+                    </a>
+                    <a class="dashboard-module-row" href="/student_modules/cpp/1">
+                        <span class="dashboard-module-icon"><i class="fas fa-code"></i></span>
+                        <span class="dashboard-module-copy"><span class="dashboard-module-name">C++ Basics</span><span class="dashboard-module-meta">Explore your first program</span></span>
+                        <i class="fas fa-chevron-right dashboard-module-arrow"></i>
+                    </a>
+                </div>
+            </section>
+        </div>
     </main>
 </div>
 
@@ -1148,6 +1272,13 @@
     }
     function collapseSidebar() { isExpanded = false; applyState(); }
     function expandSidebar() { isExpanded = true; applyState(); }
+    function toggleActivitiesNav() {
+        var toggle = document.getElementById('activitiesToggle');
+        var submenu = document.getElementById('activitiesSubmenu');
+        var isOpen = submenu.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+    }
     window.addEventListener('resize', function() {
         if (window.innerWidth <= 768 && isExpanded) { isExpanded = false; applyState(); }
     });
@@ -1470,35 +1601,42 @@
             }
         }).catch(function() { animB(document.getElementById('avgBar'), 0); });
 
-        fetch('/get_dashboard_stats').then(function(r) { return r.json(); }).then(function(d) {
-            if (d.success) {
-                var s = d.streak || 0;
-                animN(document.getElementById('streak'), s, '', 700);
-                animB(document.getElementById('streakBar'), Math.min(100, Math.round(s / 7 * 100)));
-            }
-        }).catch(function() { animB(document.getElementById('streakBar'), 0); });
-
-        loadActivity();
+        loadDashboardLeaderboard();
     }
 
     function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-    function loadActivity() {
-        var list = document.getElementById('activityList');
-        fetch('/get_recent_activity').then(function(r) { return r.json(); }).then(function(d) {
-            if (d.success && d.activities && d.activities.length) {
-                list.innerHTML = '';
-                var cls = ['cg', 'cy', 'cb', 'cc'];
-                d.activities.forEach(function(a, i) {
-                    var el = document.createElement('div');
-                    el.className = 'activity-item';
-                    el.style.animation = 'fuA 0.4s ' + (i * 0.07) + 's cubic-bezier(0.4,0,0.2,1) both';
-                    var sc = a.score != null ? '<span class="activity-score ' + (a.score >= 80 ? 'sgt' : 'sok') + '">' + a.score + '%</span>' : '';
-                    el.innerHTML = '<span class="activity-dot ' + cls[i % 4] + '"></span><div class="activity-text"><strong>' + esc(a.title || 'Activity') + '</strong><span>' + esc(a.time_ago || 'Just now') + '</span></div>' + sc;
-                    list.appendChild(el);
-                });
+    function leaderboardInitials(name) {
+        return (name || 'Student').trim().split(/\s+/).map(function(word) {
+            return word.charAt(0);
+        }).slice(0, 2).join('').toUpperCase();
+    }
+
+    function loadDashboardLeaderboard() {
+        var list = document.getElementById('dashboardLeaderboardList');
+        if (!list) return;
+
+        fetch('/leaderboard').then(function(r) { return r.json(); }).then(function(d) {
+            if (!d.success || !d.leaderboard || !d.leaderboard.length) {
+                list.innerHTML = '<div class="leaderboard-empty">No rankings yet.</div>';
+                return;
             }
-        }).catch(function() {});
+
+            list.innerHTML = d.leaderboard.slice(0, 10).map(function(student, index) {
+                var name = student.student_name || 'Student';
+                var completed = student.activities_completed || 0;
+                var average = student.average_score || 0;
+                return '<div class="leaderboard-row">' +
+                    '<div class="leaderboard-rank">#' + (index + 1) + '</div>' +
+                    '<div class="leaderboard-avatar">' + leaderboardInitials(name) + '</div>' +
+                    '<div class="leaderboard-student"><div class="leaderboard-name">' + esc(name) + '</div>' +
+                    '<div class="leaderboard-meta">' + completed + ' activities · ' + average + '% average</div></div>' +
+                    '<div class="leaderboard-score">' + average + '%</div>' +
+                    '</div>';
+            }).join('');
+        }).catch(function() {
+            list.innerHTML = '<div class="leaderboard-empty">Unable to load leaderboard.</div>';
+        });
     }
 
     function showToast(msg) {
@@ -1551,6 +1689,7 @@
         setInterval(loadStats, 10000);
         setInterval(loadUnreadCount, 10000);
         setInterval(checkForNewNotifications, 5000); // Check every 5 seconds
+        setInterval(loadDashboardLeaderboard, 30000);
     });
 
     window.addEventListener('storage', function(event) {

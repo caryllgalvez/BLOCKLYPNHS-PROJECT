@@ -3,45 +3,43 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_cors import CORS
 import mysql.connector
 import hashlib
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 import os
 import re
-import jinja2
+import traceback
+from backend.notification_service import (
+    notify_new_assessment_submission,
+    notify_assessment_checked,
+    notify_new_support_ticket,
+    notify_ticket_updated,
+    get_notifications_for_user,
+    mark_all_notifications_read,
+)
+from backend.staff_auth import initialize_staff_code_hashes, verify_staff_code
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'frontend', 'public')
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'frontend')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 app.secret_key = 'your-secret-key-change-this-in-production-2024'
 CORS(app)
 
-# Configure Jinja loader to search common frontend subfolders so templates
-# like 'student_dashboard.html' are discovered when stored under
-# frontend/student, frontend/teacher, frontend/activities, etc.
-frontend_dirs = [
-    TEMPLATE_DIR,
-    os.path.join(BASE_DIR, 'frontend'),
-    os.path.join(BASE_DIR, 'frontend', 'student'),
-    os.path.join(BASE_DIR, 'frontend', 'teacher'),
-    os.path.join(BASE_DIR, 'frontend', 'activities'),
-    os.path.join(BASE_DIR, 'frontend', 'playground'),
-    os.path.join(BASE_DIR, 'frontend', 'auth'),
-    os.path.join(BASE_DIR, 'frontend', 'analytics')
-]
-app.jinja_loader = jinja2.FileSystemLoader(frontend_dirs)
 
-
-# Serve favicon to avoid 404 from browsers requesting /favicon.ico
+# Serve the BL logo as the browser favicon to replace the default/blank icon.
 @app.route('/favicon.ico')
 def favicon():
-    ico_path = os.path.join(app.static_folder, 'favicon.ico')
-    svg_path = os.path.join(app.static_folder, 'favicon.svg')
-    if os.path.exists(ico_path):
-        return send_from_directory(app.static_folder, 'favicon.ico')
-    if os.path.exists(svg_path):
-        return send_from_directory(app.static_folder, 'favicon.svg')
+    logo_path = os.path.join(app.static_folder, 'BL-LOGO.png')
+    if os.path.exists(logo_path):
+        return send_from_directory(app.static_folder, 'BL-LOGO.png', mimetype='image/png')
     return ('', 204)
+
+@app.route('/module-assets/<path:filename>')
+def module_assets(filename):
+    """Serve CSS and JavaScript assets used by module lesson pages."""
+    modules_dir = os.path.join(BASE_DIR, 'frontend', 'modules_activities')
+    return send_from_directory(modules_dir, filename)
 
 # Database configuration
 db_config = {
@@ -50,9 +48,6 @@ db_config = {
     'password': 'C@ryll025',
     'database': 'blocklypnhsproject'
 }
-
-# Store last update timestamp for real-time tracking
-last_update_timestamp = None
 
 def get_db_connection():
     try:
@@ -66,67 +61,6 @@ def hash_password(password):
 
 def validate_lrn(lrn):
     return lrn and re.match(r'^\d{12}$', str(lrn))
-
-
-def get_all_activities():
-    return [
-        {'id': 1, 'name': 'Print Statement', 'language': 'python', 'difficulty': 'easy'},
-        {'id': 2, 'name': 'Variables and Print', 'language': 'python', 'difficulty': 'easy'},
-        {'id': 3, 'name': 'If-Else Condition', 'language': 'python', 'difficulty': 'easy'},
-        {'id': 4, 'name': 'Age Checker', 'language': 'python', 'difficulty': 'medium'},
-        {'id': 5, 'name': 'Number Guessing Game', 'language': 'python', 'difficulty': 'hard'},
-        {'id': 6, 'name': 'Hello World', 'language': 'javascript', 'difficulty': 'easy'},
-        {'id': 7, 'name': 'Variable Greeting', 'language': 'javascript', 'difficulty': 'easy'},
-        {'id': 8, 'name': 'Add Numbers', 'language': 'javascript', 'difficulty': 'medium'},
-        {'id': 9, 'name': 'Temperature Converter', 'language': 'javascript', 'difficulty': 'hard'},
-        {'id': 10, 'name': 'Create Heading', 'language': 'html', 'difficulty': 'easy'},
-        {'id': 11, 'name': 'Create Paragraph', 'language': 'html', 'difficulty': 'easy'},
-        {'id': 12, 'name': 'Heading with Style', 'language': 'html', 'difficulty': 'medium'},
-        {'id': 13, 'name': 'HTML Page', 'language': 'html', 'difficulty': 'hard'},
-    ]
-
-
-def get_max_score(activity_name):
-    if not activity_name:
-        return 10
-    name = activity_name.lower()
-    if 'print' in name or 'variable' in name or 'if-else' in name or 'hello world' in name or 'greeting' in name:
-        return 10
-    if 'age' in name or 'checker' in name or 'style' in name or 'list' in name or 'unordered' in name:
-        return 15
-    if 'guess' in name or 'guessing' in name or 'game' in name or 'temperature' in name or 'web page' in name or 'html page' in name or 'add numbers' in name:
-        return 20
-    return 10
-
-
-def create_index_if_not_exists(cursor, table_name, index_name, columns):
-    try:
-        cursor.execute(f"SHOW INDEX FROM `{table_name}`")
-        indexes = cursor.fetchall()
-        if any(index.get('Key_name') == index_name for index in indexes):
-            return
-        cursor.execute(f"CREATE INDEX `{index_name}` ON `{table_name}` ({columns})")
-    except Exception as exc:
-        print(f" Could not create index {index_name}: {exc}")
-
-
-def column_exists(cursor, table_name, column_name):
-    try:
-        cursor.execute(f"SHOW COLUMNS FROM `{table_name}`")
-        columns = cursor.fetchall()
-        return any(col.get('Field') == column_name for col in columns)
-    except Exception:
-        return False
-
-
-def add_column_if_not_exists(cursor, table_name, column_definition, column_name):
-    if column_exists(cursor, table_name, column_name):
-        return
-    try:
-        cursor.execute(f"ALTER TABLE `{table_name}` ADD COLUMN {column_definition}")
-        print(f" Added column {column_name} to {table_name}")
-    except Exception as exc:
-        print(f" Could not add column {column_name} to {table_name}: {exc}")
 
 # ==================== DATABASE INITIALIZATION ====================
 
@@ -155,7 +89,15 @@ def init_database():
         cursor.execute("SHOW COLUMNS FROM students LIKE 'full_name'")
         if cursor.fetchone() is None:
             cursor.execute("ALTER TABLE students ADD COLUMN full_name VARCHAR(200) AFTER username")
-            print(" Added full_name column to students table")
+            print("✅ Added full_name column to students table")
+
+        for column_name, column_definition in (
+            ('reset_token', 'VARCHAR(128) NULL'),
+            ('reset_token_expires', 'DATETIME NULL'),
+        ):
+            cursor.execute(f"SHOW COLUMNS FROM students LIKE '{column_name}'")
+            if cursor.fetchone() is None:
+                cursor.execute(f"ALTER TABLE students ADD COLUMN {column_name} {column_definition}")
         
         # Create teachers table
         cursor.execute("""
@@ -163,142 +105,343 @@ def init_database():
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 username VARCHAR(100) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
+                staff_code_hash VARCHAR(255),
                 full_name VARCHAR(200),
                 email VARCHAR(100),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ict_support (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(100) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                staff_code_hash VARCHAR(255),
+                full_name VARCHAR(200) NOT NULL,
+                role_type ENUM('admin', 'tech', 'helpdesk', 'coordinator') NOT NULL DEFAULT 'tech',
+                email VARCHAR(100) UNIQUE,
+                status ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
+                last_login DATETIME NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        """)
+
+        for table in ('teachers', 'ict_support'):
+            cursor.execute(f"SHOW COLUMNS FROM {table} LIKE 'staff_code_hash'")
+            if cursor.fetchone() is None:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN staff_code_hash VARCHAR(255) NULL")
+
+        # Keep ICT access limited to the single technician account.
+        cursor.execute("DELETE FROM ict_support WHERE LOWER(username) <> 'ict-tech'")
+
+        ict_password = hash_password('Tech123@')
+        cursor.execute("SELECT id, password, status FROM ict_support WHERE LOWER(username) = LOWER(%s)", ('ICT-Tech',))
+        ict_user = cursor.fetchone()
+        if not ict_user:
+            cursor.execute("""
+                INSERT INTO ict_support (username, password, full_name, role_type, email)
+                VALUES (%s, %s, %s, %s, %s)
+            """, ('ICT-Tech', ict_password, 'ICT Technician', 'tech', 'ict.tech@pnhs.edu.ph'))
+            print("✅ ICT account created: username='ICT-Tech'")
+        elif ict_user['password'] != ict_password or ict_user['status'] != 'active':
+            cursor.execute("""
+                UPDATE ict_support
+                SET password = %s, status = 'active'
+                WHERE id = %s
+            """, (ict_password, ict_user['id']))
+            print("ℹ️ ICT-Tech account credentials/status refreshed")
         
-        # Create activities table
+        # Keep activity scores separate from assessment attempts.
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS activities (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 student_id INT NOT NULL,
                 activity_name VARCHAR(200) NOT NULL,
-                score INT DEFAULT 0,
+                score SMALLINT UNSIGNED NOT NULL DEFAULT 0,
                 code_blocks TEXT,
-                language VARCHAR(50) DEFAULT 'python',
+                language VARCHAR(30),
                 completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+                UNIQUE KEY uq_student_activity (student_id, activity_name),
+                INDEX idx_activities_student (student_id)
             )
         """)
-        
-        # ===== STUDENT SUBMISSIONS TABLE =====
+        cursor.execute("DROP TABLE IF EXISTS tickets")
+
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS student_submissions (
+            CREATE TABLE IF NOT EXISTS ict_tickets (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                ticket_number VARCHAR(30) UNIQUE NOT NULL,
                 student_id INT NOT NULL,
-                activity_name VARCHAR(200) NOT NULL,
-                code_blocks TEXT NOT NULL,
-                language VARCHAR(50) DEFAULT 'python',
-                status VARCHAR(50) DEFAULT 'pending_review',
-                score INT,
-                feedback TEXT,
-                submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                reviewed_at DATETIME,
-                FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-            )
-        """)
-        
-        # ===== NOTIFICATIONS TABLE =====
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS notifications (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT,
-                target_role VARCHAR(20),
-                type VARCHAR(50) NOT NULL,
-                title VARCHAR(255) NOT NULL,
-                message TEXT NOT NULL,
-                related_id INT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                is_read BOOLEAN DEFAULT FALSE,
-                FOREIGN KEY (user_id) REFERENCES students(id) ON DELETE CASCADE
-            )
-        """)
-        add_column_if_not_exists(cursor, 'notifications', 'user_id INT NULL AFTER id', 'user_id')
-        add_column_if_not_exists(cursor, 'notifications', 'target_role VARCHAR(20) NULL AFTER user_id', 'target_role')
-        add_column_if_not_exists(cursor, 'notifications', 'related_id INT NULL AFTER message', 'related_id')
-        add_column_if_not_exists(cursor, 'notifications', 'is_read BOOLEAN DEFAULT FALSE AFTER created_at', 'is_read')
-        
-        # Create lessons table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS lessons (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(200) NOT NULL,
-                description TEXT,
-                content TEXT,
-                difficulty VARCHAR(50),
-                order_num INT DEFAULT 0
-            )
-        """)
-        
-        # Create tickets table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS tickets (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                student_id INT NOT NULL,
-                student_name VARCHAR(100),
-                subject VARCHAR(200) NOT NULL,
-                message TEXT NOT NULL,
-                status ENUM('pending', 'in_progress', 'resolved', 'closed') DEFAULT 'pending',
-                priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
-                teacher_approval ENUM('pending','approved','denied') DEFAULT 'pending',
+                student_name VARCHAR(200),
+                student_lrn VARCHAR(50),
+                subject VARCHAR(255) NOT NULL,
+                description TEXT NOT NULL,
+                priority ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'medium',
+                category VARCHAR(100) NOT NULL DEFAULT 'other',
+                status ENUM('pending', 'in_progress', 'resolved', 'closed') NOT NULL DEFAULT 'pending',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 resolved_at DATETIME NULL,
-                FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+                INDEX idx_ict_tickets_student (student_id),
+                INDEX idx_ict_tickets_status (status)
             )
         """)
-        add_column_if_not_exists(cursor, 'tickets', 'student_name VARCHAR(100) NULL AFTER student_id', 'student_name')
-        add_column_if_not_exists(cursor, 'tickets', 'teacher_approval ENUM(\'pending\',\'approved\',\'denied\') DEFAULT \'pending\' AFTER priority', 'teacher_approval')
-        add_column_if_not_exists(cursor, 'tickets', 'resolved_at DATETIME NULL AFTER updated_at', 'resolved_at')
-        
-        # Create indexes for performance in a MySQL-compatible way
-        create_index_if_not_exists(cursor, 'student_submissions', 'idx_submissions_student', 'student_id')
-        create_index_if_not_exists(cursor, 'student_submissions', 'idx_submissions_status', 'status')
-        create_index_if_not_exists(cursor, 'notifications', 'idx_notifications_user', 'user_id')
-        create_index_if_not_exists(cursor, 'notifications', 'idx_notifications_read', 'is_read')
-        
-        # Insert default lessons if none exist
-        cursor.execute("SELECT COUNT(*) AS lesson_count FROM lessons")
-        lesson_count = cursor.fetchone().get('lesson_count', 0)
-        if lesson_count == 0:
-            default_lessons = [
-                (1, " Activity 1: Say Hello!", "Learn to print 'Hello World' using Blockly", "Print statement basics", "Beginner", 1),
-                (2, " Activity 2: Print Your Name", "Print your own name using variables", "Variables and strings", "Beginner", 2),
-                (3, " Activity 3: Simple Math", "Perform addition and print the result", "Math operations", "Beginner", 3),
-                (4, " Activity 4: Using Loops", "Repeat actions using loops", "Loop structures", "Intermediate", 4)
-            ]
-            cursor.executemany(
-                "INSERT INTO lessons (id, title, description, content, difficulty, order_num) VALUES (%s, %s, %s, %s, %s, %s)",
-                default_lessons
+
+        # Store the assessment definitions used by the separate language pages.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS assessments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                assessment_number TINYINT NOT NULL,
+                language ENUM('python', 'java', 'cpp', 'javascript', 'php') NOT NULL,
+                title VARCHAR(200) NOT NULL,
+                description TEXT NOT NULL,
+                duration_minutes SMALLINT UNSIGNED NOT NULL,
+                points SMALLINT UNSIGNED NOT NULL,
+                difficulty ENUM('Easy', 'Medium', 'Hard') NOT NULL,
+                expected_output TEXT NOT NULL,
+                hint TEXT NOT NULL,
+                required_blocks TEXT NOT NULL,
+                starter_blocks_xml TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_assessment_language_number (language, assessment_number)
             )
+        """)
+
+        # Older databases can contain duplicate assessment rows from prior bootstraps.
+        # Remove them before the seed inserts so the unique index is always clean.
+        cursor.execute("""
+            DELETE t1
+            FROM assessments t1
+            INNER JOIN assessments t2
+                ON t1.id < t2.id
+               AND t1.language = t2.language
+               AND t1.assessment_number = t2.assessment_number
+        """)
+
+        cursor.execute("SELECT COUNT(*) AS total FROM assessments")
+        if cursor.fetchone()['total'] == 0:
+            default_assessments = [
+                ('python', 1, 'Python Fundamentals', 'Basic Python syntax, print statements, and program output.', 10, 10, 'Easy', 'Hello, World!', 'Use print("Hello, World!") in Python.', 'print,TEXT'),
+                ('python', 2, 'Variables & Data Types', 'Understanding variables, strings, integers, and type conversion.', 12, 15, 'Easy', 'Juan', 'Use name = "Juan" then print(name).', 'SET VARIABLE,PRINT,TEXT,GET VARIABLE'),
+                ('python', 3, 'Conditional Statements', 'Master if-else, elif, and logical operators in Python programming.', 15, 20, 'Medium', 'Positive', 'Use 10 > 5 with GT operator.', 'IF-ELSE,COMPARE,PRINT,NUMBER'),
+                ('python', 4, 'Loops & Iterations', 'Learn for loops, while loops, and iteration techniques in Python.', 18, 20, 'Medium', '1\n2\n3\n4\n5', 'Use for i in range(1, 6).', 'FOR LOOP,PRINT,GET VARIABLE'),
+                ('python', 5, 'Functions & Modules', 'Create and use functions, understand scope, and import modules.', 20, 25, 'Hard', 'Welcome to BlockLearn!', 'Define def greet() then call greet().', 'DEFINE FUNCTION,PRINT,CALL FUNCTION,TEXT'),
+                ('java', 1, 'Java Fundamentals', 'Basic Java syntax, System.out.println, and program output.', 10, 10, 'Easy', 'Hello, World!', 'Use System.out.println("Hello, World!"); in Java.', 'System.out.println,TEXT'),
+                ('java', 2, 'Variables & Data Types', 'Understanding int, double, String variables in Java.', 12, 15, 'Easy', '16', 'Use int age = 16; then System.out.println(age);', 'CREATE VARIABLE,System.out.println,GET VARIABLE,NUMBER'),
+                ('java', 3, 'Conditional Statements', 'Master if-else statements and comparison operators in Java.', 15, 20, 'Medium', 'Passed', 'Use score >= 75 with GTE operator.', 'IF-ELSE,CREATE VARIABLE,System.out.println,COMPARE,NUMBER'),
+                ('java', 4, 'Loops & Repetition', 'Learn for loops and while loops in Java programming.', 18, 20, 'Medium', '1\n2\n3\n4\n5', 'Use for (int i = 1; i <= 5; i++).', 'FOR LOOP,System.out.println,GET VARIABLE'),
+                ('java', 5, 'Methods & Problem Solving', 'Create and call methods, understand reusable code in Java.', 20, 25, 'Hard', 'Welcome to Java!', 'Create void welcome() then call welcome();', 'CREATE METHOD,System.out.println,CALL METHOD,TEXT')
+            ]
+            cursor.executemany("""
+                INSERT INTO assessments
+                    (language, assessment_number, title, description, duration_minutes, points,
+                     difficulty, expected_output, hint, required_blocks, starter_blocks_xml)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    description = VALUES(description),
+                    duration_minutes = VALUES(duration_minutes),
+                    points = VALUES(points),
+                    difficulty = VALUES(difficulty),
+                    expected_output = VALUES(expected_output),
+                    hint = VALUES(hint),
+                    required_blocks = VALUES(required_blocks),
+                    starter_blocks_xml = VALUES(starter_blocks_xml)
+            """, [assessment + ('<xml xmlns="https://developers.google.com/blockly/xml"></xml>',) for assessment in default_assessments])
+
+        # Normalize legacy language labels before restoring the strict ENUM.
+        # Older databases used display names such as "C++" and "JavaScript".
+        cursor.execute("ALTER TABLE assessments MODIFY language VARCHAR(20) NOT NULL")
+        cursor.execute("""
+            DELETE FROM assessments
+            WHERE LOWER(TRIM(language)) NOT IN
+                ('python', 'java', 'cpp', 'c++', 'c plus plus', 'js', 'javascript', 'php')
+        """)
+        cursor.execute("""
+            UPDATE assessments
+            SET language = CASE LOWER(TRIM(language))
+                WHEN 'c++' THEN 'cpp'
+                WHEN 'c plus plus' THEN 'cpp'
+                WHEN 'js' THEN 'javascript'
+                ELSE language
+            END
+            WHERE LOWER(TRIM(language)) IN ('c++', 'c plus plus', 'js')
+        """)
+        cursor.execute("""
+            DELETE t1
+            FROM assessments t1
+            INNER JOIN assessments t2
+                ON t1.id < t2.id
+               AND t1.language = t2.language
+               AND t1.assessment_number = t2.assessment_number
+        """)
+        cursor.execute("ALTER TABLE assessments MODIFY language ENUM('python', 'java', 'cpp', 'javascript', 'php') NOT NULL")
+        cpp_assessments = [
+            (1, 'Hello C++', 'Print Hello, C++! to the console.', 5, 10, 'Easy', 'Hello, C++!', 'Use cout << "Hello, C++!";', 'cout,TEXT'),
+            (2, 'Store Age', 'Create an age variable with value 17 and print it.', 5, 10, 'Easy', '17', 'Use int age = 17; then cout << age;', 'int variable,cout,NUMBER,GET VARIABLE'),
+            (3, 'Multiply Numbers', 'Multiply 6 by 5 and print the result.', 8, 10, 'Medium', '30', 'Use cout << 6 * 5;', 'cout,MULTIPLY,NUMBER'),
+            (4, 'Less Than', 'Check whether 15 is less than 20 and print the message.', 10, 10, 'Medium', '15 is less than 20', 'Use if (15 < 20) with cout inside.', 'if,LESS THAN,cout,NUMBER,TEXT'),
+            (5, 'Display Numbers', 'Display numbers 1 to 5 using a for loop.', 12, 10, 'Hard', '1\n2\n3\n4\n5', 'Use for (int i = 1; i <= 5; i++).', 'FOR LOOP,cout,NUMBER,GET VARIABLE')
+        ]
+        cursor.executemany("""
+            INSERT INTO assessments
+                (assessment_number, language, title, description, duration_minutes, points,
+                 difficulty, expected_output, hint, required_blocks, starter_blocks_xml)
+            VALUES (%s, 'cpp', %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                title = VALUES(title), description = VALUES(description),
+                duration_minutes = VALUES(duration_minutes), points = VALUES(points),
+                difficulty = VALUES(difficulty), expected_output = VALUES(expected_output),
+                hint = VALUES(hint), required_blocks = VALUES(required_blocks)
+        """, [assessment + ('<xml xmlns="https://developers.google.com/blockly/xml"></xml>',) for assessment in cpp_assessments])
+
+        javascript_assessments = [
+            (1, 'Hello, JavaScript!', 'Print Hello, JavaScript! to the console.', 5, 10, 'Easy', 'Hello, JavaScript!', 'Use console.log("Hello, JavaScript!");', 'console.log,TEXT'),
+            (2, 'Store and Display a Score', 'Create a score variable with value 90 and print it.', 5, 10, 'Easy', '90', 'Use var score = 90; then console.log(score);', 'var,console.log,NUMBER,variable_get'),
+            (3, 'Add Two Numbers', 'Add 25 and 15 and print the result.', 8, 10, 'Medium', '40', 'Use console.log(25 + 15);', 'console.log,+,NUMBER'),
+            (4, 'Greater Than', 'Check whether 20 is greater than 10 and print the message.', 10, 10, 'Medium', '20 is greater than 10', 'Use if (20 > 10) with console.log inside.', 'if,>,console.log,NUMBER,TEXT'),
+            (5, 'Repeat a Message Five Times', 'Print I love programming! five times with a loop.', 12, 10, 'Hard', 'I love programming!\nI love programming!\nI love programming!\nI love programming!\nI love programming!', 'Use a for loop that repeats 5 times.', 'for loop,console.log,NUMBER,TEXT')
+        ]
+        cursor.executemany("""
+            INSERT INTO assessments
+                (assessment_number, language, title, description, duration_minutes, points,
+                 difficulty, expected_output, hint, required_blocks, starter_blocks_xml)
+            VALUES (%s, 'javascript', %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                title = VALUES(title), description = VALUES(description),
+                duration_minutes = VALUES(duration_minutes), points = VALUES(points),
+                difficulty = VALUES(difficulty), expected_output = VALUES(expected_output),
+                hint = VALUES(hint), required_blocks = VALUES(required_blocks)
+        """, [assessment + ('<xml xmlns="https://developers.google.com/blockly/xml"></xml>',) for assessment in javascript_assessments])
+
+        php_assessments = [
+            (1, 'Hello PHP', 'Print Hello, PHP! to the console.', 5, 10, 'Easy', 'Hello, PHP!', 'Use echo "Hello, PHP!".', 'echo,TEXT'),
+            (2, 'Store a Name', 'Create a name variable and display it.', 5, 10, 'Easy', 'Caryll', 'Use $name = "Caryll" then echo $name.', 'variable,echo,TEXT,GET VARIABLE'),
+            (3, 'Subtract Numbers', 'Subtract 50 from 80 and display the result.', 8, 10, 'Medium', '30', 'Use echo 80 - 50.', 'echo,SUBTRACT,NUMBER'),
+            (4, 'Greater Than', 'Check whether 25 is greater than 18.', 10, 10, 'Medium', '25 is greater than 18', 'Use if (25 > 18) with echo.', 'if,>,echo,NUMBER,TEXT'),
+            (5, 'Repeat a Message', 'Display Learning PHP! three times using a loop.', 12, 10, 'Hard', 'Learning PHP!\nLearning PHP!\nLearning PHP!', 'Use a loop that repeats three times.', 'FOR LOOP,echo,NUMBER,TEXT')
+        ]
+        cursor.executemany("""
+            INSERT INTO assessments
+                (assessment_number, language, title, description, duration_minutes, points,
+                 difficulty, expected_output, hint, required_blocks, starter_blocks_xml)
+            VALUES (%s, 'php', %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                title = VALUES(title), description = VALUES(description),
+                duration_minutes = VALUES(duration_minutes), points = VALUES(points),
+                difficulty = VALUES(difficulty), expected_output = VALUES(expected_output),
+                hint = VALUES(hint), required_blocks = VALUES(required_blocks)
+        """, [assessment + ('<xml xmlns="https://developers.google.com/blockly/xml"></xml>',) for assessment in php_assessments])
+
+        # Keep the database definition aligned with the Python Fundamentals playground.
+        cursor.execute("""
+            UPDATE assessments
+            SET title = %s,
+                description = %s,
+                duration_minutes = %s,
+                points = %s,
+                difficulty = %s,
+                expected_output = %s,
+                hint = %s,
+                required_blocks = %s,
+                starter_blocks_xml = %s
+            WHERE language = 'python' AND assessment_number = 1
+        """, (
+            'Python Fundamentals',
+            'Basic Python syntax, print statements, and program output.',
+            10,
+            10,
+            'Easy',
+            'Hello, World!',
+            'Use print("Hello, World!") in Python.',
+            'print,TEXT',
+            '<xml xmlns="https://developers.google.com/blockly/xml"><block type="text_print" x="20" y="20"><value name="TEXT"><block type="text"><field name="TEXT">Hello, World!</field></block></value></block></xml>'
+        ))
+
+        # Keep one saved attempt per student and assessment.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS assessment_attempts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                assessment_id INT NOT NULL,
+                student_id INT NOT NULL,
+                code_blocks TEXT NOT NULL,
+                generated_code TEXT,
+                output TEXT,
+                score SMALLINT UNSIGNED DEFAULT 0,
+                auto_score SMALLINT UNSIGNED DEFAULT 0,
+                teacher_score SMALLINT UNSIGNED NULL,
+                teacher_feedback TEXT,
+                reviewed_by INT NULL,
+                reviewed_at DATETIME NULL,
+                status ENUM('in_progress', 'submitted') NOT NULL DEFAULT 'in_progress',
+                started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                submitted_at DATETIME NULL,
+                completed_at DATETIME NULL,
+                FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
+                FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+                UNIQUE KEY uq_student_assessment_attempt (assessment_id, student_id)
+            )
+        """)
+
+        attempt_columns = {
+            'generated_code': 'TEXT NULL',
+            'auto_score': 'SMALLINT UNSIGNED NOT NULL DEFAULT 0',
+            'teacher_score': 'SMALLINT UNSIGNED NULL',
+            'teacher_feedback': 'TEXT NULL',
+            'reviewed_by': 'INT NULL',
+            'reviewed_at': 'DATETIME NULL',
+            'completed_at': 'DATETIME NULL',
+        }
+        for column_name, column_definition in attempt_columns.items():
+            try:
+                cursor.execute(f"ALTER TABLE assessment_attempts ADD COLUMN {column_name} {column_definition}")
+            except mysql.connector.Error as alter_error:
+                if getattr(alter_error, 'errno', None) != 1060:
+                    raise
         
-        # CREATE DEFAULT TEACHER ACCOUNT
+        # Remove the retired lessons table from databases created by older versions.
+        cursor.execute("DROP TABLE IF EXISTS lessons")
+        
+        # CREATE ADMIN/TEACHER ACCOUNT
+        cursor.execute("SELECT id FROM teachers WHERE username = 'admin'")
+        if not cursor.fetchone():
+            admin_password = hash_password("admin123")
+            cursor.execute("""
+                INSERT INTO teachers (username, password, full_name, email, created_at) 
+                VALUES (%s, %s, %s, %s, %s)
+            """, ("admin", admin_password, "System Administrator", "admin@blocklearn.edu.ph", datetime.now()))
+            print("✅ Admin account created: username='admin', password='admin123'")
+        else:
+            print("ℹ️ Admin account already exists")
+
         cursor.execute("SELECT id, username, password FROM teachers WHERE LOWER(username) = 'teacher1'")
         teacher1_row = cursor.fetchone()
         if not teacher1_row:
-            teacher1_password = hash_password("teacher123")
+            teacher1_password = hash_password("Teacher123@")
             cursor.execute("""
                 INSERT INTO teachers (username, password, full_name, email, created_at) 
                 VALUES (%s, %s, %s, %s, %s)
             """, ("teacher1", teacher1_password, "Teacher One", "teacher1@blocklearn.edu.ph", datetime.now()))
-            print(" Teacher account created: username='teacher1', password='teacher123'")
+            print("✅ Teacher account created: username='teacher1'")
         else:
-            teacher1_password = hash_password("teacher123")
+            teacher1_password = hash_password("Teacher123@")
             if teacher1_row['username'] != 'teacher1':
                 cursor.execute("UPDATE teachers SET username = %s WHERE id = %s", ("teacher1", teacher1_row['id']))
-                print("ℹ Normalized existing teacher1 username to lowercase")
+                print("ℹ️ Normalized existing teacher1 username to lowercase")
             if teacher1_row['password'] != teacher1_password:
                 cursor.execute("UPDATE teachers SET password = %s WHERE id = %s", (teacher1_password, teacher1_row['id']))
-                print("ℹ Updated teacher1 password to the provided default")
-            print("ℹ Teacher1 account already exists")
+                print("ℹ️ Updated teacher1 password to the provided default")
+            print("ℹ️ Teacher1 account already exists")
         
+        initialize_staff_code_hashes(cursor)
         conn.commit()
-        print(" Database initialized successfully!")
+        print("✅ Database initialized successfully!")
         
     except Exception as e:
-        print(f" Database initialization error: {e}")
+        print(f"❌ Database initialization error: {e}")
+        traceback.print_exc()
     finally:
         if cursor:
             cursor.close()
@@ -316,126 +459,187 @@ def index():
         return redirect('/student_dashboard')
     elif session.get('role') == 'teacher':
         return redirect('/teacher_dashboard')
-    return render_template('homepage.html')
+    elif session.get('role') == 'ict':
+        return redirect('/ict_support_dashboard')
+    return render_template('public/homepage.html')
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
+    return render_template('public/about.html')
 
 @app.route('/registeracc')
 def registeracc():
-    return render_template('register.html')
+    return render_template('auth/register.html')
+
+@app.route('/forgot-password', methods=['GET'])
+def forgot_password_page():
+    return render_template('auth/forgot.password.html')
+
+@app.route('/reset-password', methods=['GET'])
+def reset_password_page():
+    return render_template('auth/Reset_Password.html')
 
 # ===== STUDENT ROUTES =====
 @app.route('/student_dashboard')
 def student_dashboard():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_dashboard.html', 
+    return render_template('student/student_dashboard.html', 
                           lrn=session.get('lrn'),
                           grade_level=session.get('grade_level'),
                           username=session.get('username'),
                           full_name=session.get('full_name'))
 
-# ===== PYTHON ROUTES =====
+@app.route('/student_modules')
+def student_modules():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('modules_activities/ass&act_library.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'),
+                          library_mode='modules')
+
+@app.route('/student_modules/cpp')
+def student_modules_cpp():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return redirect('/student_modules/cpp/1')
+
+@app.route('/student_modules/java')
+def student_modules_java():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return redirect('/student_modules/java/1')
+
+@app.route('/student_modules/<language>/<int:module_number>')
+def student_module(language, module_number):
+    if session.get('role') != 'student':
+        return redirect('/')
+
+    module_templates = {
+        ('python', 1): 'modules_activities/modules_assessments/python_01_bascis.html',
+        ('python', 2): 'modules_activities/modules_assessments/python_02_loops.html',
+        ('php', 1): 'modules_activities/php_modules_01_variables.html',
+        ('php', 2): 'modules_activities/php_modules_02_condition.html',
+        ('javascript', 1): 'modules_activities/javascript_01_variables.html',
+        ('javascript', 2): 'modules_activities/javascript_02_functions.html',
+        ('cpp', 1): 'modules_activities/cpp_module_01_basics.html',
+        ('cpp', 2): 'modules_activities/cpp_module_02_loops.html',
+        ('java', 1): 'modules_activities/modules_assessments/java01_basics.html',
+        ('java', 2): 'modules_activities/modules_assessments/java_02_loops.html',
+    }
+    template = module_templates.get((language.lower(), module_number))
+    if not template:
+        return redirect('/student_modules')
+
+    return render_template(template,
+                          username=session.get('username'),
+                          grade_level=session.get('grade_level'),
+                          full_name=session.get('full_name'))
+
 @app.route('/student_playground')
 def student_playground():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_playground.html', 
+    return render_template('public/student_playground.html',
                           username=session.get('username'),
-                          grade_level=session.get('grade_level'))
+                          grade_level=session.get('grade_level'),
+                          full_name=session.get('full_name'))
 
 @app.route('/student_playground_python')
 def student_playground_python():
-    """Python Blockly Playground - with activity parameter support"""
     if session.get('role') != 'student':
         return redirect('/')
-    
-    # Get the activity from URL parameter (default: print-statement)
-    activity = request.args.get('activity', 'print-statement')
-    
-    # Pass the activity to the template
-    return render_template('student_playground.html', 
+    return render_template('playground/python_playground.html',
                           username=session.get('username'),
                           grade_level=session.get('grade_level'),
-                          lrn=session.get('lrn'),
-                          activity=activity)
+                          full_name=session.get('full_name'))
+
+@app.route('/playground_javascript')
+@app.route('/student_playground_javascript')
+def student_playground_javascript():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('playground/javascript_playground.html',
+                          username=session.get('username'),
+                          grade_level=session.get('grade_level'),
+                          full_name=session.get('full_name'))
+
+@app.route('/student_playground_html')
+def student_playground_html():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return redirect('/student_playground_python')
+
+@app.route('/playground_php')
+@app.route('/student_playground_php')
+def student_playground_php():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('playground/php_playground.html',
+                          username=session.get('username'),
+                          grade_level=session.get('grade_level'),
+                          full_name=session.get('full_name'))
+
+@app.route('/playground_cpp')
+@app.route('/student_playground_cpp')
+def student_playground_cpp():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('playground/cpp_playground.html',
+                          username=session.get('username'),
+                          grade_level=session.get('grade_level'),
+                          full_name=session.get('full_name'))
 
 @app.route('/student_activities')
 def student_activities():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_activities.html', 
+    return render_template('activities/php_activities.html',
                           username=session.get('username'),
                           lrn=session.get('lrn'))
 
-@app.route('/student_activities_python')
-def student_activities_python():
-    """Python Activities Page (alias for student_activities)"""
+@app.route('/student_activities_php')
+def student_activities_php():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_activities.html', 
+    return render_template('activities/php_activities.html',
                           username=session.get('username'),
-                          lrn=session.get('lrn'))
-
-# ===== JAVASCRIPT ROUTES =====
-@app.route('/student_playground_javascript')
-def student_playground_javascript():
-    """JavaScript Blockly Playground"""
-    if session.get('role') != 'student':
-        return redirect('/')
-    return render_template('student_playground_javascript.html', 
-                          username=session.get('username'),
-                          grade_level=session.get('grade_level'),
                           lrn=session.get('lrn'))
 
 @app.route('/student_activities_javascript')
 def student_activities_javascript():
-    """JavaScript Activities Page"""
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_activities_javascript.html', 
+    return render_template('public/student_activities_javascript.html', 
                           username=session.get('username'),
                           lrn=session.get('lrn'))
 
-# ===== HTML/CSS ROUTES =====
-@app.route('/student_playground_html')
-def student_playground_html():
-    """HTML/CSS Blockly Playground"""
+@app.route('/student_activities_java')
+def student_activities_java():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_playground_html.html', 
-                          username=session.get('username'),
-                          grade_level=session.get('grade_level'),
-                          lrn=session.get('lrn'))
+    return redirect('/student_modules/java/1')
 
 @app.route('/student_activities_html')
 def student_activities_html():
-    """HTML/CSS Activities Page"""
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_activities_html.html', 
+    return redirect('/student_activities_cpp')
+
+@app.route('/student_activities_cpp')
+def student_activities_cpp():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('public/student_activities_cpp.html',
                           username=session.get('username'),
                           lrn=session.get('lrn'))
 
-# ===== OTHER STUDENT ROUTES =====
 @app.route('/student_progress')
 def student_progress():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_progress.html', 
-                          username=session.get('username'))
-
-@app.route('/student_achievements')
-def student_achievements():
-    if session.get('role') != 'student':
-        return redirect('/')
-    return render_template('student_achievements.html', 
+    return render_template('student/student_progress.html', 
                           username=session.get('username'))
 
 @app.route('/student_profile')
@@ -449,19 +653,21 @@ def student_profile():
     try:
         cursor.execute("""
             SELECT id, username, full_name, lrn, grade_level, email,
-                   DATE_FORMAT(created_at, '%B %d, %Y') as created_at,
-                   (SELECT COUNT(*) FROM activities WHERE student_id = students.id) as total_activities,
-                   (SELECT IFNULL(AVG(score), 0) FROM activities WHERE student_id = students.id) as average_score
+                   DATE_FORMAT(created_at, '%M %d, %Y') as created_at,
+                   (SELECT COUNT(*) FROM assessment_attempts
+                    WHERE student_id = students.id AND status = 'submitted') as total_activities,
+                   (SELECT IFNULL(AVG(score), 0) FROM assessment_attempts
+                    WHERE student_id = students.id AND status = 'submitted') as average_score
             FROM students 
             WHERE id = %s
         """, (session.get('user_id'),))
         student = cursor.fetchone()
         
-        return render_template('student_profile.html', 
-                              student=student,
-                              lrn=session.get('lrn'),
-                              username=session.get('username'),
-                              full_name=session.get('full_name'))
+        return render_template('student/student_profile.html', 
+                                  student=student,
+                                  lrn=session.get('lrn'),
+                                  username=session.get('username'),
+                                  full_name=session.get('full_name'))
     finally:
         cursor.close()
         conn.close()
@@ -470,33 +676,391 @@ def student_profile():
 def student_settings():
     if session.get('role') != 'student':
         return redirect('/')
-    return render_template('student_settings.html', 
+    return render_template('student/student_settings.html', 
                           username=session.get('username'))
+
+@app.route('/student_help')
+def student_help():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('student/HELP_FAQ.html', 
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+@app.route('/assessments')
+def assessments_overview():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('modules_activities/ass&act_library.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'),
+                          library_mode='assessment')
+
+@app.route('/assessment')
+def assessment_overview_alias():
+    return redirect('/assessments')
+
+@app.route('/module_assessments')
+def module_assessments():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('modules_activities/ass&act_library.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'),
+                          library_mode='assessment')
+
+@app.route('/assessments_python')
+def assessments_python():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('assessments/python_assessments.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+@app.route('/assessments_java')
+def assessments_java():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('assessments/java_assessments.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+@app.route('/get_assessment_statuses')
+def get_assessment_statuses():
+    if session.get('role') != 'student':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    language = request.args.get('language', 'java')
+    if language not in ('python', 'java', 'cpp', 'javascript', 'php'):
+        return jsonify({'success': False, 'message': 'Invalid language'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT a.assessment_number, aa.status, aa.score
+            FROM assessments a
+            LEFT JOIN assessment_attempts aa
+                ON aa.assessment_id = a.id AND aa.student_id = %s
+            WHERE a.language = %s
+            ORDER BY a.assessment_number
+        """, (session['user_id'], language))
+        rows = cursor.fetchall()
+        statuses = []
+        for row in rows:
+            attempt_status = row['status']
+            score = row['score']
+            if attempt_status == 'submitted':
+                status = 'passed' if (score or 0) >= 75 else 'done'
+            elif attempt_status == 'in_progress':
+                status = 'in_progress'
+            else:
+                status = 'not_started'
+            statuses.append({
+                'assessment_number': row['assessment_number'],
+                'status': status,
+                'score': score
+            })
+        submitted_scores = [
+            row['score'] for row in rows
+            if row['status'] == 'submitted' and row['score'] is not None
+        ]
+        return jsonify({
+            'success': True,
+            'statuses': statuses,
+            'total': len(statuses),
+            'completed': sum(1 for item in statuses if item['status'] in ('passed', 'done')),
+            'in_progress': sum(1 for item in statuses if item['status'] == 'in_progress'),
+            'average_score': round(sum(submitted_scores) / len(submitted_scores)) if submitted_scores else 0
+        })
+    except Exception as e:
+        print(f"Get assessment statuses error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to load assessment statuses'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/assessment_python_activity')
+def assessment_python_activity():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('assessments/playground_python.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'),
+                          assessment_id=request.args.get('id', '1'))
+
+@app.route('/assessment_java_activity')
+def assessment_java_activity():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return render_template('assessments/playground_java.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'),
+                          assessment_id=request.args.get('id', '1'))
+
+@app.route('/notifications')
+def notifications_page():
+    role = session.get('role')
+    templates = {
+        'student': 'student/student_notifications.html',
+        'teacher': 'teacher/teacher_notifications.html',
+        'ict': 'ict-support/ict_notifications.html',
+    }
+    if role not in templates:
+        return redirect('/')
+    return render_template(templates[role])
+
+@app.route('/get_notifications')
+def get_notifications():
+    role = session.get('role')
+    if role not in ('student', 'teacher', 'ict'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    notifications = get_notifications_for_user(session.get('user_id'), role)
+    return jsonify({
+        'success': True,
+        'notifications': notifications,
+        'unread_count': sum(1 for item in notifications if not item['is_read']),
+    })
+
+@app.route('/mark_notifications_read', methods=['POST'])
+def mark_notifications_read():
+    role = session.get('role')
+    if role not in ('student', 'teacher', 'ict'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    return jsonify({'success': mark_all_notifications_read(session.get('user_id'), role)})
+
+@app.route('/submit_assessment', methods=['POST'])
+def submit_assessment():
+    if session.get('role') != 'student':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.get_json(silent=True) or {}
+    language = data.get('language')
+    assessment_number = data.get('assessment_number')
+    code_blocks = data.get('code_blocks')
+    generated_code = str(data.get('generated_code', ''))
+    output = str(data.get('output', '')).strip()
+
+    if language not in ('python', 'java', 'cpp', 'javascript', 'php') or not isinstance(assessment_number, int) or not code_blocks:
+        return jsonify({'success': False, 'message': 'Invalid assessment submission'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, expected_output, points
+            FROM assessments
+            WHERE language = %s AND assessment_number = %s
+        """, (language, assessment_number))
+        assessment = cursor.fetchone()
+        if not assessment:
+            return jsonify({'success': False, 'message': 'Assessment not found'}), 404
+
+        expected_output = assessment['expected_output'].strip()
+        earned_points = 10 if output == expected_output else (5 if output else 0)
+        score = earned_points * 10
+        submitted_at = datetime.now()
+        cursor.execute("""
+            INSERT INTO assessment_attempts
+                (assessment_id, student_id, code_blocks, generated_code, output, score,
+                 auto_score, teacher_score, status, submitted_at, completed_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, NULL, 'submitted', %s, %s)
+            ON DUPLICATE KEY UPDATE
+                code_blocks = VALUES(code_blocks),
+                generated_code = VALUES(generated_code),
+                output = VALUES(output),
+                score = VALUES(score),
+                auto_score = VALUES(auto_score),
+                teacher_score = NULL,
+                teacher_feedback = NULL,
+                reviewed_by = NULL,
+                reviewed_at = NULL,
+                status = 'submitted',
+                submitted_at = VALUES(submitted_at),
+                completed_at = VALUES(completed_at)
+        """, (assessment['id'], session['user_id'], code_blocks, generated_code, output,
+               score, earned_points, submitted_at, submitted_at))
+        conn.commit()
+
+        notify_new_assessment_submission(
+            session.get('full_name') or session.get('username') or 'Student',
+            f'{language.title()} Assessment #{assessment_number}',
+            assessment['id'],
+        )
+
+        return jsonify({
+            'success': True,
+            'score': score,
+            'points': earned_points,
+            'max_points': 10,
+            'status': 'completed',
+            'activity_number': assessment_number,
+            'expected_output': expected_output,
+            'message': 'Activity completed successfully' if earned_points == 10 else ('Activity submitted for review' if earned_points == 5 else 'Activity submitted with no score')
+        })
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Submit assessment error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to save assessment score'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/save_assessment_blocks', methods=['POST'])
+def save_assessment_blocks():
+    if session.get('role') != 'student':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.get_json(silent=True) or {}
+    language = data.get('language')
+    assessment_number = data.get('assessment_number')
+    code_blocks = data.get('code_blocks')
+
+    if language not in ('python', 'java', 'cpp', 'javascript', 'php') or not isinstance(assessment_number, int) or not code_blocks:
+        return jsonify({'success': False, 'message': 'Invalid workspace data'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id FROM assessments
+            WHERE language = %s AND assessment_number = %s
+        """, (language, assessment_number))
+        assessment = cursor.fetchone()
+        if not assessment:
+            return jsonify({'success': False, 'message': 'Assessment not found'}), 404
+
+        cursor.execute("""
+            INSERT INTO assessment_attempts
+                (assessment_id, student_id, code_blocks, status)
+            VALUES (%s, %s, %s, 'in_progress')
+            ON DUPLICATE KEY UPDATE
+                code_blocks = VALUES(code_blocks)
+        """, (assessment['id'], session['user_id'], code_blocks))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Save assessment blocks error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to save workspace'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/assessments/activity')
+def assessment_activity():
+    if session.get('role') != 'student':
+        return redirect('/')
+    return redirect('/assessments_python')
 
 # ===== TEACHER ROUTES =====
 @app.route('/teacher_dashboard')
 def teacher_dashboard():
     if session.get('role') != 'teacher':
         return redirect('/')
-    return render_template('teacher_dashboard.html', 
+    return render_template('teacher/teacher_home_dashboard.html', 
                           username=session.get('username'),
                           full_name=session.get('full_name'))
+
+@app.route('/get_teacher_dashboard_data')
+def get_teacher_dashboard_data():
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT COUNT(*) AS total_students FROM students")
+        total_students = cursor.fetchone()['total_students']
+        cursor.execute("""
+            SELECT COUNT(*) AS total_submissions, IFNULL(ROUND(AVG(score), 0), 0) AS average_score
+            FROM assessment_attempts
+            WHERE status = 'submitted'
+        """)
+        stats = cursor.fetchone()
+        cursor.execute("""
+            SELECT s.full_name AS student_name, s.lrn, d.title, d.language,
+                   a.score, DATE_FORMAT(a.submitted_at, '%Y-%m-%d %H:%i') AS submitted_at
+            FROM assessment_attempts a
+            JOIN assessments d ON d.id = a.assessment_id
+            JOIN students s ON s.id = a.student_id
+            WHERE a.status = 'submitted'
+            ORDER BY a.submitted_at DESC
+            LIMIT 5
+        """)
+        recent = cursor.fetchall()
+        return jsonify({
+            'success': True,
+            'total_students': total_students,
+            'average_score': stats['average_score'] or 0,
+            'total_activities': stats['total_submissions'] or 0,
+            'pending_submissions': 0,
+            'recent_submissions': recent
+        })
+    except Exception as e:
+        print(f"Get teacher dashboard data error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve dashboard data'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.route('/teacher_students')
 def teacher_students():
     if session.get('role') != 'teacher':
         return redirect('/')
-    return render_template('teacher_student_list.html', 
+    return render_template('teacher/teacher_students_list.html', 
                           username=session.get('username'),
                           full_name=session.get('full_name'))
+
+@app.route('/teacher_score_results')
+def teacher_score_results():
+    if session.get('role') != 'teacher':
+        return redirect('/')
+    return render_template('teacher/teacher_score_results.html', 
+                          username=session.get('username'))
 
 @app.route('/teacher_scores')
 def teacher_scores():
     if session.get('role') != 'teacher':
         return redirect('/')
-    return render_template('teacher_studentscores.html', 
+    return redirect('/teacher_score_results')
+
+@app.route('/teacher_passed_assessments')
+def teacher_passed_assessments():
+    if session.get('role') != 'teacher':
+        return redirect('/')
+    return redirect('/assessments_result')
+
+@app.route('/assessments_result')
+def assessments_result():
+    if session.get('role') != 'teacher':
+        return redirect('/')
+    return render_template('teacher/assessments_result.html',
                           username=session.get('username'),
                           full_name=session.get('full_name'))
+
+@app.route('/assessment_results')
+@app.route('/teacher_assessments')
+def assessment_results_alias():
+    return redirect('/assessments_result')
 
 @app.route('/teacher_reports')
 def teacher_reports():
@@ -504,350 +1068,51 @@ def teacher_reports():
         return redirect('/')
     return redirect('/teacher_reports_analytics')
 
+# ===== NEW ROUTE: Combined Reports & Analytics =====
 @app.route('/teacher_reports_analytics')
 def teacher_reports_analytics():
     """Combined Reports and Analytics page"""
     if session.get('role') != 'teacher':
         return redirect('/')
-    return render_template('reports_analytics.html', 
+    return render_template('analytics/reports_analytics.html', 
                           username=session.get('username'),
                           full_name=session.get('full_name'))
 
-
-# ===== UPDATED GET_TEACHER_DASHBOARD_DATA =====
-@app.route('/get_teacher_dashboard_data')
-def get_teacher_dashboard_data():
-    """Return aggregated data for teacher dashboard: recent submissions,
-    score distribution, completion overview, totals, tickets, and notifications."""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        # Recent submissions (limit 6)
-        cursor.execute("""
-            SELECT s.id, s.student_id, u.username as student_username, u.full_name as student_name,
-                   s.activity_name, s.status, s.score,
-                   DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i:%s') as submitted_at
-            FROM student_submissions s
-            JOIN students u ON s.student_id = u.id
-            ORDER BY s.submitted_at DESC
-            LIMIT 6
-        """)
-        recent_subs = cursor.fetchall()
-
-        # Score distribution
-        cursor.execute("""
-            SELECT
-                SUM(CASE WHEN s.score BETWEEN 0 AND 59 THEN 1 ELSE 0 END) as b0,
-                SUM(CASE WHEN s.score BETWEEN 60 AND 69 THEN 1 ELSE 0 END) as b60,
-                SUM(CASE WHEN s.score BETWEEN 70 AND 79 THEN 1 ELSE 0 END) as b70,
-                SUM(CASE WHEN s.score BETWEEN 80 AND 89 THEN 1 ELSE 0 END) as b80,
-                SUM(CASE WHEN s.score BETWEEN 90 AND 100 THEN 1 ELSE 0 END) as b90
-            FROM (
-                SELECT score FROM student_submissions WHERE status = 'checked' AND score IS NOT NULL
-                UNION ALL
-                SELECT score FROM activities WHERE score IS NOT NULL
-            ) s
-        """)
-        dist = cursor.fetchone() or {}
-        score_distribution = {
-            'labels': ['0-59','60-69','70-79','80-89','90-100'],
-            'data': [dist.get('b0') or 0, dist.get('b60') or 0, dist.get('b70') or 0, dist.get('b80') or 0, dist.get('b90') or 0]
-        }
-
-        # Completion overview
-        cursor.execute("SELECT COUNT(*) as total_students FROM students")
-        total_students = cursor.fetchone().get('total_students') or 0
-
-        try:
-            activity_count = len(get_all_activities())
-        except Exception:
-            cursor.execute("SELECT COUNT(*) as total_activities FROM activities")
-            activity_count = cursor.fetchone().get('total_activities') or 0
-
-        cursor.execute("SELECT SUM(CASE WHEN status = 'checked' THEN 1 ELSE 0 END) as checked, SUM(CASE WHEN status = 'pending_review' THEN 1 ELSE 0 END) as pending FROM student_submissions")
-        comp = cursor.fetchone() or {}
-        checked = comp.get('checked') or 0
-        pending = comp.get('pending') or 0
-        total_expected = total_students * activity_count if total_students and activity_count else 0
-        not_submitted = max(total_expected - (checked + pending), 0)
-
-        completion_overview = {
-            'labels': ['Completed','Pending','Not Started'],
-            'data': [checked, pending, not_submitted]
-        }
-
-        # Totals and averages
-        cursor.execute("SELECT IFNULL(ROUND(AVG(score),1), 0) as average_score FROM activities")
-        avg_row = cursor.fetchone() or {}
-        average_score = avg_row.get('average_score') or 0
-
-        cursor.execute("SELECT COUNT(*) as total_activities FROM activities")
-        ta_row = cursor.fetchone() or {}
-        total_activities = ta_row.get('total_activities') or 0
-
-        cursor.execute("SELECT COUNT(*) as total_students FROM students")
-        ts_row = cursor.fetchone() or {}
-        total_students = ts_row.get('total_students') or 0
-
-        # ===== PENDING TICKETS =====
-        cursor.execute("SELECT COUNT(*) as pending FROM tickets WHERE status = 'pending'")
-        pending_tickets_row = cursor.fetchone() or {}
-        pending_tickets = pending_tickets_row.get('pending') or 0
-
-        # ===== PENDING SUBMISSIONS =====
-        cursor.execute("SELECT COUNT(*) as pending_submissions FROM student_submissions WHERE status = 'pending_review'")
-        pending_submissions_row = cursor.fetchone() or {}
-        pending_submissions = pending_submissions_row.get('pending_submissions') or 0
-
-        # ===== NOTIFICATIONS =====
-        cursor.execute("""
-            SELECT id, type, title, message, 
-                   DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as time_ago,
-                   is_read
-            FROM notifications 
-            WHERE target_role = 'teacher'
-            ORDER BY created_at DESC 
-            LIMIT 8
-        """)
-        notifications = cursor.fetchall()
-
-        # Convert notifications to format expected by frontend
-        notif_list = []
-        for n in notifications:
-            notif_list.append({
-                'id': n['id'],
-                'title': n['title'],
-                'message': n['message'],
-                'time_ago': n['time_ago'],
-                'read': n['is_read'] == 1,
-                'type': n['type']
-            })
-
-        # ===== RECENT TICKETS =====
-        cursor.execute("""
-            SELECT t.id, t.subject, t.status, t.priority,
-                   DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i') as created_at,
-                   u.full_name as student_full_name,
-                   u.username as student_username
-            FROM tickets t
-            LEFT JOIN students u ON t.student_id = u.id
-            ORDER BY t.created_at DESC
-            LIMIT 5
-        """)
-        recent_tickets = cursor.fetchall()
-
-        conn.close()
-
-        return jsonify({
-            'success': True,
-            'recent_submissions': recent_subs,
-            'score_distribution': score_distribution,
-            'completion_overview': completion_overview,
-            'total_students': total_students,
-            'average_score': average_score,
-            'total_activities': total_activities,
-            'pending_tickets': pending_tickets,
-            'pending_submissions': pending_submissions,
-            'notifications': notif_list,
-            'recent_tickets': recent_tickets
-        })
-
-    except Exception as e:
-        print(f"Error getting teacher dashboard data: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-
-# ===== CHECK TEACHER UPDATES (REAL-TIME POLLING) =====
-@app.route('/check_teacher_updates')
-def check_teacher_updates():
-    """Check for new teacher notifications and ticket updates"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        # Get latest notification timestamp
-        cursor.execute("""
-            SELECT MAX(created_at) as last_update
-            FROM notifications 
-            WHERE target_role = 'teacher'
-        """)
-        notif_result = cursor.fetchone()
-        
-        # Get latest ticket timestamp
-        cursor.execute("""
-            SELECT MAX(created_at) as last_update
-            FROM tickets
-        """)
-        ticket_result = cursor.fetchone()
-
-        # Get latest student submission timestamp
-        cursor.execute("""
-            SELECT MAX(submitted_at) as last_update
-            FROM student_submissions
-        """)
-        submission_result = cursor.fetchone()
-        
-        # Get pending ticket count
-        cursor.execute("SELECT COUNT(*) as pending FROM tickets WHERE status = 'pending'")
-        pending_result = cursor.fetchone()
-
-        # Get pending submission count for teacher review
-        cursor.execute("SELECT COUNT(*) as pending_submissions FROM student_submissions WHERE status = 'pending_review'")
-        pending_submissions_result = cursor.fetchone()
-        
-        conn.close()
-        
-        # Get client's last known timestamp
-        client_timestamp = request.args.get('last_update')
-        
-        latest_timestamp = None
-        if notif_result and notif_result['last_update']:
-            latest_timestamp = notif_result['last_update']
-        if ticket_result and ticket_result['last_update']:
-            if not latest_timestamp or ticket_result['last_update'] > latest_timestamp:
-                latest_timestamp = ticket_result['last_update']
-        if submission_result and submission_result['last_update']:
-            if not latest_timestamp or submission_result['last_update'] > latest_timestamp:
-                latest_timestamp = submission_result['last_update']
-        
-        has_updates = False
-        if client_timestamp and latest_timestamp:
-            client_time_str = client_timestamp.replace('T', ' ').replace('Z', '')
-            server_time_str = str(latest_timestamp)[:19]
-            has_updates = server_time_str > client_time_str
-        
-        return jsonify({
-            'success': True,
-            'has_updates': has_updates,
-            'pending_tickets': pending_result.get('pending') or 0,
-            'pending_submissions': pending_submissions_result.get('pending_submissions') or 0,
-            'last_update': str(latest_timestamp) if latest_timestamp else None
-        })
-        
-    except Exception as e:
-        print(f"Error checking updates: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-
-@app.route('/get_dashboard_data')
-def get_dashboard_data():
-    """Role-aware dashboard data for shared sidebar and dashboards"""
-    role = session.get('role')
-    user_id = session.get('user_id')
-
-    try:
-        if role == 'teacher':
-            # Reuse teacher dashboard logic
-            return get_teacher_dashboard_data()
-
-        if role == 'student':
-            conn = get_db_connection()
-            cursor = conn.cursor(dictionary=True)
-
-            # Recent submissions for this student
-            cursor.execute("""
-                SELECT s.id, s.activity_name, s.status, s.score,
-                       DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i:%s') as submitted_at
-                FROM student_submissions s
-                WHERE s.student_id = %s
-                ORDER BY s.submitted_at DESC
-                LIMIT 6
-            """, (user_id,))
-            recent_subs = cursor.fetchall()
-
-            # Student activity stats
-            cursor.execute("SELECT COUNT(*) as total_activities, IFNULL(ROUND(AVG(score),1),0) as avg_score FROM activities WHERE student_id = %s", (user_id,))
-            acts = cursor.fetchone() or {}
-            total_activities = acts.get('total_activities') or 0
-            average_score = acts.get('avg_score') or 0
-
-            # Ticket counts for this student
-            cursor.execute("SELECT SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending, COUNT(*) as total FROM tickets WHERE student_id = %s", (user_id,))
-            tcounts = cursor.fetchone() or {}
-            pending_tickets = tcounts.get('pending') or 0
-            total_tickets = tcounts.get('total') or 0
-
-            # Recent notifications for student
-            cursor.execute("SELECT id, title, message, is_read, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as created_at FROM notifications WHERE user_id = %s ORDER BY created_at DESC LIMIT 8", (user_id,))
-            notes = cursor.fetchall()
-
-            conn.close()
-
-            return jsonify({
-                'success': True,
-                'recent_submissions': recent_subs,
-                'total_activities': total_activities,
-                'average_score': average_score,
-                'pending_tickets': pending_tickets,
-                'total_tickets': total_tickets,
-                'notifications': notes
-            })
-
-        # Unauthenticated or unknown role
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-
-    except Exception as e:
-        print(f"Error getting dashboard data: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/teacher_profile', methods=['GET'])
-@app.route('/teacher_profile/', methods=['GET'])
-@app.route('/teacher/profile', methods=['GET'])
+@app.route('/teacher_profile')
 def teacher_profile():
     if session.get('role') != 'teacher':
         return redirect('/')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
+    
     try:
         cursor.execute("""
             SELECT id, username, full_name, email,
-                   DATE_FORMAT(created_at, '%B %d, %Y') as created_at
+                   DATE_FORMAT(created_at, '%M %d, %Y') as created_at
             FROM teachers 
             WHERE id = %s
         """, (session.get('user_id'),))
-        teacher = cursor.fetchone() or {}
-
+        teacher = cursor.fetchone()
+        
         cursor.execute("SELECT COUNT(*) as total FROM students")
-        ts = cursor.fetchone() or {'total': 0}
-        total_students = ts.get('total', 0)
-
+        total_students = cursor.fetchone()['total']
+        
         cursor.execute("""
-            SELECT COUNT(*) as total, IFNULL(AVG(score), 0) as avg_score 
-            FROM activities
+            SELECT COUNT(*) as total, IFNULL(AVG(score), 0) as avg_score
+            FROM assessment_attempts
+            WHERE status = 'submitted'
         """)
-        stats = cursor.fetchone() or {'total': 0, 'avg_score': 0}
-        total_activities = stats.get('total', 0) or 0
-        average_score = int(round(stats.get('avg_score', 0) or 0))
-
-        profile_data = {
-            'full_name': teacher.get('full_name', ''),
-            'username': teacher.get('username', ''),
-            'email': teacher.get('email', ''),
-            'created_at': teacher.get('created_at', ''),
-            'total_students': total_students,
-            'total_activities': total_activities,
-            'average_score': average_score
-        }
-
-        return render_template('teacher_profile.html',
+        stats = cursor.fetchone()
+        total_activities = stats['total'] if stats['total'] else 0
+        average_score = round(stats['avg_score']) if stats['avg_score'] else 0
+        
+        return render_template('teacher/teacher_profile.html', 
                               teacher=teacher,
-                              profile_data=profile_data,
                               total_students=total_students,
                               total_activities=total_activities,
                               average_score=average_score,
                               username=session.get('username'))
-    except Exception as e:
-        print(f"Teacher profile error: {e}")
-        return redirect('/teacher_dashboard')
     finally:
         cursor.close()
         conn.close()
@@ -856,24 +1121,67 @@ def teacher_profile():
 def teacher_settings():
     if session.get('role') != 'teacher':
         return redirect('/')
-    return render_template('teacher_settings.html', 
+    return render_template('teacher/teacher_settings.html', 
                           username=session.get('username'))
 
 @app.route('/teacher_tickets')
-@app.route('/teacher_ticktes')
 def teacher_tickets():
-    if session.get('role') != 'teacher':
+    if session.get('role') not in ['teacher', 'student']:
         return redirect('/')
-    return render_template('teacher_tickets.html', 
+    return render_template('ict-support/tickets.html', 
                           username=session.get('username'),
                           full_name=session.get('full_name'))
 
-@app.route('/teacher_submissions')
-def teacher_submissions_page():
-    """Teacher Submissions page for reviewing student work"""
-    if session.get('role') != 'teacher':
+@app.route('/student_tickets')
+def student_tickets():
+    if session.get('role') != 'student':
         return redirect('/')
-    return render_template('teacher_submissions.html', 
+    return render_template('student/tickets.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+# ==================== ICT SUPPORT ROUTES ====================
+
+@app.route('/ict_support_dashboard')
+def ict_support_dashboard():
+    if session.get('role') not in ['teacher', 'ict']:
+        return redirect('/')
+    return render_template('ict-support/ict-dasboard.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'),
+                          role=session.get('role'))
+
+@app.route('/ict_support_reports')
+def ict_support_reports():
+    if session.get('role') not in ['teacher', 'ict']:
+        return redirect('/')
+    return render_template('ict-support/reports.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+@app.route('/ict_support_settings')
+def ict_support_settings():
+    if session.get('role') not in ['teacher', 'ict']:
+        return redirect('/')
+    return render_template('ict-support/settings.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+@app.route('/ict_support_students')
+def ict_support_students():
+    if session.get('role') not in ['teacher', 'ict']:
+        return redirect('/')
+    return render_template('ict-support/students.html',
+                          username=session.get('username'),
+                          full_name=session.get('full_name'))
+
+@app.route('/ict_support_tickets')
+@app.route('/ict_tickets')
+@app.route('/ict-support/tickets')
+def ict_support_tickets():
+    if session.get('role') not in ['teacher', 'ict']:
+        return redirect('/')
+    return render_template('ict-support/tickets.html',
                           username=session.get('username'),
                           full_name=session.get('full_name'))
 
@@ -888,8 +1196,8 @@ def student_profile_data():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("""
-            SELECT lrn, full_name, grade_level, email,
-                   DATE_FORMAT(created_at, '%B %d, %Y') as created_at
+                 SELECT username, lrn, full_name, grade_level, email,
+                   DATE_FORMAT(created_at, '%M %d, %Y') as created_at
             FROM students WHERE id = %s
         """, (session.get('user_id'),))
         student = cursor.fetchone()
@@ -914,7 +1222,7 @@ def teacher_profile_data():
         
         cursor.execute("""
             SELECT username, full_name, email,
-                   DATE_FORMAT(created_at, '%B %d, %Y') as created_at
+                   DATE_FORMAT(created_at, '%M %d, %Y') as created_at
             FROM teachers WHERE id = %s
         """, (session.get('user_id'),))
         teacher = cursor.fetchone()
@@ -923,8 +1231,9 @@ def teacher_profile_data():
         total_students = cursor.fetchone()['total_students']
         
         cursor.execute("""
-            SELECT COUNT(*) as total_activities, IFNULL(ROUND(AVG(score), 0), 0) as avg_score 
-            FROM activities
+            SELECT COUNT(*) as total_activities, IFNULL(ROUND(AVG(score), 0), 0) as avg_score
+            FROM assessment_attempts
+            WHERE status = 'submitted'
         """)
         stats = cursor.fetchone()
         
@@ -935,7 +1244,7 @@ def teacher_profile_data():
             'success': True,
             'username': teacher['username'] if teacher else '',
             'full_name': teacher['full_name'] if teacher else '',
-            'email': teacher['email'] if teacher else 'teacher@blocklearn.edu.ph',
+            'email': teacher['email'] if teacher else 'admin@blocklearn.edu.ph',
             'created_at': teacher['created_at'] if teacher else '',
             'total_students': total_students,
             'total_activities': stats['total_activities'] or 0,
@@ -945,7 +1254,195 @@ def teacher_profile_data():
         print(f"Error: {e}")
         return jsonify({'success': False, 'message': str(e)})
 
+@app.route('/get_ict_dashboard_data')
+def get_ict_dashboard_data():
+    if session.get('role') not in ['teacher', 'ict']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT COUNT(*) AS total_students FROM students")
+        total_students = cursor.fetchone()['total_students'] or 0
+
+        cursor.execute("""
+            SELECT COUNT(*) AS registered_today
+            FROM students
+            WHERE DATE(created_at) = CURDATE()
+        """)
+        registered_today = cursor.fetchone()['registered_today'] or 0
+
+        cursor.execute("""
+            SELECT id, username, full_name, lrn, created_at
+            FROM students
+            ORDER BY created_at DESC, id DESC
+            LIMIT 5
+        """)
+        students = cursor.fetchall()
+
+        cursor.execute("SELECT COUNT(*) AS total_tickets FROM ict_tickets")
+        total_tickets = cursor.fetchone()['total_tickets'] or 0
+        cursor.execute("""
+            SELECT COUNT(*) AS pending_tickets
+            FROM ict_tickets
+            WHERE status IN ('pending', 'in_progress')
+        """)
+        pending_tickets = cursor.fetchone()['pending_tickets'] or 0
+
+        return jsonify({
+            'success': True,
+            'total_students': total_students,
+            'registered_today': registered_today,
+            'total_tickets': total_tickets,
+            'pending_tickets': pending_tickets,
+            'students': students
+        })
+    except Exception as e:
+        print(f"Error getting ICT dashboard data: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve dashboard data'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 # ==================== AUTHENTICATION ROUTES ====================
+
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    identifier = str(data.get('identifier', '')).strip()
+    if not identifier:
+        return jsonify({'success': False, 'message': 'LRN or username is required'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id
+            FROM students
+            WHERE lrn = %s OR LOWER(username) = LOWER(%s)
+            LIMIT 1
+        """, (identifier, identifier))
+        student = cursor.fetchone()
+        if not student:
+            return jsonify({'success': False, 'message': 'No student account matches that LRN or username'}), 404
+
+        token = secrets.token_urlsafe(48)
+        expires = datetime.now() + timedelta(minutes=30)
+        cursor.execute("""
+            UPDATE students
+            SET reset_token = %s, reset_token_expires = %s
+            WHERE id = %s
+        """, (token, expires, student['id']))
+        conn.commit()
+
+        reset_url = f"{request.host_url.rstrip('/')}/reset-password?token={token}"
+        return jsonify({
+            'success': True,
+            'message': 'Reset link created. Use it within 30 minutes.',
+            'reset_url': reset_url,
+        })
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Forgot password error: {e}")
+        return jsonify({'success': False, 'message': 'Unable to create a reset link'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    token = str(data.get('token', '')).strip()
+    password = str(data.get('password', ''))
+    confirm_password = str(data.get('confirm_password', ''))
+
+    if not token or len(password) < 6 or password != confirm_password:
+        return jsonify({'success': False, 'message': 'Provide a valid token and matching password of at least 6 characters'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id
+            FROM students
+            WHERE reset_token = %s AND reset_token_expires > NOW()
+            LIMIT 1
+        """, (token,))
+        student = cursor.fetchone()
+        if not student:
+            return jsonify({'success': False, 'message': 'This reset link is invalid or expired'}), 400
+
+        cursor.execute("""
+            UPDATE students
+            SET password = %s, reset_token = NULL, reset_token_expires = NULL
+            WHERE id = %s
+        """, (hash_password(password), student['id']))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Password reset successfully. You can now log in.'})
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Reset password error: {e}")
+        return jsonify({'success': False, 'message': 'Unable to reset password'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    """Change the password for the currently signed-in ICT support user."""
+    if session.get('role') != 'ict':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    data = request.get_json(silent=True) or {}
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    if not current_password or not new_password:
+        return jsonify({'success': False, 'message': 'Current and new passwords are required'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT password FROM ict_support WHERE id = %s AND status = 'active'",
+            (session.get('user_id'),),
+        )
+        user = cursor.fetchone()
+        if not user or hash_password(current_password) != user['password']:
+            return jsonify({'success': False, 'message': 'Current password is incorrect'}), 400
+
+        cursor.execute(
+            "UPDATE ict_support SET password = %s WHERE id = %s AND status = 'active'",
+            (hash_password(new_password), session.get('user_id')),
+        )
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Password updated successfully!'})
+    except Exception as exc:
+        if conn:
+            conn.rollback()
+        print(f"ICT password update error: {exc}")
+        return jsonify({'success': False, 'message': 'Unable to update password'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.route('/login', methods=['POST'])
 def login_post():
@@ -986,15 +1483,43 @@ def login_post():
                 else:
                     return jsonify({'success': False, 'message': 'Invalid LRN or password'})
                     
+            elif role == 'ict_support':
+                username = data.get('username') or data.get('employee_id')
+                validation_code = data.get('validation_code')
+                if not username:
+                    return jsonify({'success': False, 'message': 'ICT support username is required'})
+                if not validation_code:
+                    return jsonify({'success': False, 'message': 'ICT support validation code is required'})
+
+                cursor.execute("""
+                    SELECT * FROM ict_support
+                    WHERE LOWER(username) = LOWER(%s) AND status = 'active'
+                """, (username,))
+                user = cursor.fetchone()
+
+                if user and hash_password(password) == user['password'] and verify_staff_code(user.get('staff_code_hash'), validation_code):
+                    cursor.execute("UPDATE ict_support SET last_login = CURRENT_TIMESTAMP WHERE id = %s", (user['id'],))
+                    conn.commit()
+                    session['user_id'] = user['id']
+                    session['username'] = user['username']
+                    session['full_name'] = user['full_name']
+                    session['role'] = 'ict'
+                    return jsonify({'success': True, 'role': 'ict_support', 'redirect': '/ict_support_dashboard'})
+                else:
+                    return jsonify({'success': False, 'message': 'Invalid ICT support username or password'})
+
             else:  # teacher
                 username = data.get('username')
+                validation_code = data.get('validation_code')
                 if not username:
                     return jsonify({'success': False, 'message': 'Username is required for teachers'})
+                if not validation_code:
+                    return jsonify({'success': False, 'message': 'Teacher validation code is required'})
                     
                 cursor.execute("SELECT * FROM teachers WHERE LOWER(username) = LOWER(%s)", (username,))
                 user = cursor.fetchone()
                 
-                if user and hash_password(password) == user['password']:
+                if user and hash_password(password) == user['password'] and verify_staff_code(user.get('staff_code_hash'), validation_code):
                     session['user_id'] = user['id']
                     session['username'] = user['username']
                     session['full_name'] = user.get('full_name', user['username'])
@@ -1076,17 +1601,17 @@ def create_account():
             """, (username, full_name, hashed_password, lrn, grade_level, email, datetime.now()))
             
             conn.commit()
-            print(f" [SUCCESS] Account created for LRN: {lrn} - Name: {full_name}")
+            print(f"✅ [SUCCESS] Account created for LRN: {lrn} - Name: {full_name}")
             return jsonify({'success': True, 'message': 'Account created successfully! You can now login.'})
             
         except mysql.connector.IntegrityError as err:
             if err.errno == 1062:
                 return jsonify({'success': False, 'message': 'LRN or username already exists'})
             else:
-                print(f" [ERROR] IntegrityError: {err}")
+                print(f"❌ [ERROR] IntegrityError: {err}")
                 return jsonify({'success': False, 'message': f'Database error: {str(err)}'})
         except mysql.connector.Error as err:
-            print(f" [ERROR] MySQL Error: {err}")
+            print(f"❌ [ERROR] MySQL Error: {err}")
             if "Unknown column 'email'" in str(err):
                 cursor.execute("""
                     INSERT INTO students (username, full_name, password, lrn, grade_level, created_at)
@@ -1100,7 +1625,7 @@ def create_account():
             conn.close()
             
     except Exception as e:
-        print(f" [ERROR] Create account error: {e}")
+        print(f"❌ [ERROR] Create account error: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'success': False, 'message': f'Account creation failed: {str(e)}'})
@@ -1123,8 +1648,8 @@ def save_activity():
         code_blocks = data.get('code_blocks')
         language = data.get('language')
         
-        if not all([student_id, activity_name, score is not None]):
-            return jsonify({'success': False, 'message': 'Missing required fields'})
+        if not all([student_id, activity_name, score is not None]) or language not in ('php', 'javascript', 'cpp'):
+            return jsonify({'success': False, 'message': 'Invalid activity completion data'}), 400
         
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -1140,9 +1665,9 @@ def save_activity():
             if existing:
                 cursor.execute("""
                     UPDATE activities 
-                    SET score = %s, code_blocks = %s, completed_at = %s
+                    SET score = %s, code_blocks = %s, language = %s, completed_at = %s
                     WHERE student_id = %s AND activity_name = %s
-                """, (score, code_blocks, datetime.now(), student_id, activity_name))
+                """, (score, code_blocks, language, datetime.now(), student_id, activity_name))
             else:
                 cursor.execute("""
                     INSERT INTO activities (student_id, activity_name, score, code_blocks, language, completed_at)
@@ -1158,674 +1683,75 @@ def save_activity():
         print(f"Save activity error: {e}")
         return jsonify({'success': False, 'message': f'Failed to save activity: {str(e)}'})
 
-# ==================== SUBMISSION API ROUTES ====================
-
-@app.route('/submit_activity', methods=['POST'])
-def submit_activity():
-    """Student submits activity for review"""
-    if session.get('role') != 'student':
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
-
-    data = request.get_json(silent=True)
-    if not data:
-        return jsonify({'success': False, 'message': 'Invalid submission data'}), 400
-
-    student_id = session.get('user_id')
-    activity_name = (data.get('activity_name') or '').strip()
-    code_blocks = (data.get('code_blocks') or '').strip()
-    language = (data.get('language') or 'python').strip() or 'python'
-
-    if not student_id or not activity_name or not code_blocks:
-        return jsonify({'success': False, 'message': 'Missing required fields'}), 400
-
-    conn = None
-    cursor = None
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("SELECT id FROM students WHERE id = %s", (student_id,))
-        if cursor.fetchone() is None:
-            return jsonify({'success': False, 'message': 'Student account not found. Please log in again.'}), 401
-
-        cursor.execute("""
-            SELECT id FROM student_submissions 
-            WHERE student_id = %s AND activity_name = %s
-            ORDER BY submitted_at DESC LIMIT 1
-        """, (student_id, activity_name))
-        existing = cursor.fetchone()
-
-        if existing:
-            cursor.execute("""
-                UPDATE student_submissions 
-                SET code_blocks = %s, 
-                    language = %s, 
-                    status = 'pending_review',
-                    submitted_at = CURRENT_TIMESTAMP
-                WHERE id = %s
-            """, (code_blocks, language, existing['id']))
-            submission_id = existing['id']
-            is_new = False
-        else:
-            cursor.execute("""
-                INSERT INTO student_submissions 
-                (student_id, activity_name, code_blocks, language, status, submitted_at)
-                VALUES (%s, %s, %s, %s, 'pending_review', CURRENT_TIMESTAMP)
-            """, (student_id, activity_name, code_blocks, language))
-            submission_id = cursor.lastrowid
-            is_new = True
-
-        conn.commit()
-
-        if is_new:
-            cursor.execute("SELECT username, full_name FROM students WHERE id = %s", (student_id,))
-            student = cursor.fetchone()
-            student_name = student['full_name'] if student and student['full_name'] else student['username'] if student else f"Student #{student_id}"
-
-            cursor.execute("""
-                INSERT INTO notifications 
-                (target_role, type, title, message, related_id, created_at, is_read)
-                VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, 0)
-            """, (
-                'teacher',
-                'submission',
-                'New Activity Submission',
-                f'{student_name} submitted "{activity_name}" for review.',
-                submission_id
-            ))
-            conn.commit()
-
-        return jsonify({
-            'success': True,
-            'submission_id': submission_id,
-            'is_new': is_new,
-            'message': 'Activity submitted for review!'
-        })
-
-    except mysql.connector.Error as e:
-        print(f"Submit activity DB error: {e}")
-        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
-    except Exception as e:
-        print(f"Submit activity error: {e}")
-        return jsonify({'success': False, 'message': 'Failed to submit activity. Please try again.'}), 500
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-
-@app.route('/get_activity_status', methods=['GET'])
-def get_activity_status():
-    """Get status for a specific activity"""
-    if session.get('role') != 'student':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        student_id = session.get('user_id')
-        activity_name = request.args.get('activity')
-        
-        if not activity_name:
-            return jsonify({'success': False, 'message': 'Activity name required'})
-        
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            cursor.execute("""
-                SELECT status, score, feedback,
-                       DATE_FORMAT(submitted_at, '%Y-%m-%d %H:%i') as submitted_at,
-                       DATE_FORMAT(reviewed_at, '%Y-%m-%d %H:%i') as reviewed_at
-                FROM student_submissions 
-                WHERE student_id = %s AND activity_name = %s
-                ORDER BY submitted_at DESC LIMIT 1
-            """, (student_id, activity_name))
-            
-            submission = cursor.fetchone()
-            
-            if submission:
-                return jsonify({'success': True, 'status': submission})
-            else:
-                return jsonify({
-                    'success': True, 
-                    'status': {
-                        'status': 'not_started', 
-                        'score': None, 
-                        'feedback': None, 
-                        'submitted_at': None,
-                        'reviewed_at': None
-                    }
-                })
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get activity status error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-# ==================== TEACHER SUBMISSION ROUTES ====================
-
-@app.route('/teacher/submissions', methods=['GET'])
-def teacher_submissions():
-    """Teacher gets all submissions (pending and checked)"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            # Get pending submissions
-            cursor.execute("""
-                SELECT 
-                    s.id, 
-                    s.student_id,
-                    u.username,
-                    u.full_name as student_name,
-                    u.lrn,
-                    s.activity_name,
-                    s.code_blocks,
-                    s.language,
-                    DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i') as submitted_at,
-                    s.score,
-                    s.feedback,
-                    s.status
-                FROM student_submissions s
-                JOIN students u ON s.student_id = u.id
-                WHERE s.status = 'pending_review'
-                ORDER BY s.submitted_at DESC
-            """)
-            pending = cursor.fetchall()
-            
-            # Get checked submissions
-            cursor.execute("""
-                SELECT 
-                    s.id, 
-                    s.student_id,
-                    u.username,
-                    u.full_name as student_name,
-                    u.lrn,
-                    s.activity_name,
-                    s.code_blocks,
-                    s.language,
-                    DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i') as submitted_at,
-                    DATE_FORMAT(s.reviewed_at, '%Y-%m-%d %H:%i') as reviewed_at,
-                    s.score,
-                    s.feedback,
-                    s.status
-                FROM student_submissions s
-                JOIN students u ON s.student_id = u.id
-                WHERE s.status IN ('approved', 'needs_revision')
-                ORDER BY s.reviewed_at DESC
-            """)
-            checked = cursor.fetchall()
-            
-            # Get counts by status
-            cursor.execute("""
-                SELECT status, COUNT(*) as count
-                FROM student_submissions
-                GROUP BY status
-            """)
-            counts_data = cursor.fetchall()
-            counts = {'pending': 0, 'approved': 0, 'needs_revision': 0, 'total': 0}
-            for row in counts_data:
-                counts[row['status']] = row['count']
-                counts['total'] += row['count']
-            
-            return jsonify({
-                'success': True,
-                'pending': pending,
-                'checked': checked,
-                'total': counts['total'],
-                'counts': counts
-            })
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get teacher submissions error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/teacher/submission/<int:submission_id>', methods=['GET'])
-def teacher_get_submission(submission_id):
-    """Teacher gets a specific submission"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            cursor.execute("""
-                SELECT 
-                    s.id, 
-                    s.student_id,
-                    u.username,
-                    u.full_name as student_name,
-                    u.lrn,
-                    s.activity_name,
-                    s.code_blocks,
-                    s.language,
-                    DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i') as submitted_at,
-                    DATE_FORMAT(s.reviewed_at, '%Y-%m-%d %H:%i') as reviewed_at,
-                    s.score,
-                    s.feedback,
-                    s.status
-                FROM student_submissions s
-                JOIN students u ON s.student_id = u.id
-                WHERE s.id = %s
-            """, (submission_id,))
-            
-            submission = cursor.fetchone()
-            
-            if submission:
-                return jsonify({'success': True, 'submission': submission})
-            else:
-                return jsonify({'success': False, 'message': 'Submission not found'})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get submission error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/teacher/review_submission', methods=['POST'])
-def teacher_review_submission():
-    """Teacher reviews a submission"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        data = request.json
-        submission_id = data.get('submission_id')
-        score = data.get('score')
-        feedback = data.get('feedback', '')
-        status = data.get('status', 'approved')
-        
-        if not submission_id or score is None:
-            return jsonify({'success': False, 'message': 'Missing required fields'})
-        
-        # Validate score
-        try:
-            score = int(score)
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Invalid score format'})
-        
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            # Get submission info before updating
-            cursor.execute("""
-                SELECT s.student_id, s.activity_name, u.username, u.full_name
-                FROM student_submissions s
-                JOIN students u ON s.student_id = u.id
-                WHERE s.id = %s
-            """, (submission_id,))
-            
-            submission = cursor.fetchone()
-            
-            if not submission:
-                return jsonify({'success': False, 'message': 'Submission not found'})
-            
-            activity_name = submission['activity_name']
-            max_score = get_max_score(activity_name)
-            if score < 0 or score > max_score:
-                return jsonify({'success': False, 'message': f'Score must be between 0 and {max_score}'})
-            
-            # Update submission
-            cursor.execute("""
-                UPDATE student_submissions 
-                SET status = %s, score = %s, feedback = %s, reviewed_at = CURRENT_TIMESTAMP
-                WHERE id = %s
-            """, (status, score, feedback, submission_id))
-            
-            conn.commit()
-            
-            # Create notification for student
-            student_id = submission['student_id']
-            if status == 'approved':
-                title = 'Activity Approved!'
-                message = f'Your "{activity_name}" activity was approved with a score of {score}/{max_score}.'
-            else:
-                title = 'Activity Needs Revision'
-                message = f'Your "{activity_name}" activity needs revision. Feedback: {feedback}'
-            
-            cursor.execute("""
-                INSERT INTO notifications 
-                (user_id, type, title, message, created_at, is_read)
-                VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, 0)
-            """, (student_id, 'review_result', title, message))
-            
-            conn.commit()
-            
-            return jsonify({
-                'success': True,
-                'message': f'Submission {status} with score {score}/{max_score}'
-            })
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Review submission error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/teacher/submissions/pending', methods=['GET'])
-def teacher_pending_submissions():
-    """Teacher gets pending submissions only"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            cursor.execute("""
-                SELECT 
-                    s.id, 
-                    s.student_id,
-                    u.username,
-                    u.full_name as student_name,
-                    u.lrn,
-                    s.activity_name,
-                    s.code_blocks,
-                    s.language,
-                    DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i') as submitted_at,
-                    s.score,
-                    s.feedback
-                FROM student_submissions s
-                JOIN students u ON s.student_id = u.id
-                WHERE s.status = 'pending_review'
-                ORDER BY s.submitted_at DESC
-            """)
-            
-            submissions = cursor.fetchall()
-            return jsonify({'success': True, 'submissions': submissions})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get pending submissions error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/teacher/submissions/checked', methods=['GET'])
-def teacher_checked_submissions():
-    """Teacher gets checked submissions only"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            cursor.execute("""
-                SELECT 
-                    s.id, 
-                    s.student_id,
-                    u.username,
-                    u.full_name as student_name,
-                    u.lrn,
-                    s.activity_name,
-                    s.code_blocks,
-                    s.language,
-                    DATE_FORMAT(s.submitted_at, '%Y-%m-%d %H:%i') as submitted_at,
-                    DATE_FORMAT(s.reviewed_at, '%Y-%m-%d %H:%i') as reviewed_at,
-                    s.score,
-                    s.feedback,
-                    s.status
-                FROM student_submissions s
-                JOIN students u ON s.student_id = u.id
-                WHERE s.status IN ('approved', 'needs_revision')
-                ORDER BY s.reviewed_at DESC
-            """)
-            
-            submissions = cursor.fetchall()
-            return jsonify({'success': True, 'submissions': submissions})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get checked submissions error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-# ==================== NOTIFICATION ROUTES ====================
-
-@app.route('/get_notifications', methods=['GET'])
-def get_notifications():
-    """Get user notifications"""
-    user_id = session.get('user_id')
-    role = session.get('role')
-    
-    if not user_id:
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            if role == 'student':
-                cursor.execute("""
-                    SELECT id, type, title, message, 
-                           DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as created_at, 
-                           is_read
-                    FROM notifications 
-                    WHERE user_id = %s OR (user_id IS NULL AND target_role = 'student')
-                    ORDER BY created_at DESC
-                    LIMIT 30
-                """, (user_id,))
-            else:  # teacher
-                cursor.execute("""
-                    SELECT id, type, title, message, 
-                           DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as created_at, 
-                           is_read
-                    FROM notifications 
-                    WHERE target_role = 'teacher' OR user_id = %s
-                    ORDER BY created_at DESC
-                    LIMIT 30
-                """, (user_id,))
-            
-            notifications = cursor.fetchall()
-            return jsonify({'success': True, 'notifications': notifications})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get notifications error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/get_unread_count', methods=['GET'])
-def get_unread_count():
-    """Get unread notification count"""
-    user_id = session.get('user_id')
-    role = session.get('role')
-    
-    if not user_id:
-        return jsonify({'success': False, 'count': 0})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        try:
-            if role == 'student':
-                cursor.execute("""
-                    SELECT COUNT(*) FROM notifications 
-                    WHERE (user_id = %s OR (user_id IS NULL AND target_role = 'student'))
-                    AND is_read = 0
-                """, (user_id,))
-            else:  # teacher
-                cursor.execute("""
-                    SELECT COUNT(*) FROM notifications 
-                    WHERE (target_role = 'teacher' OR user_id = %s)
-                    AND is_read = 0
-                """, (user_id,))
-            
-            count = cursor.fetchone()[0]
-            return jsonify({'success': True, 'count': count})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get unread count error: {e}")
-        return jsonify({'success': False, 'count': 0})
-
-@app.route('/mark_notification_read', methods=['POST'])
-def mark_notification_read():
-    """Mark notification as read"""
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        data = request.json
-        notification_id = data.get('notification_id')
-        
-        if not notification_id:
-            return jsonify({'success': False, 'message': 'Notification ID required'})
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        try:
-            cursor.execute("""
-                UPDATE notifications 
-                SET is_read = 1 
-                WHERE id = %s
-            """, (notification_id,))
-            
-            conn.commit()
-            return jsonify({'success': True, 'message': 'Notification marked as read'})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Mark notification read error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/mark_all_notifications_read', methods=['POST'])
-def mark_all_notifications_read():
-    """Mark all notifications as read"""
-    user_id = session.get('user_id')
-    role = session.get('role')
-    
-    if not user_id:
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        try:
-            if role == 'student':
-                cursor.execute("""
-                    UPDATE notifications 
-                    SET is_read = 1 
-                    WHERE (user_id = %s OR (user_id IS NULL AND target_role = 'student'))
-                    AND is_read = 0
-                """, (user_id,))
-            else:  # teacher
-                cursor.execute("""
-                    UPDATE notifications 
-                    SET is_read = 1 
-                    WHERE (target_role = 'teacher' OR user_id = %s)
-                    AND is_read = 0
-                """, (user_id,))
-            
-            conn.commit()
-            return jsonify({'success': True, 'message': 'All notifications marked as read'})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Mark all notifications read error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/get_recent_submissions', methods=['GET'])
-def get_recent_submissions_route():
-    """Get recent submissions for dashboard"""
-    if session.get('role') != 'student':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        student_id = session.get('user_id')
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            cursor.execute("""
-                SELECT id, activity_name, status, score, feedback,
-                       DATE_FORMAT(submitted_at, '%Y-%m-%d %H:%i') as submitted_at
-                FROM student_submissions 
-                WHERE student_id = %s
-                ORDER BY submitted_at DESC
-                LIMIT 5
-            """, (student_id,))
-            
-            submissions = cursor.fetchall()
-            return jsonify({'success': True, 'submissions': submissions})
-            
-        finally:
-            cursor.close()
-            conn.close()
-            
-    except Exception as e:
-        print(f"Get recent submissions error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
-# ==================== GET_PROGRESS ====================
-
 @app.route('/get_progress')
 def get_progress():
     if session.get('role') != 'student':
         return jsonify({'success': False, 'message': 'Unauthorized'})
-    
+
     try:
         student_id = session.get('user_id')
         if not student_id:
             return jsonify({'success': False, 'message': 'User not authenticated'})
-        
+
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
         try:
-            all_activities = get_all_activities()
-            total_lessons = len(all_activities)
-            
             cursor.execute("""
-                SELECT COUNT(DISTINCT activity_name) as completed
-                FROM student_submissions
-                WHERE student_id = %s
+                SELECT COUNT(DISTINCT aa.assessment_id) AS completed
+                FROM assessment_attempts aa
+                JOIN assessments a ON a.id = aa.assessment_id
+                WHERE aa.student_id = %s
+                  AND aa.status = 'submitted'
+                  AND a.language IN ('python', 'java')
             """, (student_id,))
-            completed_result = cursor.fetchone()
-            completed = completed_result['completed'] if completed_result else 0
-            
-            progress = (completed / total_lessons * 100) if total_lessons > 0 else 0
-            return jsonify({'success': True, 'progress': progress, 'completed': completed, 'total': total_lessons})
+            assessment_result = cursor.fetchone()
+
+            cursor.execute("""
+                SELECT a.language, COUNT(DISTINCT aa.assessment_id) AS completed
+                FROM assessment_attempts aa
+                JOIN assessments a ON a.id = aa.assessment_id
+                WHERE aa.student_id = %s
+                  AND aa.status = 'submitted'
+                  AND a.language IN ('php', 'javascript', 'cpp')
+                GROUP BY a.language
+            """, (student_id,))
+            submitted_activity_stats = {
+                row['language']: min(row['completed'], 5)
+                for row in cursor.fetchall()
+            }
+
+            cursor.execute("""
+                SELECT language, COUNT(DISTINCT activity_name) AS completed
+                FROM activities
+                WHERE student_id = %s
+                  AND language IN ('php', 'javascript', 'cpp')
+                GROUP BY language
+            """, (student_id,))
+            saved_activity_stats = {
+                row['language']: min(row['completed'], 5)
+                for row in cursor.fetchall()
+            }
+
+            completed_assessments = min(assessment_result['completed'] if assessment_result else 0, 10)
+            completed_activities = sum(
+                max(
+                    submitted_activity_stats.get(language, 0),
+                    saved_activity_stats.get(language, 0),
+                )
+                for language in ('php', 'javascript', 'cpp')
+            )
+            total_completed = completed_assessments + completed_activities
+            progress = round(total_completed / 25 * 100)
+            return jsonify({
+                'success': True,
+                'progress': progress,
+                'completed': total_completed,
+                'completed_assessments': completed_assessments,
+                'completed_activities': completed_activities,
+                'total': 25,
+                'total_assessments': 10,
+                'total_activities': 15,
+            })
         finally:
             cursor.close()
             conn.close()
@@ -1844,22 +1770,22 @@ def get_student_stats():
         cursor = conn.cursor(dictionary=True)
         
         cursor.execute("""
-            SELECT activity_name, score, status,
-                   IFNULL(DATE_FORMAT(reviewed_at, '%Y-%m-%d %H:%i'), DATE_FORMAT(submitted_at, '%Y-%m-%d %H:%i')) as completed_at
-            FROM student_submissions 
-            WHERE student_id = %s 
-            ORDER BY submitted_at DESC 
+            SELECT a.title AS activity_name, aa.score,
+                   DATE_FORMAT(aa.submitted_at, '%Y-%m-%d %H:%i') as completed_at
+            FROM assessment_attempts aa
+            JOIN assessments a ON a.id = aa.assessment_id
+            WHERE aa.student_id = %s AND aa.status = 'submitted'
+            ORDER BY aa.submitted_at DESC
             LIMIT 5
         """, (student_id,))
-        recent = cursor.fetchall() or []
+        recent = cursor.fetchall()
         
         cursor.execute("""
-            SELECT COUNT(DISTINCT activity_name) as total,
-                   IFNULL(ROUND(AVG(score), 0), 0) as avg_score
-            FROM student_submissions 
-            WHERE student_id = %s AND score IS NOT NULL
+            SELECT IFNULL(AVG(score), 0) as avg_score, COUNT(*) as total
+            FROM assessment_attempts
+            WHERE student_id = %s AND status = 'submitted'
         """, (student_id,))
-        stats = cursor.fetchone() or {'avg_score': 0, 'total': 0}
+        stats = cursor.fetchone()
         
         cursor.close()
         conn.close()
@@ -1867,34 +1793,12 @@ def get_student_stats():
         return jsonify({
             'success': True, 
             'recent_activities': recent,
-            'average_score': round(stats['avg_score'] or 0),
+            'average_score': round(stats['avg_score']) if stats['avg_score'] else 0,
             'total_activities': stats['total'] or 0
         })
     except Exception as e:
         print(f"Error in get_student_stats: {e}")
         return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/get_lessons')
-def get_lessons():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        try:
-            cursor.execute("SELECT * FROM lessons ORDER BY order_num, id")
-            lessons = cursor.fetchall()
-            return jsonify({'success': True, 'lessons': lessons})
-        finally:
-            cursor.close()
-            conn.close()
-    except Exception as e:
-        print(f"Get lessons error: {e}")
-        return jsonify({'success': True, 'lessons': [
-            {'id': 1, 'title': ' Activity 1: Say Hello!', 'description': 'Learn basic print statements', 'content': 'Print "Hello World"', 'difficulty': 'Beginner'},
-            {'id': 2, 'title': ' Activity 2: Print Your Name', 'description': 'Print your own name', 'content': 'Variables and strings', 'difficulty': 'Beginner'},
-            {'id': 3, 'title': ' Activity 3: Simple Math', 'description': 'Perform calculations', 'content': 'Math operations', 'difficulty': 'Beginner'},
-            {'id': 4, 'title': ' Activity 4: Using Loops', 'description': 'Repeat actions', 'content': 'Loop structures', 'difficulty': 'Intermediate'}
-        ]})
 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
@@ -1940,40 +1844,6 @@ def update_profile():
         print(f"Update profile error: {e}")
         return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/complete_lesson', methods=['POST'])
-def complete_lesson():
-    if session.get('role') != 'student':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        data = request.json
-        lesson_title = data.get('lesson_title')
-        score = data.get('score', 100)
-        
-        student_id = session.get('user_id')
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT id FROM activities 
-            WHERE student_id = %s AND activity_name = %s
-        """, (student_id, lesson_title))
-        
-        if not cursor.fetchone():
-            cursor.execute("""
-                INSERT INTO activities (student_id, activity_name, score, completed_at, language)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (student_id, lesson_title, score, datetime.now(), 'python'))
-            conn.commit()
-        
-        cursor.close()
-        conn.close()
-        
-        return jsonify({'success': True, 'message': 'Lesson completed!'})
-    except Exception as e:
-        print(f"Error in complete_lesson: {e}")
-        return jsonify({'success': False, 'message': str(e)})
-
 @app.route('/get_activities')
 def get_activities():
     if session.get('role') != 'student':
@@ -1983,34 +1853,92 @@ def get_activities():
         student_id = session.get('user_id')
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
+
         cursor.execute("""
-            SELECT activity_name, score, language, status, submitted_at
-            FROM student_submissions 
+            SELECT activity_name, language, score, completed_at
+            FROM activities
             WHERE student_id = %s
-            ORDER BY submitted_at DESC
         """, (student_id,))
-        completed_rows = cursor.fetchall() or []
+        saved_activity_rows = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT a.language, a.assessment_number, a.title, a.points,
+                   a.expected_output, aa.status, aa.score, aa.auto_score,
+                   aa.teacher_score, COALESCE(aa.completed_at, aa.submitted_at) AS completed_at
+            FROM assessment_attempts aa
+            JOIN assessments a ON a.id = aa.assessment_id
+            WHERE aa.student_id = %s
+        """, (student_id,))
+        assessment_attempts = cursor.fetchall()
         
-        latest_submissions = {}
-        for row in completed_rows:
-            name = row.get('activity_name')
-            if not name or name in latest_submissions:
-                continue
-            latest_submissions[name] = row
+        all_activities = [
+            {'id': 1, 'name': 'Say Hello!', 'language': 'python', 'difficulty': 'easy'},
+            {'id': 2, 'name': 'Print Your Name', 'language': 'python', 'difficulty': 'easy'},
+            {'id': 3, 'name': 'Simple Math', 'language': 'python', 'difficulty': 'easy'},
+            {'id': 4, 'name': 'If-Else Statement', 'language': 'python', 'difficulty': 'medium'},
+            {'id': 5, 'name': 'While Loop', 'language': 'python', 'difficulty': 'medium'},
+            {'id': 6, 'name': 'Conditions', 'language': 'python', 'difficulty': 'medium'},
+            {'id': 7, 'name': 'Console Log', 'language': 'javascript', 'difficulty': 'easy'},
+            {'id': 8, 'name': 'Alert Message', 'language': 'javascript', 'difficulty': 'easy'},
+            {'id': 9, 'name': 'Simple Calculation', 'language': 'javascript', 'difficulty': 'medium'},
+            {'id': 10, 'name': 'Create Heading', 'language': 'html', 'difficulty': 'easy'},
+            {'id': 11, 'name': 'Create Paragraph', 'language': 'html', 'difficulty': 'easy'},
+            {'id': 12, 'name': 'Hello, PHP!', 'language': 'php', 'difficulty': 'easy'},
+            {'id': 13, 'name': 'Store a Name', 'language': 'php', 'difficulty': 'easy'},
+            {'id': 14, 'name': 'Subtract Two Numbers', 'language': 'php', 'difficulty': 'medium'},
+            {'id': 15, 'name': 'Greater Than', 'language': 'php', 'difficulty': 'medium'},
+            {'id': 16, 'name': 'Repeat a Message Three Times', 'language': 'php', 'difficulty': 'hard'},
+            {'id': 17, 'name': 'Hello, JavaScript!', 'language': 'javascript', 'difficulty': 'easy'},
+            {'id': 18, 'name': 'Store and Display a Score', 'language': 'javascript', 'difficulty': 'easy'},
+            {'id': 19, 'name': 'Add Numbers', 'language': 'javascript', 'difficulty': 'medium'},
+            {'id': 20, 'name': 'Greater Than', 'language': 'javascript', 'difficulty': 'medium'},
+            {'id': 21, 'name': 'Repeat a Message Five Times', 'language': 'javascript', 'difficulty': 'hard'},
+            {'id': 22, 'name': 'Hello, C++!', 'language': 'cpp', 'difficulty': 'easy'},
+            {'id': 23, 'name': 'Store an Age', 'language': 'cpp', 'difficulty': 'easy'},
+            {'id': 24, 'name': 'Multiply Two Numbers', 'language': 'cpp', 'difficulty': 'medium'},
+            {'id': 25, 'name': 'Less Than', 'language': 'cpp', 'difficulty': 'medium'},
+            {'id': 26, 'name': 'Display Numbers 1 to 5', 'language': 'cpp', 'difficulty': 'hard'},
+        ]
         
-        all_activities = get_all_activities()
+        completed_assessments = {
+            (attempt['language'], attempt['assessment_number'])
+            for attempt in assessment_attempts
+            if attempt['status'] == 'submitted'
+            and attempt['language'] in ('python', 'java')
+        }
+        activities_unlocked = len(completed_assessments) >= 10
+        saved_activities = {
+            (row['language'], row['activity_name']): row
+            for row in saved_activity_rows
+        }
+        activity_languages = {'php', 'javascript', 'cpp'}
+
         for activity in all_activities:
-            submission = latest_submissions.get(activity['name'])
-            activity['completed'] = bool(submission)
-            if submission:
-                activity['score'] = submission.get('score')
-                activity['status'] = submission.get('status')
+            activity['completed'] = False
+            activity['status'] = 'LOCKED'
+            activity['activity_number'] = activity['id']
+            activity['max_score'] = 10
+
+            if activity['language'] not in activity_languages:
+                continue
+
+            saved = saved_activities.get((activity['language'], activity['name']))
+            if saved:
+                activity['completed'] = True
+                activity['status'] = 'COMPLETED'
+                activity['score'] = saved['score']
+                activity['completed_at'] = saved['completed_at']
+            elif activities_unlocked:
+                activity['status'] = 'AVAILABLE'
         
         cursor.close()
         conn.close()
         
-        return jsonify({'success': True, 'activities': all_activities})
+        return jsonify({
+            'success': True,
+            'activities': all_activities,
+            'activities_unlocked': activities_unlocked,
+        })
         
     except Exception as e:
         print(f"Get activities error: {e}")
@@ -2026,27 +1954,39 @@ def get_achievements():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        cursor.execute("SELECT COUNT(DISTINCT activity_name) as total FROM student_submissions WHERE student_id = %s AND status = 'approved'", (student_id,))
+        cursor.execute("""
+            SELECT COUNT(*) as total FROM assessment_attempts
+            WHERE student_id = %s AND status = 'submitted'
+        """, (student_id,))
         completed_count = cursor.fetchone()['total']
         
-        cursor.execute("SELECT IFNULL(ROUND(AVG(score), 0), 0) as avg FROM student_submissions WHERE student_id = %s AND score IS NOT NULL AND status = 'approved'", (student_id,))
+        cursor.execute("""
+            SELECT IFNULL(AVG(score), 0) as avg FROM assessment_attempts
+            WHERE student_id = %s AND status = 'submitted'
+        """, (student_id,))
         avg_score = cursor.fetchone()['avg']
         
         cursor.execute("""
-            SELECT COUNT(DISTINCT activity_name) as total FROM student_submissions 
-            WHERE student_id = %s AND language = 'python'
+            SELECT COUNT(*) as total
+            FROM assessment_attempts aa
+            JOIN assessments a ON a.id = aa.assessment_id
+            WHERE aa.student_id = %s AND aa.status = 'submitted' AND a.language = 'python'
         """, (student_id,))
         python_count = cursor.fetchone()['total']
         
         cursor.execute("""
-            SELECT COUNT(DISTINCT activity_name) as total FROM student_submissions 
-            WHERE student_id = %s AND language = 'javascript'
+            SELECT COUNT(*) as total
+            FROM assessment_attempts aa
+            JOIN assessments a ON a.id = aa.assessment_id
+            WHERE aa.student_id = %s AND aa.status = 'submitted' AND a.language = 'javascript'
         """, (student_id,))
         js_count = cursor.fetchone()['total']
         
         cursor.execute("""
-            SELECT COUNT(DISTINCT activity_name) as total FROM student_submissions 
-            WHERE student_id = %s AND language = 'html'
+            SELECT COUNT(*) as total
+            FROM assessment_attempts aa
+            JOIN assessments a ON a.id = aa.assessment_id
+            WHERE aa.student_id = %s AND aa.status = 'submitted' AND a.language = 'html'
         """, (student_id,))
         html_count = cursor.fetchone()['total']
         
@@ -2057,9 +1997,9 @@ def get_achievements():
             {'id': 4, 'name': 'Silver Coder', 'icon': 'fa-medal', 'description': 'Complete 10 activities', 'unlocked': completed_count >= 10},
             {'id': 5, 'name': 'Gold Coder', 'icon': 'fa-crown', 'description': 'Complete 15 activities', 'unlocked': completed_count >= 15},
             {'id': 6, 'name': 'High Achiever', 'icon': 'fa-star', 'description': 'Average score 80% or higher', 'unlocked': avg_score >= 80},
-            {'id': 7, 'name': 'Python Master', 'icon': 'fa-python', 'description': 'Complete all Python activities (5)', 'unlocked': python_count >= 5},
-            {'id': 8, 'name': 'JS Ninja', 'icon': 'fa-js', 'description': 'Complete all JavaScript activities (4)', 'unlocked': js_count >= 4},
-            {'id': 9, 'name': 'HTML Hero', 'icon': 'fa-html5', 'description': 'Complete all HTML activities (4)', 'unlocked': html_count >= 4},
+            {'id': 7, 'name': 'Python Master', 'icon': 'fa-python', 'description': 'Complete all Python activities (6)', 'unlocked': python_count >= 6},
+            {'id': 8, 'name': 'JS Ninja', 'icon': 'fa-js', 'description': 'Complete all JavaScript activities (3)', 'unlocked': js_count >= 3},
+            {'id': 9, 'name': 'HTML Hero', 'icon': 'fa-html5', 'description': 'Complete all HTML activities (2)', 'unlocked': html_count >= 2},
             {'id': 10, 'name': 'Perfect Score', 'icon': 'fa-trophy', 'description': 'Get 100% on any activity', 'unlocked': False},
         ]
         
@@ -2090,279 +2030,215 @@ def get_dashboard_stats():
         cursor = conn.cursor(dictionary=True)
         
         cursor.execute("""
-            SELECT COUNT(DISTINCT DATE(submitted_at)) as days,
-                   COUNT(DISTINCT activity_name) as total_activities,
-                   IFNULL(ROUND(AVG(score), 0), 0) as average_score
-            FROM student_submissions 
+            SELECT COUNT(DISTINCT DATE(completed_at)) as days
+            FROM activities 
             WHERE student_id = %s 
-              AND submitted_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            AND completed_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
         """, (student_id,))
-        stats = cursor.fetchone() or {'days': 0, 'total_activities': 0, 'average_score': 0}
-        streak = min(stats['days'] or 0, 7)
+        streak_result = cursor.fetchone()
+        streak = min(streak_result['days'] if streak_result else 0, 7)
         
         cursor.close()
         conn.close()
         
-        return jsonify({
-            'success': True,
-            'streak': streak,
-            'recent_activity_count': stats['total_activities'] or 0,
-            'recent_average_score': stats['average_score'] or 0
-        })
+        return jsonify({'success': True, 'streak': streak})
         
     except Exception as e:
         print(f"Get dashboard stats error: {e}")
-        return jsonify({'success': False, 'streak': 0, 'recent_activity_count': 0, 'recent_average_score': 0})
-
-@app.route('/get_recent_activity')
-def get_recent_activity():
-    if session.get('role') != 'student':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-
-    try:
-        student_id = session.get('user_id')
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT activity_name, status, score, submitted_at
-            FROM student_submissions
-            WHERE student_id = %s
-            ORDER BY submitted_at DESC
-            LIMIT 5
-        """, (student_id,))
-        rows = cursor.fetchall() or []
-
-        activities = []
-        now = datetime.now()
-        for row in rows:
-            submitted_at = row.get('submitted_at')
-            time_ago = 'Just now'
-            if submitted_at and isinstance(submitted_at, datetime):
-                delta = now - submitted_at
-                seconds = int(delta.total_seconds())
-                if seconds < 60:
-                    time_ago = 'Just now'
-                elif seconds < 3600:
-                    time_ago = f"{seconds // 60}m ago"
-                elif seconds < 86400:
-                    time_ago = f"{seconds // 3600}h ago"
-                elif seconds < 604800:
-                    time_ago = f"{seconds // 86400}d ago"
-                else:
-                    time_ago = submitted_at.strftime('%b %d')
-
-            activities.append({
-                'title': row.get('activity_name') or 'Activity',
-                'score': row.get('score'),
-                'status': row.get('status'),
-                'time_ago': time_ago
-            })
-
-        cursor.close()
-        conn.close()
-        return jsonify({'success': True, 'activities': activities})
-    except Exception as e:
-        print(f"Get recent activity error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'streak': 0})
 
 @app.route('/get_activity_progress')
 def get_activity_progress():
     if session.get('role') != 'student':
-        return jsonify({'success': False})
-    
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
     try:
         student_id = session.get('user_id')
+        if not student_id:
+            return jsonify({'success': False, 'message': 'User not authenticated'}), 401
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
-        all_activities = get_all_activities()
-        language_totals = {
-            'python': 6,
-            'javascript': 4,
-            'html': 4,
-        }
-        activity_language_map = {
-            activity['name']: activity.get('language')
-            for activity in all_activities
-            if activity.get('language') in language_totals
-        }
+        try:
+            cursor.execute("""
+                SELECT language, COUNT(*) AS total
+                FROM assessments
+                WHERE language IN ('python', 'java', 'php', 'javascript', 'cpp')
+                GROUP BY language
+            """)
+            language_totals = {
+                row['language']: row['total']
+                for row in cursor.fetchall()
+            }
 
-        cursor.execute("""
-            SELECT DISTINCT activity_name, language
-            FROM student_submissions 
-            WHERE student_id = %s
-        """, (student_id,))
-        completed_rows = cursor.fetchall() or []
-        
-        completed_counts = {lang: 0 for lang in language_totals}
-        seen_activity_names = set()
+            cursor.execute("""
+                SELECT a.language, COUNT(DISTINCT aa.assessment_id) AS completed
+                FROM assessment_attempts aa
+                JOIN assessments a ON a.id = aa.assessment_id
+                WHERE aa.student_id = %s
+                  AND aa.status = 'submitted'
+                  AND a.language IN ('python', 'java')
+                GROUP BY a.language
+            """, (student_id,))
+            assessment_stats = {
+                row['language']: min(row['completed'], language_totals.get(row['language'], 0))
+                for row in cursor.fetchall()
+            }
 
-        for row in completed_rows:
-            activity_name = row.get('activity_name')
-            if not activity_name or activity_name in seen_activity_names:
-                continue
+            cursor.execute("""
+                SELECT a.language, COUNT(DISTINCT aa.assessment_id) AS completed
+                FROM assessment_attempts aa
+                JOIN assessments a ON a.id = aa.assessment_id
+                WHERE aa.student_id = %s
+                  AND aa.status = 'submitted'
+                  AND a.language IN ('php', 'javascript', 'cpp')
+                GROUP BY a.language
+            """, (student_id,))
+            submitted_activity_stats = {
+                row['language']: min(row['completed'], language_totals.get(row['language'], 0))
+                for row in cursor.fetchall()
+            }
 
-            lang = row.get('language')
-            if lang not in language_totals:
-                lang = activity_language_map.get(activity_name)
+            cursor.execute("""
+                SELECT language, COUNT(DISTINCT activity_name) AS completed
+                FROM activities
+                WHERE student_id = %s
+                  AND language IN ('php', 'javascript', 'cpp')
+                GROUP BY language
+            """, (student_id,))
+            saved_activity_stats = {
+                row['language']: min(row['completed'], language_totals.get(row['language'], 0))
+                for row in cursor.fetchall()
+            }
+            activity_stats = {
+                language: max(
+                    submitted_activity_stats.get(language, 0),
+                    saved_activity_stats.get(language, 0),
+                )
+                for language in ('php', 'javascript', 'cpp')
+            }
+        finally:
+            cursor.close()
+            conn.close()
 
-            if lang in language_totals:
-                completed_counts[lang] += 1
-                seen_activity_names.add(activity_name)
-        
-        cursor.close()
-        conn.close()
+        python_count = assessment_stats.get('python', 0)
+        java_count = assessment_stats.get('java', 0)
+        php_count = activity_stats.get('php', 0)
+        js_count = activity_stats.get('javascript', 0)
+        cpp_count = activity_stats.get('cpp', 0)
+        completed_assessments = python_count + java_count
+        completed_activities = php_count + js_count + cpp_count
+        total_completed = completed_assessments + completed_activities
+        python_total = language_totals.get('python', 0)
+        java_total = language_totals.get('java', 0)
+        php_total = language_totals.get('php', 0)
+        javascript_total = language_totals.get('javascript', 0)
+        cpp_total = language_totals.get('cpp', 0)
+        total_assessments = python_total + java_total
+        total_activities = php_total + javascript_total + cpp_total
+        total_items = total_assessments + total_activities
 
-        return jsonify({
+        response = {
             'success': True,
-            'python': {'completed': completed_counts['python'], 'total': language_totals['python']},
-            'javascript': {'completed': completed_counts['javascript'], 'total': language_totals['javascript']},
-            'html': {'completed': completed_counts['html'], 'total': language_totals['html']}
-        })
-        
+            'python': {'completed': python_count, 'total': python_total},
+            'java': {'completed': java_count, 'total': java_total},
+            'php': {'completed': php_count, 'total': php_total},
+            'javascript': {'completed': js_count, 'total': javascript_total},
+            'cpp': {'completed': cpp_count, 'total': cpp_total},
+            'completed_assessments': completed_assessments,
+            'completed_activities': completed_activities,
+            'total_completed': total_completed,
+            'total_assessments': total_assessments,
+            'total_activities': total_activities,
+            'total_items': total_items,
+            'overall_percentage': round(total_completed / total_items * 100) if total_items else 0,
+            'activities_unlocked': completed_assessments >= total_assessments,
+        }
+        print(
+            f"[progress] student_id={student_id} assessments="
+            f"{completed_assessments}/{total_assessments} activities="
+            f"{completed_activities}/{total_activities} "
+            f"overall={response['overall_percentage']}%"
+        )
+        return jsonify(response)
     except Exception as e:
         print(f"Get activity progress error: {e}")
-        return jsonify({'success': False})
+        return jsonify({'success': False, 'message': 'Failed to retrieve progress'}), 500
+
+@app.route('/get_progress_results')
+def get_progress_results():
+    """Return database-backed assessment and activity status for the current student."""
+    if session.get('role') != 'student':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    student_id = session.get('user_id')
+    if not student_id:
+        return jsonify({'success': False, 'message': 'User not authenticated'}), 401
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT d.language, d.assessment_number AS item_number,
+                   d.title AS item_name,
+                   CASE WHEN aa.status = 'submitted' THEN 'COMPLETED' ELSE 'NOT COMPLETED' END AS status,
+                   CASE WHEN aa.status = 'submitted' THEN
+                        COALESCE(aa.auto_score, ROUND(aa.score / 10), 0)
+                        ELSE NULL END AS score,
+                   10 AS max_score,
+                   COALESCE(aa.completed_at, aa.submitted_at) AS completed_at,
+                   'assessment' AS item_type
+            FROM assessments d
+            LEFT JOIN assessment_attempts aa
+              ON aa.assessment_id = d.id
+             AND aa.student_id = %s
+            WHERE d.language IN ('python', 'java')
+            ORDER BY d.language, d.assessment_number
+        """, (student_id,))
+        assessments = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT d.language, d.assessment_number AS item_number,
+                   d.title AS item_name,
+                   CASE WHEN act.id IS NOT NULL OR aa.status = 'submitted'
+                        THEN 'COMPLETED' ELSE 'NOT COMPLETED' END AS status,
+                   CASE WHEN act.id IS NOT NULL THEN act.score
+                        WHEN aa.status = 'submitted' THEN COALESCE(aa.auto_score, ROUND(aa.score / 10), 0)
+                        ELSE NULL END AS score,
+                   10 AS max_score,
+                   COALESCE(act.completed_at, aa.completed_at, aa.submitted_at) AS completed_at,
+                   'activity' AS item_type
+            FROM assessments d
+            LEFT JOIN activities act
+              ON act.student_id = %s
+             AND act.language = d.language
+             AND act.activity_name = d.title
+            LEFT JOIN assessment_attempts aa
+              ON aa.assessment_id = d.id
+             AND aa.student_id = %s
+            WHERE d.language IN ('javascript', 'cpp', 'php')
+            ORDER BY d.language, d.assessment_number
+        """, (student_id, student_id))
+        activities = cursor.fetchall()
+        results = assessments + activities
+        print(f"[progress-results] student_id={student_id} rows={len(results)}")
+        return jsonify({'success': True, 'results': results})
+    except Exception as e:
+        print(f"Get progress results error for student_id={student_id}: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve progress results'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 # ==================== TICKET API ROUTES ====================
 
-# Import ticket functions (if they exist in backend)
-try:
-    from backend.tickets import (
-        create_ticket, get_student_tickets, get_all_tickets,
-        get_ticket_by_id, update_ticket_status, get_ticket_counts,
-        create_ticket_notification
-    )
-except ImportError:
-    # Fallback implementations if backend.tickets doesn't exist
-    def create_ticket(student_id, student_name, subject, message, priority):
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("""
-                INSERT INTO tickets (student_id, student_name, subject, message, priority, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (student_id, student_name, subject, message, priority, datetime.now()))
-            conn.commit()
-            return {'success': True, 'message': 'Ticket created successfully'}
-        except Exception as e:
-            print(f"Create ticket error: {e}")
-            return {'success': False, 'message': str(e)}
-        finally:
-            cursor.close()
-            conn.close()
-    
-    def get_student_tickets(student_id):
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        try:
-            cursor.execute("""
-                SELECT id, subject, message, status, priority,
-                       DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as created_at
-                FROM tickets
-                WHERE student_id = %s
-                ORDER BY created_at DESC
-            """, (student_id,))
-            tickets = cursor.fetchall()
-            return {'success': True, 'tickets': tickets}
-        except Exception as e:
-            return {'success': False, 'message': str(e)}
-        finally:
-            cursor.close()
-            conn.close()
-    
-    def get_all_tickets(status_filter=None):
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        try:
-            if status_filter:
-                cursor.execute("""
-                    SELECT t.*, 
-                           DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i') as created_at
-                    FROM tickets t
-                    WHERE t.status = %s
-                    ORDER BY t.created_at DESC
-                """, (status_filter,))
-            else:
-                cursor.execute("""
-                    SELECT t.*, 
-                           DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i') as created_at
-                    FROM tickets t
-                    ORDER BY t.created_at DESC
-                """)
-            tickets = cursor.fetchall()
-            return {'success': True, 'tickets': tickets}
-        except Exception as e:
-            return {'success': False, 'message': str(e)}
-        finally:
-            cursor.close()
-            conn.close()
-    
-    def update_ticket_status(ticket_id, status):
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("""
-                UPDATE tickets 
-                SET status = %s, updated_at = CURRENT_TIMESTAMP
-                WHERE id = %s
-            """, (status, ticket_id))
-            conn.commit()
-            return {'success': True, 'message': 'Ticket updated successfully'}
-        except Exception as e:
-            return {'success': False, 'message': str(e)}
-        finally:
-            cursor.close()
-            conn.close()
-    
-    def get_ticket_counts():
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        try:
-            cursor.execute("""
-                SELECT status, COUNT(*) as count
-                FROM tickets
-                GROUP BY status
-            """)
-            counts = cursor.fetchall()
-            result = {'pending': 0, 'in_progress': 0, 'resolved': 0, 'closed': 0}
-            for row in counts:
-                result[row['status']] = row['count']
-            return {'success': True, 'counts': result}
-        except Exception as e:
-            return {'success': False, 'message': str(e)}
-        finally:
-            cursor.close()
-            conn.close()
-
-    def create_ticket_notification(ticket_id, student_id, subject, status, student_name=None):
-        if not ticket_id or not student_id:
-            return {'success': False, 'message': 'Missing ticket or student'}
-        try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            status_label = {
-                'pending': 'pending',
-                'in_progress': 'in progress',
-                'resolved': 'resolved',
-                'closed': 'closed'
-            }.get(status, status or 'updated')
-            message = f"Your ticket '{subject or 'ticket'}' is now {status_label}."
-            if student_name:
-                message = f"Hi {student_name}, your ticket '{subject or 'ticket'}' is now {status_label}."
-            cursor.execute("""
-                INSERT INTO notifications (user_id, target_role, type, title, message, related_id, is_read, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (student_id, 'student', 'ticket_update', 'Ticket status updated', message, ticket_id, 0, datetime.now()))
-            conn.commit()
-            return {'success': True, 'message': 'Notification created'}
-        except Exception as e:
-            print(f"Create ticket notification error: {e}")
-            return {'success': False, 'message': str(e)}
-        finally:
-            cursor.close()
-            conn.close()
+from backend.tickets import (
+    create_ticket, get_student_tickets, get_all_tickets,
+    get_ticket_by_id, update_ticket_status, get_ticket_counts
+)
 
 @app.route('/submit_ticket', methods=['POST'])
 def submit_ticket():
@@ -2374,14 +2250,17 @@ def submit_ticket():
         subject = data.get('subject')
         message = data.get('message')
         priority = data.get('priority', 'medium')
+        category = data.get('category', 'other')
         
         if not subject or not message:
             return jsonify({'success': False, 'message': 'Subject and message are required'})
         
         student_id = session.get('user_id')
-        student_name = session.get('full_name') or session.get('username')
+        student_name = session.get('username')
         
-        result = create_ticket(student_id, student_name, subject, message, priority)
+        result = create_ticket(student_id, student_name, subject, message, priority, category)
+        if result.get('success'):
+            notify_new_support_ticket(result['ticket_number'], subject, result['ticket_id'])
         return jsonify(result)
         
     except Exception as e:
@@ -2390,27 +2269,23 @@ def submit_ticket():
 
 @app.route('/get_tickets')
 def get_tickets():
-    if session.get('role') not in ['student', 'teacher']:
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
+    if session.get('role') not in ['student', 'teacher', 'ict']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
     try:
         if session.get('role') == 'student':
-            student_id = session.get('user_id')
-            result = get_student_tickets(student_id)
+            result = get_student_tickets(session.get('user_id'))
         else:
-            status_filter = request.args.get('status')
-            result = get_all_tickets(status_filter)
-        
+            result = get_all_tickets(request.args.get('status'))
         return jsonify(result)
-        
     except Exception as e:
         print(f"Error getting tickets: {e}")
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/update_ticket', methods=['POST'])
 def update_ticket():
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
+    if session.get('role') not in ['teacher', 'ict']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
     try:
         data = request.json
@@ -2422,80 +2297,32 @@ def update_ticket():
         
         result = update_ticket_status(ticket_id, status)
         if result.get('success'):
-            ticket_result = get_ticket_by_id(ticket_id)
-            if ticket_result.get('success') and ticket_result.get('ticket'):
-                ticket = ticket_result['ticket']
-                student_id = ticket.get('student_id')
-                subject = ticket.get('subject') or 'ticket'
-                student_name = ticket.get('student_name') or ticket.get('student_full_name') or ticket.get('student_username') or ''
-                if student_id:
-                    create_ticket_notification(ticket_id, student_id, subject, status, student_name)
+            ticket = get_ticket_by_id(ticket_id).get('ticket') or {}
+            notify_ticket_updated(
+                ticket.get('student_id'),
+                ticket.get('ticket_number', f'Ticket #{ticket_id}'),
+                ticket.get('subject', 'Support ticket'),
+                status,
+                ticket_id,
+            )
         return jsonify(result)
         
     except Exception as e:
         print(f"Error updating ticket: {e}")
         return jsonify({'success': False, 'message': str(e)})
 
-
-# ==================== UPDATED GET_TICKET_COUNT ====================
 @app.route('/get_ticket_count')
 def get_ticket_count():
     if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
+        return jsonify({'success': False})
     
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        # Get counts by status
-        cursor.execute("""
-            SELECT status, COUNT(*) as count
-            FROM tickets
-            GROUP BY status
-        """)
-        counts_data = cursor.fetchall()
-        
-        # Initialize with zeros
-        result = {
-            'pending': 0,
-            'in_progress': 0,
-            'resolved': 0,
-            'closed': 0,
-            'total': 0
-        }
-        
-        for row in counts_data:
-            status = row['status']
-            count = row['count']
-            if status in result:
-                result[status] = count
-            result['total'] += count
-        
-        cursor.close()
-        conn.close()
-        
-        # Return both formats for compatibility
-        return jsonify({
-            'success': True,
-            'pending': result['pending'],
-            'in_progress': result['in_progress'],
-            'resolved': result['resolved'],
-            'closed': result['closed'],
-            'total': result['total'],
-            'counts': result  # For backward compatibility
-        })
+        result = get_ticket_counts()
+        return jsonify(result)
         
     except Exception as e:
         print(f"Error getting ticket count: {e}")
-        return jsonify({
-            'success': False,
-            'message': str(e),
-            'pending': 0,
-            'resolved': 0,
-            'total': 0,
-            'counts': {'pending': 0, 'resolved': 0, 'total': 0}
-        })
-
+        return jsonify({'success': False, 'message': str(e)})
 
 # ==================== TEACHER API ROUTES ====================
 
@@ -2510,22 +2337,19 @@ def get_students():
         
         try:
             cursor.execute("""
-                SELECT 
+                SELECT
                     s.id,
                     s.lrn,
                     s.full_name,
                     s.grade_level,
-                    s.email,
-                    DATE_FORMAT(s.created_at, '%Y-%m-%d') as created_at,
-                    (SELECT COUNT(*) FROM student_submissions WHERE student_id = s.id) as activity_count,
-                    (SELECT COUNT(*) > 0 FROM student_submissions WHERE student_id = s.id) as has_activities
+                    DATE_FORMAT(s.created_at, '%Y-%m-%d') as created_at
                 FROM students s
-                ORDER BY s.created_at DESC
+                ORDER BY s.created_at DESC, s.id DESC
             """)
             students = cursor.fetchall()
             
             for student in students:
-                student['has_activities'] = student['activity_count'] > 0
+                student['has_activities'] = False
             
             return jsonify({'success': True, 'students': students})
         finally:
@@ -2549,29 +2373,266 @@ def get_scores():
         
         try:
             cursor.execute("""
-                SELECT 
+                SELECT
                     s.lrn,
                     s.full_name as student_name,
-                    a.activity_name, 
-                    a.score, 
-                    a.language,
-                    DATE_FORMAT(a.completed_at, '%Y-%m-%d %H:%i') as completed_at
-                FROM activities a
+                    d.title as activity_name,
+                    a.score,
+                    d.language,
+                    DATE_FORMAT(a.submitted_at, '%Y-%m-%d %H:%i') as completed_at
+                FROM assessment_attempts a
+                JOIN assessments d ON d.id = a.assessment_id
                 JOIN students s ON a.student_id = s.id
-                ORDER BY a.completed_at DESC
+                WHERE a.status = 'submitted'
+                ORDER BY a.submitted_at DESC
                 LIMIT 100
             """)
             scores = cursor.fetchall()
             
-            print(f" Retrieved {len(scores)} scores")
+            print(f"📊 Retrieved {len(scores)} scores")
             
             return jsonify({'success': True, 'scores': scores})
         finally:
             cursor.close()
             conn.close()
     except Exception as e:
-        print(f" Get scores error: {e}")
+        print(f"❌ Get scores error: {e}")
         return jsonify({'success': False, 'message': 'Failed to retrieve scores'})
+
+@app.route('/get_activity_scores')
+def get_activity_scores():
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT aa.id AS submission_id,
+                   s.id AS student_id,
+                   s.lrn,
+                   s.full_name AS student_name,
+                   d.assessment_number AS activity_number,
+                   d.title AS activity_name,
+                   d.language,
+                        CASE WHEN aa.teacher_score IS NOT NULL THEN
+                               CASE WHEN aa.teacher_score > 10 THEN ROUND(aa.teacher_score / 10) ELSE aa.teacher_score END
+                        WHEN aa.auto_score > 0 OR aa.score = 0 THEN aa.auto_score
+                        ELSE ROUND(aa.score / 10) END AS score,
+                   aa.auto_score,
+                   aa.teacher_score,
+                   aa.teacher_feedback,
+                   aa.code_blocks,
+                   aa.generated_code,
+                   aa.output AS student_output,
+                   d.expected_output,
+                   CASE WHEN aa.score >= 75 THEN 'Passed' ELSE 'Failed' END AS result,
+                   CASE WHEN aa.status = 'submitted' THEN 'COMPLETED' ELSE 'AVAILABLE' END AS status,
+                   DATE_FORMAT(COALESCE(aa.completed_at, aa.submitted_at), '%Y-%m-%d %H:%i') AS completed_at
+            FROM assessment_attempts aa
+            JOIN assessments d ON d.id = aa.assessment_id
+            JOIN students s ON s.id = aa.student_id
+            WHERE d.language IN ('php', 'javascript', 'cpp')
+              AND aa.status = 'submitted'
+            ORDER BY COALESCE(aa.completed_at, aa.submitted_at) DESC, aa.id DESC
+        """)
+        scores = cursor.fetchall()
+
+        return jsonify({'success': True, 'scores': scores})
+    except Exception as e:
+        print(f"Get activity scores error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve activity scores'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/get_passed_assessments')
+def get_passed_assessments():
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT s.full_name AS student_name, s.lrn,
+                   d.title AS activity_name, d.language, d.points,
+                   a.score, DATE_FORMAT(a.submitted_at, '%Y-%m-%d %H:%i') AS completed_at
+            FROM assessment_attempts a
+            JOIN assessments d ON d.id = a.assessment_id
+            JOIN students s ON s.id = a.student_id
+            WHERE a.status = 'submitted' AND a.score >= 75
+            ORDER BY a.submitted_at DESC
+        """)
+        passed = cursor.fetchall()
+        return jsonify({'success': True, 'passed': passed})
+    except Exception as e:
+        print(f"Get passed assessments error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve passed assessments'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/get_assessment_results')
+def get_assessment_results():
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT s.lrn, d.title AS assessment_name, d.language,
+                   a.score, CASE WHEN a.score >= 75 THEN 'Passed' ELSE 'Needs Review' END AS result,
+                   DATE_FORMAT(a.submitted_at, '%Y-%m-%d %H:%i') AS completed_at
+            FROM assessment_attempts a
+            JOIN assessments d ON d.id = a.assessment_id
+            JOIN students s ON s.id = a.student_id
+                        WHERE a.status = 'submitted'
+                            AND d.language IN ('python', 'java')
+            ORDER BY a.submitted_at DESC
+            LIMIT 200
+        """)
+        return jsonify({'success': True, 'results': cursor.fetchall()})
+    except Exception as e:
+        print(f"Get assessment results error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve assessment results'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/teacher/submissions')
+def teacher_submissions():
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT a.id, s.full_name AS student_name, s.username, d.title AS activity_name,
+                   d.language, d.points, ROUND(a.score * d.points / 100) AS score,
+                   a.status, DATE_FORMAT(a.submitted_at, '%Y-%m-%d %H:%i') AS submitted_at
+            FROM assessment_attempts a
+            JOIN assessments d ON d.id = a.assessment_id
+            JOIN students s ON s.id = a.student_id
+            WHERE a.status = 'submitted'
+            ORDER BY a.submitted_at DESC
+        """)
+        checked = cursor.fetchall()
+        return jsonify({'success': True, 'pending': [], 'checked': checked, 'total': len(checked)})
+    except Exception as e:
+        print(f"Get teacher submissions error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve submissions'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/teacher/submission/<int:submission_id>')
+def teacher_submission(submission_id):
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+                 SELECT a.id, s.full_name AS student_name, s.username,
+                     d.assessment_number AS activity_number, d.title AS activity_name,
+                     d.language, d.expected_output, a.code_blocks, a.generated_code,
+                       a.output AS student_output, a.score, a.auto_score,
+                       CASE WHEN a.teacher_score > 10 THEN ROUND(a.teacher_score / 10) ELSE a.teacher_score END AS teacher_score,
+                     a.teacher_feedback, a.status, a.submitted_at, a.completed_at
+            FROM assessment_attempts a
+            JOIN assessments d ON d.id = a.assessment_id
+            JOIN students s ON s.id = a.student_id
+            WHERE a.id = %s
+        """, (submission_id,))
+        submission = cursor.fetchone()
+        if not submission:
+            return jsonify({'success': False, 'message': 'Submission not found'}), 404
+        return jsonify({'success': True, 'submission': submission})
+    except Exception as e:
+        print(f"Get teacher submission error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to retrieve submission'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/teacher/review_submission', methods=['POST'])
+def review_teacher_submission():
+    if session.get('role') != 'teacher':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    data = request.get_json(silent=True) or {}
+    submission_id = data.get('submission_id')
+    score = data.get('score')
+    if not isinstance(submission_id, int) or not isinstance(score, int):
+        return jsonify({'success': False, 'message': 'Invalid review data'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT d.points, d.title, d.language, a.student_id
+            FROM assessments d
+            JOIN assessment_attempts a ON a.assessment_id = d.id
+            WHERE a.id = %s
+        """, (submission_id,))
+        assessment = cursor.fetchone()
+        if not assessment or score < 0 or score > 10:
+            return jsonify({'success': False, 'message': 'Invalid score'}), 400
+        stored_score = score * 10
+        feedback = data.get('feedback', '')
+        cursor.execute("""
+            UPDATE assessment_attempts
+            SET score = %s,
+                teacher_score = %s,
+                teacher_feedback = %s,
+                reviewed_by = %s,
+                reviewed_at = %s,
+                status = 'submitted',
+                completed_at = COALESCE(completed_at, submitted_at)
+            WHERE id = %s
+        """, (stored_score, score, feedback, session['user_id'], datetime.now(), submission_id))
+        conn.commit()
+        notify_assessment_checked(
+            assessment['student_id'],
+            assessment['title'],
+            stored_score,
+            feedback,
+            submission_id,
+        )
+        return jsonify({'success': True, 'message': 'Review saved'})
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Review teacher submission error: {e}")
+        return jsonify({'success': False, 'message': 'Failed to save review'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 # ==================== END OF GET_SCORES ====================
 
@@ -2586,47 +2647,17 @@ def get_performance_reports():
         
         try:
             cursor.execute("""
-                SELECT s.full_name as student_name,
-                       s.lrn,
-                       s.grade_level,
-                       COUNT(ss.id) as total_activities,
-                       IFNULL(ROUND(AVG(CASE WHEN ss.status = 'approved' AND ss.score IS NOT NULL THEN ss.score END), 1), 0) as average_score,
-                       SUM(CASE WHEN ss.status = 'approved' AND ss.score IS NOT NULL AND ss.score < 50 THEN 1 ELSE 0 END) as low_scores,
-                       GROUP_CONCAT(CASE WHEN ss.status = 'approved' AND ss.score IS NOT NULL THEN ss.score END ORDER BY ss.submitted_at DESC SEPARATOR ', ') as scores
+                    SELECT s.id, s.lrn, s.grade_level,
+                      COUNT(a.id) as total_activities,
+                      IFNULL(ROUND(AVG(a.score), 1), 0) as average_score,
+                      SUM(CASE WHEN a.score < 50 THEN 1 ELSE 0 END) as low_scores
                 FROM students s
-                LEFT JOIN student_submissions ss 
-                    ON s.id = ss.student_id
+                  LEFT JOIN assessment_attempts a ON s.id = a.student_id AND a.status = 'submitted'
                 GROUP BY s.id
                 ORDER BY average_score DESC
             """)
             reports = cursor.fetchall()
-
-            cursor.execute("""
-                SELECT
-                    COUNT(*) as total_submissions,
-                    IFNULL(ROUND(AVG(score), 1), 0) as class_average,
-                    SUM(CASE WHEN score >= 70 THEN 1 ELSE 0 END) as passing_count,
-                    SUM(CASE WHEN score IS NOT NULL THEN 1 ELSE 0 END) as scored_count
-                FROM student_submissions
-            """)
-            summary = cursor.fetchone() or {}
-            total_submissions = summary.get('total_submissions') or 0
-            class_average = summary.get('class_average') or 0
-            scored_count = summary.get('scored_count') or 0
-            passing_count = summary.get('passing_count') or 0
-            passing_rate = round((passing_count / scored_count) * 100) if scored_count > 0 else 0
-
-            cursor.execute("SELECT COUNT(*) as total_students FROM students")
-            total_students = cursor.fetchone().get('total_students') or 0
-
-            return jsonify({
-                'success': True,
-                'reports': reports,
-                'total_students': total_students,
-                'total_submissions': total_submissions,
-                'class_average': class_average,
-                'passing_rate': passing_rate
-            })
+            return jsonify({'success': True, 'reports': reports})
         finally:
             cursor.close()
             conn.close()
@@ -2645,7 +2676,7 @@ def get_student_detail(lrn):
         
         cursor.execute("""
             SELECT id, lrn, full_name, grade_level, email, 
-                   DATE_FORMAT(created_at, '%B %d, %Y') as joined_date
+                   DATE_FORMAT(created_at, '%M %d, %Y') as joined_date
             FROM students WHERE lrn = %s
         """, (lrn,))
         student = cursor.fetchone()
@@ -2654,10 +2685,13 @@ def get_student_detail(lrn):
             return jsonify({'success': False, 'message': 'Student not found'})
         
         cursor.execute("""
-            SELECT activity_name, score, language,
-                   DATE_FORMAT(completed_at, '%Y-%m-%d %H:%i') as completed_at
-            FROM activities WHERE student_id = %s
-            ORDER BY completed_at DESC
+            SELECT CONCAT(d.language, ' Assessment #', d.assessment_number) AS activity_name,
+                   a.score, d.language,
+                   DATE_FORMAT(a.submitted_at, '%Y-%m-%d %H:%i') AS completed_at
+            FROM assessment_attempts a
+            JOIN assessments d ON d.id = a.assessment_id
+            WHERE a.student_id = %s AND a.status = 'submitted'
+            ORDER BY a.submitted_at DESC
         """, (student['id'],))
         activities = cursor.fetchall()
         
@@ -2791,13 +2825,20 @@ def leaderboard():
         cursor = conn.cursor(dictionary=True)
         
         cursor.execute("""
-            SELECT s.lrn as student_name,
-                   COUNT(a.id) as activities_completed,
-                   IFNULL(ROUND(AVG(a.score)), 0) as average_score
+                 SELECT s.lrn AS student_name,
+                     s.lrn,
+                   COUNT(scores.student_id) AS activities_completed,
+                   IFNULL(ROUND(AVG(scores.score)), 0) AS average_score
             FROM students s
-            LEFT JOIN activities a ON s.id = a.student_id
-            GROUP BY s.id
-            HAVING activities_completed > 0
+            JOIN (
+                SELECT student_id, score
+                FROM activities
+                UNION ALL
+                SELECT student_id, score
+                FROM assessment_attempts
+                WHERE status = 'submitted'
+            ) scores ON scores.student_id = s.id
+            GROUP BY s.id, s.full_name, s.lrn
             ORDER BY average_score DESC, activities_completed DESC
             LIMIT 10
         """)
@@ -2812,90 +2853,168 @@ def leaderboard():
         print(f"Leaderboard error: {e}")
         return jsonify({'success': False, 'message': str(e)})
 
-# ==================== REAL-TIME STATUS UPDATE ENDPOINT ====================
+# ==================== ICT SUPPORT API ROUTES ====================
 
-@app.route('/check_student_updates', methods=['GET'])
-def check_student_updates():
-    """Check if there are any updates to student data (for real-time polling)"""
-    if session.get('role') != 'teacher':
+@app.route('/get_monitoring_data')
+def get_monitoring_data():
+    if session.get('role') not in ['teacher', 'ict']:
         return jsonify({'success': False, 'message': 'Unauthorized'})
     
     try:
-        # Get the last activity timestamp from the database
+        monitoring = {
+            'cpu_usage': 45.2,
+            'memory_usage': 62.5,
+            'disk_usage': 78.3,
+            'network_bandwidth': 150.5,
+            'uptime': '45 days, 12 hours',
+            'active_users': 12,
+            'services': [
+                {'name': 'Web Server', 'status': 'Running', 'uptime': '15 days'},
+                {'name': 'Database', 'status': 'Running', 'uptime': '45 days'},
+                {'name': 'Email Service', 'status': 'Running', 'uptime': '8 days'},
+                {'name': 'Backup Service', 'status': 'Stopped', 'uptime': 'N/A'}
+            ]
+        }
+        return jsonify({'success': True, 'data': monitoring})
+    except Exception as e:
+        print(f"Error getting monitoring data: {e}")
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/get_ict_reports')
+def get_ict_reports():
+    if session.get('role') not in ['teacher', 'ict']:
+        return jsonify({'success': False, 'message': 'Unauthorized'})
+    
+    try:
+        reports = {
+            'system_health': 92,
+            'uptime_percentage': 99.8,
+            'incidents_this_month': 3,
+            'resolved_tickets': 28,
+            'pending_tickets': 5,
+            'average_resolution_time': '4.5 hours'
+        }
+        return jsonify({'success': True, 'data': reports})
+    except Exception as e:
+        print(f"Error getting ICT reports: {e}")
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/generate_report')
+def generate_report():
+    if session.get('role') not in ['teacher', 'ict']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    report_type = request.args.get('type', 'ticket')
+    if report_type not in ['user', 'performance']:
+        return jsonify({'success': False, 'message': 'Unsupported report type'}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        if report_type == 'user':
+            cursor.execute("""
+                SELECT s.id, s.full_name, s.username, s.lrn, s.grade_level,
+                       s.created_at AS last_active, COUNT(t.id) AS ticket_count
+                FROM students s
+                LEFT JOIN ict_tickets t ON t.student_id = s.id
+                GROUP BY s.id, s.full_name, s.username, s.lrn, s.grade_level, s.created_at
+                ORDER BY s.full_name, s.username
+            """)
+            users = cursor.fetchall()
+            cursor.execute("SELECT COUNT(*) AS total FROM ict_tickets")
+            total_tickets = cursor.fetchone()['total']
+            return jsonify({
+                'success': True,
+                'total_users': len(users),
+                'active_users': len(users),
+                'inactive_users': 0,
+                'total_tickets': total_tickets,
+                'users': users
+            })
+
+        cursor.execute("""
+            SELECT COUNT(*) AS total_tickets,
+                   COALESCE(AVG(CASE WHEN status IN ('resolved', 'closed')
+                       THEN TIMESTAMPDIFF(MINUTE, created_at, COALESCE(resolved_at, updated_at)) END), 0) AS avg_resolution_time,
+                   COALESCE(SUM(status IN ('resolved', 'closed')) / NULLIF(COUNT(*), 0) * 100, 0) AS resolution_rate
+            FROM ict_tickets
+        """)
+        summary = cursor.fetchone()
+        cursor.execute("""
+            SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS date,
+                   COUNT(*) AS tickets_created,
+                   SUM(status IN ('resolved', 'closed')) AS tickets_resolved,
+                   COALESCE(AVG(CASE WHEN status IN ('resolved', 'closed')
+                       THEN TIMESTAMPDIFF(MINUTE, created_at, COALESCE(resolved_at, updated_at)) END), 0) AS avg_resolution_time
+            FROM ict_tickets
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+            ORDER BY DATE_FORMAT(created_at, '%Y-%m-%d') DESC
+        """)
+        performance_data = cursor.fetchall()
+        for row in performance_data:
+            row['tickets_created'] = int(row['tickets_created'] or 0)
+            row['tickets_resolved'] = int(row['tickets_resolved'] or 0)
+            row['avg_resolution_time'] = round(float(row['avg_resolution_time'] or 0), 1)
+        return jsonify({
+            'success': True,
+            'avg_resolution_time': round(float(summary['avg_resolution_time'] or 0), 1),
+            'resolution_rate': round(float(summary['resolution_rate'] or 0), 1),
+            'total_tickets': summary['total_tickets'] or 0,
+            'avg_rating': 0,
+            'performance_data': performance_data
+        })
+    except Exception as e:
+        print(f"Error generating {report_type} report: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/get_ict_students')
+def get_ict_students():
+    if session.get('role') not in ['teacher', 'ict']:
+        return jsonify({'success': False, 'message': 'Unauthorized'})
+    
+    try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
         cursor.execute("""
-            SELECT MAX(completed_at) as last_activity
-            FROM activities
+            SELECT s.id, s.username, s.full_name, s.lrn, s.grade_level, s.email,
+                   s.created_at, COUNT(a.id) AS activity_count,
+                   COALESCE(AVG(a.score), 0) AS avg_score
+            FROM students s
+            LEFT JOIN assessment_attempts a
+                ON s.id = a.student_id AND a.status = 'submitted'
+            GROUP BY s.id, s.username, s.full_name, s.lrn, s.grade_level,
+                     s.email, s.created_at
+            ORDER BY s.full_name
         """)
-        result = cursor.fetchone()
-        last_activity = result['last_activity'] if result else None
         
+        students = cursor.fetchall()
+        cursor.execute("""
+            SELECT id, username, full_name, role_type, email, status, last_login
+            FROM ict_support
+            ORDER BY full_name, username
+        """)
+        ict_supports = cursor.fetchall()
         cursor.close()
         conn.close()
-        
-        # Get the client's last known timestamp from query parameter
-        client_timestamp = request.args.get('last_update')
-        
-        has_updates = False
-        if client_timestamp and last_activity:
-            # Convert to string for comparison
-            client_time_str = client_timestamp.replace('T', ' ').replace('Z', '')
-            server_time_str = str(last_activity)[:19]
-            
-            # Compare timestamps
-            has_updates = server_time_str > client_time_str
         
         return jsonify({
             'success': True,
-            'has_updates': has_updates,
-            'last_activity': str(last_activity) if last_activity else None
+            'students': students,
+            'ict_supports': ict_supports
         })
-        
     except Exception as e:
-        print(f"Check student updates error: {e}")
+        print(f"Error getting ICT students: {e}")
         return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/get_students_with_status', methods=['GET'])
-def get_students_with_status():
-    """Get students with their activity status (for real-time updates)"""
-    if session.get('role') != 'teacher':
-        return jsonify({'success': False, 'message': 'Unauthorized'})
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        cursor.execute("""
-            SELECT 
-                s.id,
-                s.lrn,
-                s.full_name,
-                s.grade_level,
-                s.email,
-                DATE_FORMAT(s.created_at, '%Y-%m-%d') as created_at,
-                (SELECT COUNT(*) FROM activities WHERE student_id = s.id) as activity_count,
-                (SELECT COUNT(*) > 0 FROM activities WHERE student_id = s.id) as has_activities,
-                (SELECT MAX(completed_at) FROM activities WHERE student_id = s.id) as last_activity
-            FROM students s
-            ORDER BY s.created_at DESC
-        """)
-        students = cursor.fetchall()
-        
-        for student in students:
-            student['has_activities'] = student['activity_count'] > 0
-            if student['last_activity']:
-                student['last_activity'] = str(student['last_activity'])[:19]
-        
-        cursor.close()
-        conn.close()
-        
-        return jsonify({'success': True, 'students': students})
-        
-    except Exception as e:
-        print(f"Get students with status error: {e}")
-        return jsonify({'success': False, 'message': 'Failed to retrieve students'})
 
 # ==================== ERROR HANDLERS ====================
 
@@ -2917,8 +3036,7 @@ if __name__ == '__main__':
     print('=' * 60)
     print('Default login credentials:')
     print('  Teacher: teacher1 / teacher123')
+    print('  Admin: admin / admin123')
     print('Run the app and open http://127.0.0.1:5000')
     print('=' * 60)
-    
-    # Run without the interactive debugger to avoid debugger resource requests/log noise
-    app.run(debug=False, host='127.0.0.1', port=5000)
+    app.run(debug=True, host='127.0.0.1', port=5000)

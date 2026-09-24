@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICT Tech Support · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+        --green-deep:#145a42; --green-main:#1f8a64; --green-light:#28a87a; --green-soft:#e2f3ed;
+        --gold-warm:#e8a838; --gold-light:#fce9c5; --coral:#e06050; --coral-soft:#fce8e5;
+        --blue:#4a90d9; --blue-soft:#e4eefb;
+        --stone:#7f9e92; --stone-light:#a8bfb4;
+        --border-fresh:#dde9e3; --card-white:#fff; --bg-main:#f0f6f3;
+        --text-primary:#1a463a; --text-secondary:#4a6b5e;
+        --nested:rgba(255,255,255,.55); --chart-grid:#e8f0ec;
+        --grid-line:rgba(170,210,195,.3); --blob-opacity:.3;
+        --glass-bg:rgba(255,255,255,.75); --glass-border:rgba(255,255,255,.6);
+        --sh-xs:0 2px 8px rgba(20,90,66,.04); --sh-sm:0 4px 16px rgba(20,90,66,.06);
+        --sh-md:0 8px 28px rgba(20,90,66,.08); --sh-lg:0 16px 48px rgba(20,90,66,.12);
+        --sidebar-w:256px; --sidebar-collapsed-w:72px;
+        --sidebar-text:#b5d9cb; --sidebar-hover-bg:rgba(255,255,255,.08);
+        --sidebar-icon-toggle:rgba(255,255,255,.08);
+    }
+    [data-theme="dark"] {
+        --bg-main:#0f1f19; --text-primary:#d8ede5; --text-secondary:#a8c4b8;
+        --border-fresh:#1e3a2e; --card-white:#162b22;
+        --nested:rgba(255,255,255,.045); --chart-grid:#1e3a2e;
+        --green-soft:#163328; --gold-light:#2e2510; --coral-soft:#2e1a16; --blue-soft:#152535;
+        --stone-light:#5a7a6d; --grid-line:rgba(40,80,60,.25); --blob-opacity:.15;
+        --glass-bg:rgba(22,43,34,.8); --glass-border:rgba(40,70,55,.6);
+        --sh-xs:0 2px 8px rgba(0,0,0,.15); --sh-sm:0 4px 16px rgba(0,0,0,.2);
+        --sh-md:0 8px 28px rgba(0,0,0,.25); --sh-lg:0 16px 48px rgba(0,0,0,.3);
+    }
+
+    body {
+        font-family:'Inter', system-ui, sans-serif; background:var(--bg-main);
+        color:var(--text-primary); line-height:1.6; overflow-x:hidden;
+        transition:background .4s, color .4s;
+    }
+    ::selection { background:var(--green-main); color:#fff; }
+    ::-webkit-scrollbar { width:9px; }
+    ::-webkit-scrollbar-thumb { background:var(--stone-light); border-radius:10px; border:2px solid var(--bg-main); }
+    ::-webkit-scrollbar-thumb:hover { background:var(--green-main); }
+    a:focus-visible, button:focus-visible { outline:2px solid var(--green-main); outline-offset:2px; }
+
+    /* Background */
+    .bg-layer { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .bg-layer::before {
+        content:''; position:absolute; inset:0;
+        background-image:linear-gradient(var(--grid-line) 1px, transparent 1px),
+                         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size:48px 48px;
+    }
+    .bg-blob { position:absolute; border-radius:50%; filter:blur(90px); opacity:var(--blob-opacity); animation:drift 22s ease-in-out infinite alternate; }
+    .bg-blob--1 { width:440px; height:440px; top:-12%; right:-6%; background:radial-gradient(circle, rgba(40,168,122,.4), transparent 70%); }
+    .bg-blob--2 { width:340px; height:340px; bottom:-10%; left:6%; background:radial-gradient(circle, rgba(232,168,56,.25), transparent 70%); animation-duration:28s; animation-delay:-6s; }
+    @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(25px,-30px) scale(1.04)} }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+        width:var(--sidebar-w); background:linear-gradient(175deg,#14423a 0%, #185a48 40%, #1a6850 100%);
+        color:#d8efe5; display:flex; flex-direction:column;
+        position:fixed; top:0; left:0; bottom:0;
+        overflow-y:auto; overflow-x:hidden;
+        border-right:1px solid rgba(255,255,255,.06);
+        box-shadow:4px 0 32px rgba(0,0,0,.08); z-index:1000;
+        transition:width .35s cubic-bezier(.4,0,.2,1);
+        scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.1) transparent;
+    }
+    .sidebar::-webkit-scrollbar { width:3px; }
+    .sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:10px; }
+
+    .sidebar-logo {
+        display:flex; align-items:center; gap:0;
+        border-bottom:1px solid rgba(255,255,255,.07);
+        padding:1rem .4rem; min-height:64px; overflow:hidden;
+        justify-content:space-between; transition:all .35s ease;
+    }
+    .logo-image { width:70px; height:70px; object-fit:contain; flex-shrink:0; }
+    .logo-full { display:flex; flex-direction:column; flex:1; min-width:0; }
+    .logo-full h2 { font-size:1.2rem; font-weight:800; letter-spacing:-.5px; white-space:nowrap; color:#ffffff; margin:0; }
+    .logo-full h2 em { font-style:normal; color:var(--gold-warm); }
+    .logo-full p { font-size:.56rem; opacity:.4; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; margin:1px 0 0; }
+    .toggle-btn, .hamburger-btn {
+        background:var(--sidebar-icon-toggle); border:1px solid rgba(255,255,255,.06);
+        color:#d8efe5; width:28px; height:28px; border-radius:8px; cursor:pointer; margin-right:8px;
+        display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s;
+    }
+    .toggle-btn iconify-icon, .hamburger-btn iconify-icon { font-size:14px; }
+    .toggle-btn:hover, .hamburger-btn:hover { background:rgba(255,255,255,.18); }
+    .toggle-btn:hover { transform:rotate(90deg); }
+    .hamburger-wrap { display:none; padding:.4rem 0 .2rem; justify-content:center; }
+
+    .sidebar.collapsed { width:var(--sidebar-collapsed-w); }
+    .sidebar.collapsed .sidebar-logo { justify-content:center; padding:1rem .5rem; }
+    .sidebar.collapsed .logo-full, .sidebar.collapsed .toggle-btn { display:none; }
+    .sidebar.collapsed .hamburger-wrap { display:flex; }
+    .sidebar.collapsed .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
+    .sidebar.collapsed .nav-text { display:none !important; }
+    .sidebar.collapsed .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:.7rem .5rem; }
+    .sidebar.collapsed .sidebar-user-info { display:none !important; }
+    .sidebar.collapsed .nav-badge { left:auto; right:8px; top:4px; }
+
+    .nav-section-label {
+        font-size:.55rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700;
+        color:rgba(216,239,229,.35); white-space:nowrap;
+        padding:1.1rem 1.1rem .35rem; transition:all .3s;
+    }
+    .sidebar-nav { flex:1; padding:.4rem 0 1rem; }
+    .nav-link-custom {
+        display:flex; align-items:center; gap:13px;
+        color:var(--sidebar-text); text-decoration:none;
+        border-radius:12px; font-size:.84rem; font-weight:500;
+        padding:.55rem .9rem; margin:0 .4rem 2px; position:relative;
+        white-space:nowrap; transition:all .25s;
+    }
+    .nav-link-custom iconify-icon { font-size:17px; width:22px; flex-shrink:0; transition:transform .25s; }
+    .nav-link-custom:hover { background:var(--sidebar-hover-bg); color:#fff; }
+    .nav-link-custom:hover iconify-icon { transform:scale(1.12); }
+    .nav-link-custom::after {
+        content:''; position:absolute; left:0; top:50%;
+        width:3px; height:55%; border-radius:0 4px 4px 0; background:var(--gold-warm);
+        transform:translateY(-50%) scaleY(0); transition:transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    .nav-link-custom.active::after { transform:translateY(-50%) scaleY(1); }
+    .sidebar.collapsed .nav-link-custom::after { display:none; }
+    .nav-link-custom.active {
+        background:var(--card-white); color:var(--green-deep);
+        font-weight:650; box-shadow:0 4px 16px rgba(0,0,0,.12);
+    }
+    [data-theme="dark"] .nav-link-custom.active { color:#4ad9a0; }
+    .nav-badge {
+        position:absolute; top:6px; left:24px; width:7px; height:7px;
+        background:var(--coral); border-radius:50%;
+        border:2px solid #185a48; animation:pulse 2s ease-in-out infinite;
+    }
+    .nav-link-custom.active .nav-badge { border-color:var(--card-white); }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5); opacity:.6} }
+    .nav-link-custom.logout { color:rgba(224,96,80,.75); margin-top:.6rem; }
+    .nav-link-custom.logout:hover { background:rgba(224,96,80,.12); color:#f08070; }
+
+    .sidebar-user {
+        display:none !important; align-items:center; gap:11px;
+        border-top:1px solid rgba(255,255,255,.07);
+        padding:.9rem 1.1rem; overflow:hidden; transition:all .35s;
+    }
+    .sidebar-avatar {
+        width:34px; height:34px; border-radius:11px; flex-shrink:0;
+        background:linear-gradient(135deg, var(--gold-warm), #d4922a);
+        display:flex; align-items:center; justify-content:center;
+        color:#fff; font-size:.75rem; font-weight:700;
+        box-shadow:0 2px 8px rgba(232,168,56,.3);
+    }
+    .sidebar-user-info h4 { font-size:.78rem; font-weight:650; color:#d8efe5; }
+    .sidebar-user-info p { font-size:.6rem; opacity:.45; }
+
+    /* ═══ MAIN ═══ */
+    .main-content {
+        margin-left:var(--sidebar-w); padding:26px 32px 44px;
+        min-height:100vh; position:relative; z-index:1;
+        transition:margin-left .35s cubic-bezier(.4,0,.2,1);
+    }
+    .main-content.shifted { margin-left:var(--sidebar-collapsed-w); }
+
+    .top-bar {
+        background:var(--glass-bg); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+        border:1px solid var(--glass-border); border-radius:24px;
+        padding:.5rem 1rem .5rem 1.4rem; margin-bottom:1.1rem;
+        display:flex; justify-content:space-between; align-items:center;
+        box-shadow:var(--sh-sm); transition:background .4s, border-color .4s;
+    }
+    .page-title { font-size:1.05rem; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:9px; }
+    .page-title iconify-icon { color:var(--gold-warm); font-size:17px; }
+    .top-bar-right { display:flex; align-items:center; gap:10px; }
+    .icon-btn {
+        width:36px; height:36px; border-radius:11px; border:1.5px solid var(--border-fresh);
+        background:var(--card-white); color:var(--stone); cursor:pointer;
+        display:flex; align-items:center; justify-content:center; transition:all .25s; position:relative;
+    }
+    .icon-btn iconify-icon { font-size:17px; }
+    .icon-btn:hover { border-color:var(--green-main); color:var(--green-main); transform:translateY(-1px); }
+    .icon-btn:active { transform:scale(.92); }
+    .icon-btn .dot {
+        position:absolute; top:6px; right:7px; width:7px; height:7px;
+        background:var(--coral); border-radius:50%; border:2px solid var(--card-white);
+        animation:pulse 2s ease-in-out infinite;
+    }
+    .theme-btn .icon-sun { display:none; }
+    [data-theme="dark"] .theme-btn .icon-sun { display:flex; }
+    [data-theme="dark"] .theme-btn .icon-moon { display:none; }
+    .icon-btn .icon-sun, .icon-btn .icon-moon { display:flex; }
+
+    /* ═══ HERO ═══ */
+    .hero {
+        background:linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+        border-radius:28px; padding:1.5rem 1.8rem; margin-bottom:1.2rem;
+        position:relative; overflow:hidden; color:#fff; box-shadow:var(--sh-lg);
+    }
+    .hero::before {
+        content:''; position:absolute; top:-40%; right:-8%; width:280px; height:280px; border-radius:50%;
+        background:radial-gradient(circle, rgba(232,168,56,.18), transparent 65%);
+    }
+    .hero-dots {
+        position:absolute; inset:0; pointer-events:none;
+        background-image:radial-gradient(rgba(255,255,255,.08) 1.2px, transparent 1.2px);
+        background-size:24px 24px;
+        -webkit-mask-image:linear-gradient(115deg, transparent 25%, #000 75%);
+        mask-image:linear-gradient(115deg, transparent 25%, #000 75%);
+    }
+    .hero-ring {
+        position:absolute; right:46px; top:50%; transform:translateY(-50%);
+        width:82px; height:82px; border-radius:50%;
+        border:1.5px solid rgba(255,255,255,.15);
+        display:flex; align-items:center; justify-content:center;
+    }
+    .hero-ring::before {
+        content:''; position:absolute; inset:-9px; border-radius:50%;
+        border:1.5px dashed rgba(232,168,56,.4); animation:ringspin 26s linear infinite;
+    }
+    .hero-ring iconify-icon { font-size:30px; color:var(--gold-warm); }
+    @keyframes ringspin { to { transform:rotate(360deg); } }
+    .hero h1 { font-size:1.4rem; font-weight:800; letter-spacing:-.5px; position:relative; z-index:1; }
+    .hero h1 em { font-style:normal; color:var(--gold-warm); }
+    .hero p { font-size:.84rem; opacity:.75; max-width:520px; margin-top:.2rem; position:relative; z-index:1; }
+    .hero-chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:1rem; position:relative; z-index:1; }
+    .chip {
+        display:inline-flex; align-items:center; gap:7px;
+        background:rgba(255,255,255,.1); backdrop-filter:blur(10px);
+        border:1px solid rgba(255,255,255,.08);
+        padding:5px 14px; border-radius:20px; font-size:.72rem; font-weight:600;
+    }
+    .chip iconify-icon { font-size:13px; color:var(--gold-warm); }
+    .chip strong { font-weight:800; font-variant-numeric:tabular-nums; }
+    .chip .t { font-variant-numeric:tabular-nums; }
+
+    /* ═══ STATS ═══ */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(215px, 1fr)); gap:1rem; margin-bottom:1.2rem; }
+    .stat-card {
+        background:var(--glass-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border:1px solid var(--glass-border); border-radius:22px;
+        padding:1.1rem 1.3rem; position:relative; overflow:hidden;
+        box-shadow:var(--sh-sm); transition:all .35s cubic-bezier(.4,0,.2,1), background .4s, border-color .4s;
+    }
+    .stat-card::before {
+        content:''; position:absolute; top:0; left:0; right:0; height:3px;
+        border-radius:3px 3px 0 0; opacity:0; transition:opacity .35s;
+    }
+    .sc-green::before { background:linear-gradient(90deg, var(--green-main), var(--green-light)); }
+    .sc-gold::before  { background:linear-gradient(90deg, var(--gold-warm), #f0c060); }
+    .sc-blue::before  { background:linear-gradient(90deg, var(--blue), #6ba8e8); }
+    .sc-coral::before { background:linear-gradient(90deg, var(--coral), #f08070); }
+    .stat-card:hover { transform:translateY(-4px); border-color:var(--green-main); box-shadow:var(--sh-lg); }
+    .stat-card:hover::before { opacity:1; }
+    .stat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.7rem; }
+    .stat-header span { font-size:.6rem; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--stone); }
+    .stat-icon {
+        width:36px; height:36px; border-radius:12px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; transition:transform .35s;
+    }
+    .stat-icon iconify-icon { font-size:18px; }
+    .sc-green .stat-icon { background:var(--green-soft); color:var(--green-main); }
+    .sc-gold  .stat-icon { background:var(--gold-light); color:#c48a20; }
+    .sc-blue  .stat-icon { background:var(--blue-soft); color:var(--blue); }
+    .sc-coral .stat-icon { background:var(--coral-soft); color:var(--coral); }
+    .stat-card:hover .stat-icon { transform:scale(1.08) rotate(-3deg); }
+    .stat-value { font-size:1.9rem; font-weight:900; letter-spacing:-1px; line-height:1.1; font-variant-numeric:tabular-nums; }
+    .stat-sub { color:var(--stone-light); font-size:.68rem; font-weight:500; }
+
+    /* ═══ BOTTOM GRID ═══ */
+    .bottom-grid { display:grid; grid-template-columns:1.7fr 1fr; gap:1.1rem; align-items:start; }
+    .panel {
+        background:var(--glass-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border:1px solid var(--glass-border); border-radius:22px;
+        padding:1.25rem 1.35rem; box-shadow:var(--sh-sm);
+        transition:background .4s, border-color .4s;
+    }
+    .panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.9rem; gap:10px; }
+    .panel-head h3 { font-size:.92rem; font-weight:800; }
+    .panel-head h3 iconify-icon { color:var(--gold-warm); font-size:15px; margin-right:7px; }
+    .panel-head .sub { font-size:.66rem; color:var(--stone-light); margin-top:.15rem; }
+    .panel-head .actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .panel-link { font-size:.72rem; color:var(--green-main); text-decoration:none; font-weight:700; transition:color .2s; }
+    .panel-link:hover { color:var(--green-deep); }
+    [data-theme="dark"] .panel-link { color:#4ad9a0; }
+    .refresh-btn {
+        width:32px; height:32px; border-radius:10px; border:1.5px solid var(--border-fresh);
+        background:var(--card-white); color:var(--stone); cursor:pointer;
+        display:flex; align-items:center; justify-content:center; transition:all .25s;
+    }
+    .refresh-btn iconify-icon { font-size:14px; }
+    .refresh-btn:hover { border-color:var(--green-main); color:var(--green-main); }
+    .refresh-btn.spinning iconify-icon { animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Students list */
+    .student-row {
+        display:flex; align-items:center; gap:14px;
+        padding:.65rem .3rem; border-bottom:1px solid var(--border-fresh);
+        transition:all .2s; border-radius:10px;
+    }
+    .student-row:last-child { border-bottom:none; }
+    .student-row:hover { background:rgba(31,138,100,.04); margin:0 -.3rem; padding:.65rem .6rem; }
+    .avatar {
+        width:38px; height:38px; border-radius:12px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center;
+        font-size:.72rem; font-weight:700;
+    }
+    .a-green { background:var(--green-soft); color:var(--green-main); }
+    .a-gold  { background:var(--gold-light); color:#c48a20; }
+    .a-blue  { background:var(--blue-soft); color:var(--blue); }
+    .a-coral { background:var(--coral-soft); color:var(--coral); }
+    .s-info { flex:1; min-width:0; }
+    .s-name { font-size:.8rem; font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .s-lrn { font-size:.66rem; color:var(--stone-light); font-variant-numeric:tabular-nums; }
+    .s-joined {
+        display:inline-flex; align-items:center; gap:5px; flex-shrink:0;
+        font-size:.64rem; color:var(--stone-light); white-space:nowrap;
+    }
+    .s-joined iconify-icon { font-size:11px; }
+
+    /* Quick actions */
+    .qa-row {
+        display:flex; align-items:center; gap:13px;
+        background:var(--nested); border:1px solid var(--border-fresh);
+        border-radius:16px; padding:.85rem 1rem; margin-bottom:.65rem;
+        text-decoration:none; color:inherit; transition:all .25s; position:relative; overflow:hidden;
+    }
+    .qa-row:last-child { margin-bottom:0; }
+    .qa-row::before {
+        content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+        background:var(--accent); opacity:0; transition:opacity .25s;
+    }
+    .qa-row.qa-green { --accent:var(--green-main); } .qa-row.qa-blue { --accent:var(--blue); }
+    .qa-row.qa-gold { --accent:var(--gold-warm); } .qa-row.qa-coral { --accent:var(--coral); }
+    .qa-row:hover { transform:translateX(4px); border-color:var(--accent); box-shadow:var(--sh-md); }
+    .qa-row:hover::before { opacity:1; }
+    .qa-icon {
+        width:42px; height:42px; border-radius:13px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; transition:all .35s;
+    }
+    .qa-icon iconify-icon { font-size:19px; }
+    .qa-green .qa-icon { background:var(--green-soft); color:var(--green-main); }
+    .qa-blue  .qa-icon { background:var(--blue-soft); color:var(--blue); }
+    .qa-gold  .qa-icon { background:var(--gold-light); color:#c48a20; }
+    .qa-coral .qa-icon { background:var(--coral-soft); color:var(--coral); }
+    .qa-row:hover .qa-icon { transform:scale(1.08) rotate(-4deg); }
+    .qa-info { flex:1; min-width:0; }
+    .qa-info p { font-size:.8rem; font-weight:700; }
+    .qa-info span { font-size:.65rem; color:var(--stone-light); }
+    .qa-arrow {
+        color:var(--accent); font-size:15px; flex-shrink:0;
+        opacity:0; transform:translateX(-5px); transition:all .3s;
+    }
+    .qa-row:hover .qa-arrow { opacity:1; transform:translateX(0); }
+
+    /* Skeleton / states */
+    .skel-line {
+        height:10px; border-radius:6px; margin-bottom:9px;
+        background:linear-gradient(90deg, var(--chart-grid) 25%, var(--nested) 50%, var(--chart-grid) 75%);
+        background-size:200% 100%; animation:sk 1.2s infinite;
+    }
+    .skel-row { display:flex; gap:14px; align-items:center; padding:.65rem .3rem; }
+    .skel-avatar { width:38px; height:38px; border-radius:12px; flex-shrink:0; }
+    .skel-line.w60 { width:60%; } .skel-line.w40 { width:40%; } .skel-line.w90 { width:90%; }
+    @keyframes sk { to { background-position:-200% 0; } }
+    .state-box { padding:2.2rem 1rem; text-align:center; }
+    .state-box iconify-icon { font-size:2rem; color:var(--border-fresh); margin-bottom:.6rem; display:block; }
+    .state-box p { font-size:.8rem; color:var(--stone-light); }
+    .state-box .small { font-size:.66rem; opacity:.7; margin-top:.2rem; }
+    .retry-btn {
+        margin-top:1rem; border:1.5px solid var(--border-fresh); background:var(--card-white);
+        color:var(--green-main); border-radius:12px; padding:.5rem 1rem;
+        font:inherit; font-size:.74rem; font-weight:700; cursor:pointer;
+        display:inline-flex; align-items:center; gap:7px; transition:all .2s;
+    }
+    .retry-btn:hover { border-color:var(--green-main); background:var(--green-soft); }
+
+    /* Toast */
+    .toast-msg {
+        background:#1a463a; color:#fff; padding:11px 16px; border-radius:13px;
+        font-size:.78rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,.2);
+        display:flex; align-items:center; gap:10px; position:relative; overflow:hidden;
+        animation:tIn .4s cubic-bezier(.4,0,.2,1);
+    }
+    .toast-msg iconify-icon { font-size:16px; color:var(--gold-warm); flex-shrink:0; }
+    .toast-msg::after {
+        content:''; position:absolute; left:0; bottom:0; height:2.5px;
+        background:var(--gold-warm); width:100%; animation:ttimer 5s linear forwards;
+    }
+    @keyframes tIn { from { opacity:0; transform:translateX(40px) scale(.95); } to { opacity:1; transform:none; } }
+    @keyframes ttimer { to { width:0; } }
+    .hidden { display:none !important; }
+
+    footer {
+        margin-top:2rem; text-align:center; font-size:.66rem;
+        color:var(--stone-light); border-top:1px solid var(--border-fresh); padding-top:1.4rem;
+    }
+
+    /* Collapsed tooltip */
+    .nav-tip {
+        position:fixed; z-index:99999; pointer-events:none;
+        background:#0d2b22; color:#eafff5; padding:5px 12px; border-radius:9px;
+        font-size:.68rem; font-weight:600; white-space:nowrap;
+        transform:translateY(-50%) translateX(-6px); opacity:0; transition:all .18s;
+        box-shadow:0 8px 24px rgba(0,0,0,.3);
+    }
+    .nav-tip.show { opacity:1; transform:translateY(-50%) translateX(0); }
+
+    /* Entrance */
+    .fu { opacity:0; transform:translateY(16px); animation:fuA .5s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes fuA { to { opacity:1; transform:none; } }
+    .e1{animation-delay:.05s} .e2{animation-delay:.12s} .e3{animation-delay:.2s} .e4{animation-delay:.28s}
+
+    @media (max-width:960px) {
+        .bottom-grid { grid-template-columns:1fr; }
+        .hero-ring { display:none; }
+    }
+    @media (max-width:768px) {
+        .sidebar { width:var(--sidebar-collapsed-w); }
+        .sidebar .logo-full, .sidebar .toggle-btn { display:none !important; }
+        .sidebar .hamburger-wrap { display:flex !important; }
+        .sidebar .sidebar-logo { justify-content:center; padding:1rem .5rem; }
+        .sidebar .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
+        .sidebar .nav-text { display:none !important; }
+        .sidebar .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
+        .sidebar .sidebar-user { justify-content:center; padding:.7rem .5rem; }
+        .sidebar .sidebar-user-info { display:none !important; }
+        .sidebar .nav-badge { left:auto; right:8px; top:4px; }
+        .main-content, .main-content.shifted { margin-left:var(--sidebar-collapsed-w); padding:16px 14px 32px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+        *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+    <div class="bg-blob bg-blob--1"></div>
+    <div class="bg-blob bg-blob--2"></div>
+</div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
+        <div class="logo-full">
+            <h2>Block<em>Learn</em></h2>
+            <p>PNHS · ICT Studio</p>
+        </div>
+        <button class="toggle-btn" id="toggleSidebar" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
+        </button>
+    </div>
+    <div class="hamburger-wrap">
+        <button class="hamburger-btn" id="hamburgerBtn" title="Expand sidebar" aria-label="Expand sidebar">
+            <iconify-icon icon="lucide:panel-left-open"></iconify-icon>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <p class="nav-section-label">Main</p>
+        <a href="/ict_support_dashboard" class="nav-link-custom active" data-tip="Dashboard">
+            <iconify-icon icon="lucide:layout-dashboard"></iconify-icon><span class="nav-text">Dashboard</span>
+        </a>
+
+        <p class="nav-section-label">Operations</p>
+        <a href="/ict_support_tickets" class="nav-link-custom" data-tip="Tickets">
+            <iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Tickets</span>
+        </a>
+        <a href="/ict_support_students" class="nav-link-custom" data-tip="Users">
+            <iconify-icon icon="lucide:users"></iconify-icon><span class="nav-text">Users</span>
+        </a>
+        <p class="nav-section-label">Insights</p>
+        <a href="/ict_support_reports" class="nav-link-custom" data-tip="Reports">
+            <iconify-icon icon="lucide:file-text"></iconify-icon><span class="nav-text">Reports</span>
+        </a>
+
+        <p class="nav-section-label">System</p>
+        <a href="/ict_support_settings" class="nav-link-custom" data-tip="Settings">
+            <iconify-icon icon="lucide:settings"></iconify-icon><span class="nav-text">Settings</span>
+        </a>
+        <a href="/logout" class="nav-link-custom logout" data-tip="Logout">
+            <iconify-icon icon="lucide:log-out"></iconify-icon><span class="nav-text">Logout</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-user">
+        <div class="sidebar-avatar">{{ (full_name or username or 'U')[:1]|upper }}</div>
+        <div class="sidebar-user-info">
+            <h4>{{ full_name or username or 'User' }}</h4>
+            <p>{{ 'ICT Support' if role == 'ict' else 'Teacher' }}</p>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main-content" id="mainContent">
+
+    <div class="top-bar fu e1">
+        <h2 class="page-title"><iconify-icon icon="lucide:layout-dashboard"></iconify-icon>Dashboard</h2>
+        <div class="top-bar-right">
+            <button class="icon-btn theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+                <iconify-icon icon="lucide:moon" class="icon-moon"></iconify-icon>
+                <iconify-icon icon="lucide:sun" class="icon-sun"></iconify-icon>
+            </button>
+            <button class="icon-btn" onclick="showNotification()" title="Notifications" aria-label="Notifications">
+                <iconify-icon icon="lucide:bell"></iconify-icon>
+                <span class="dot"></span>
+            </button>
+        </div>
+    </div>
+
+    <header class="hero fu e2">
+        <span class="hero-dots"></span>
+        <div class="hero-ring"><iconify-icon icon="lucide:monitor-cog"></iconify-icon></div>
+        <h1>Welcome back, <em>{{ full_name or username or 'User' }}</em></h1>
+        <p>Here's what's happening across the student portal today.</p>
+        <div class="hero-chips">
+            <span class="chip"><iconify-icon icon="lucide:calendar"></iconify-icon><span id="heroDate">—</span></span>
+            <span class="chip"><iconify-icon icon="lucide:clock"></iconify-icon><span class="t" id="heroClock">--:--</span></span>
+            <span class="chip"><iconify-icon icon="lucide:users"></iconify-icon><strong id="heroStudents">0</strong>&nbsp;students</span>
+        </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-grid fu e3">
+        <div class="stat-card sc-green">
+            <div class="stat-header">
+                <span>Total Students</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:users"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="totalStudents">0</p>
+            <p class="stat-sub">From student accounts</p>
+        </div>
+        <div class="stat-card sc-gold">
+            <div class="stat-header">
+                <span>Registered Today</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:user-plus"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="registeredToday">0</p>
+            <p class="stat-sub" id="dashboardDate">—</p>
+        </div>
+        <!-- Lalabas lang kung may data ang backend: -->
+        <div class="stat-card sc-blue" id="statTicketsCard" style="display:none">
+            <div class="stat-header">
+                <span>Total Tickets</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:ticket"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="totalTickets">0</p>
+            <p class="stat-sub">All time</p>
+        </div>
+        <div class="stat-card sc-coral" id="statPendingCard" style="display:none">
+            <div class="stat-header">
+                <span>Pending Tickets</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="pendingTickets">0</p>
+            <p class="stat-sub">Awaiting response</p>
+        </div>
+    </div>
+
+    <div class="bottom-grid">
+        <!-- Recent students -->
+        <section class="panel fu e4">
+            <div class="panel-head">
+                <div>
+                    <h3><iconify-icon icon="lucide:user-cog"></iconify-icon>Recently Registered Students</h3>
+                    <p class="sub">Latest student accounts from the database</p>
+                </div>
+                <div class="actions">
+                    <button class="refresh-btn" id="refreshBtn" title="Refresh" aria-label="Refresh data">
+                        <iconify-icon icon="lucide:rotate-cw"></iconify-icon>
+                    </button>
+                    <a href="/ict_support_students" class="panel-link">View All</a>
+                </div>
+            </div>
+            <div id="recentStudentsList"></div>
+        </section>
+
+        <!-- Quick actions -->
+        <section class="panel fu e4">
+            <div class="panel-head">
+                <div>
+                    <h3><iconify-icon icon="lucide:zap"></iconify-icon>Quick Actions</h3>
+                    <p class="sub">Jump straight into your workflow</p>
+                </div>
+            </div>
+            <a href="/ict_support_tickets" class="qa-row qa-green">
+                <div class="qa-icon"><iconify-icon icon="lucide:ticket"></iconify-icon></div>
+                <div class="qa-info"><p>Manage Tickets</p><span>Respond to student requests</span></div>
+                <iconify-icon icon="lucide:arrow-right" class="qa-arrow"></iconify-icon>
+            </a>
+            <a href="/ict_support_students" class="qa-row qa-blue">
+                <div class="qa-icon"><iconify-icon icon="lucide:users"></iconify-icon></div>
+                <div class="qa-info"><p>Browse Students</p><span>Search registered accounts</span></div>
+                <iconify-icon icon="lucide:arrow-right" class="qa-arrow"></iconify-icon>
+            </a>
+            <a href="/ict_support_reports" class="qa-row qa-gold">
+                <div class="qa-icon"><iconify-icon icon="lucide:chart-bar"></iconify-icon></div>
+                <div class="qa-info"><p>View Reports</p><span>Analytics &amp; insights</span></div>
+                <iconify-icon icon="lucide:arrow-right" class="qa-arrow"></iconify-icon>
+            </a>
+        </section>
+    </div>
+
+    <footer>PNHS-Main · ICT Tech Support Portal v2.0</footer>
+</div>
+
+<!-- Notification Toast -->
+<div id="notificationToast" class="toast-msg hidden" style="position:fixed; bottom:24px; right:24px; z-index:99999; max-width:340px;">
+    <iconify-icon icon="lucide:bell"></iconify-icon>
+    <div>
+        <p style="font-weight:600">New Notification</p>
+        <p style="font-size:.68rem; opacity:.75">You have 3 new ticket updates</p>
+        <button onclick="closeNotification()" style="background:none; border:none; color:var(--gold-warm); font:inherit; font-size:.68rem; font-weight:700; cursor:pointer; padding:2px 0 0;">Mark as read</button>
+    </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const escapeHtml = value => String(value || '').replace(/[&<>'"]/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const getInitials = name => String(name || '?').split(' ').filter(Boolean).slice(0, 2)
+    .map(p => p.charAt(0).toUpperCase()).join('') || '?';
+
+/* ── Theme (syncs with student portal — same 'bl-theme' key) ── */
+const applyTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('bl-theme', t); };
+applyTheme(localStorage.getItem('bl-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+ $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+/* ── Sidebar collapse ── */
+const applySidebar = collapsed => {
+    $('sidebar').classList.toggle('collapsed', collapsed);
+    $('mainContent').classList.toggle('shifted', collapsed);
+    localStorage.setItem('bl-ict-sidebar', collapsed ? '1' : '0');
+};
+applySidebar(localStorage.getItem('bl-ict-sidebar') === '1');
+ $('toggleSidebar').addEventListener('click', () => applySidebar(true));
+ $('hamburgerBtn').addEventListener('click', () => applySidebar(false));
+
+/* ── Collapsed tooltips ── */
+const tip = document.createElement('div');
+tip.className = 'nav-tip';
+document.body.appendChild(tip);
+document.addEventListener('mouseover', e => {
+    const link = e.target.closest('.sidebar.collapsed .nav-link-custom[data-tip]');
+    if (!link) { tip.classList.remove('show'); return; }
+    const r = link.getBoundingClientRect();
+    tip.textContent = link.dataset.tip;
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.left = (r.right + 12) + 'px';
+    tip.classList.add('show');
+});
+
+/* ── Live clock + date ── */
+const updateClock = () => $('heroClock').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+updateClock(); setInterval(updateClock, 10000);
+ $('heroDate').textContent = new Date().toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+ $('dashboardDate').textContent = $('heroDate').textContent;
+
+/* ── Count-up ── */
+function countUp(el, target) {
+    target = Number(target) || 0;
+    let t0 = null;
+    const step = now => {
+        if (!t0) t0 = now;
+        const p = Math.min((now - t0) / 1100, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+/* ── Time helpers ── */
+const parseDate = s => { if (!s) return null; const d = new Date(String(s).replace(' ', 'T')); return isNaN(d) ? null : d; };
+function timeAgo(s) {
+    const d = parseDate(s); if (!d) return '';
+    const sec = (Date.now() - d.getTime()) / 1000;
+    if (sec < 0 || sec < 60) return sec < 0 ? '' : 'just now';
+    if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+    if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+    if (sec < 604800) return Math.floor(sec / 86400) + 'd ago';
+    return d.toLocaleDateString();
+}
+const fullDate = s => { const d = parseDate(s); return d ? d.toLocaleString() : ''; };
+
+/* ── Notification (same function names as before) ── */
+function showNotification() {
+    const t = $('notificationToast');
+    t.classList.remove('hidden');
+    clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(closeNotification, 5000);
+}
+function closeNotification() { $('notificationToast').classList.add('hidden'); }
+
+/* ── Data ── */
+const AV_COLORS = ['a-green', 'a-gold', 'a-blue', 'a-coral'];
+
+function renderSkeleton() {
+    $('recentStudentsList').innerHTML = Array(4).fill(
+        '<div class="skel-row"><div class="skel-avatar skel-line"></div><div style="flex:1"><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>'
+    ).join('');
+}
+
+function loadDashboardData() {
+    renderSkeleton();
+    $('refreshBtn').classList.add('spinning');
+    fetch('/get_ict_dashboard_data', { headers: { 'Accept': 'application/json' } })
+        .then(r => { if (!r.ok) throw 0; return r.json(); })
+        .then(data => {
+            if (!data.success) throw 0;
+
+            countUp($('totalStudents'), data.total_students || 0);
+            $('heroStudents').textContent = data.total_students || 0;
+            countUp($('registeredToday'), data.registered_today || 0);
+
+            // Optional ticket stats — lalabas lang kung may data
+            if (data.total_tickets !== null && data.total_tickets !== undefined) {
+                $('statTicketsCard').style.display = '';
+                countUp($('totalTickets'), data.total_tickets);
+            }
+            if (data.pending_tickets !== null && data.pending_tickets !== undefined) {
+                $('statPendingCard').style.display = '';
+                countUp($('pendingTickets'), data.pending_tickets);
+            }
+
+            const students = data.students || [];
+            const list = $('recentStudentsList');
+
+            list.innerHTML = students.slice(0, 5).map((student, i) => {
+                const name = student.full_name || student.username || 'Unnamed student';
+                const ago = timeAgo(student.created_at);
+                return '<div class="student-row" title="' + escapeHtml(fullDate(student.created_at)) + '">' +
+                    '<div class="avatar ' + AV_COLORS[i % AV_COLORS.length] + '">' + escapeHtml(getInitials(name)) + '</div>' +
+                    '<div class="s-info"><p class="s-name">' + escapeHtml(name) + '</p>' +
+                    '<p class="s-lrn">LRN: ' + escapeHtml(student.lrn) + '</p></div>' +
+                    '<span class="s-joined"><iconify-icon icon="lucide:clock"></iconify-icon>' +
+                    escapeHtml(ago || student.created_at || '') + '</span></div>';
+            }).join('') || '<div class="state-box"><iconify-icon icon="lucide:inbox"></iconify-icon>' +
+                '<p>No students found.</p><p class="small">Newly registered accounts will appear here.</p></div>';
+        })
+        .catch(() => {
+            $('recentStudentsList').innerHTML =
+                '<div class="state-box"><iconify-icon icon="lucide:triangle-alert"></iconify-icon>' +
+                '<p>Unable to load student data.</p>' +
+                '<button class="retry-btn" onclick="loadDashboardData()"><iconify-icon icon="lucide:rotate-cw"></iconify-icon>Try Again</button></div>';
+        })
+        .finally(() => $('refreshBtn').classList.remove('spinning'));
+}
+
+ $('refreshBtn').addEventListener('click', loadDashboardData);
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+</body>
+</html>

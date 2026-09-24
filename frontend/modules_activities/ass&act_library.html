@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockLearn · {{ 'Learning Modules' if library_mode == 'modules' else 'Assessment' }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --green-deep: #145a42;
+            --green-main: #1f8a64;
+            --green-soft: #e2f3ed;
+            --green-ghost: #f2faf6;
+            --gold-warm: #e8a838;
+            --gold-light: #fce9c5;
+            --blue: #4a90d9;
+            --blue-soft: #e4eefb;
+            --coral: #e06050;
+            --coral-soft: #fce8e5;
+            --stone: #7f9e92;
+            --stone-light: #a8bfb4;
+            --card-white: #ffffff;
+            --bg-main: #f0f6f3;
+            --text-primary: #1a463a;
+            --text-secondary: #4a6b5e;
+            --border-fresh: #dde9e3;
+            --shadow-sm: 0 4px 16px rgba(20,90,66,.08);
+            --shadow-md: 0 8px 28px rgba(20,90,66,.12);
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, 'Segoe UI', system-ui, Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .page-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 20px 60px;
+        }
+
+        /* ----- TOP BAR ----- */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding: 20px 26px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-fresh);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .title-wrap h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: var(--green-deep);
+        }
+
+        .title-wrap span {
+            font-size: 0.7rem;
+            color: var(--stone);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+            color: white;
+            border-radius: 999px;
+            padding: 12px 24px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        /* ----- SECTION HEADERS ----- */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 32px 0 18px;
+        }
+
+        .section-header h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--green-deep);
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .section-header .badge-count {
+            background: var(--green-soft);
+            color: var(--green-deep);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+        }
+
+        .section-header .divider-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--border-fresh), transparent);
+            border-radius: 2px;
+        }
+
+        /* ----- GRID LAYOUT ----- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        /* ----- CARD STYLES ----- */
+        .card {
+            background: var(--card-white);
+            border: 1px solid var(--border-fresh);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 22px 20px 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--green-main);
+        }
+
+        /* Assessment card variant */
+        .card--assessment {
+            border-top: 4px solid var(--green-main);
+        }
+
+        .card--assessment .card-link {
+            background: var(--green-soft);
+            color: var(--green-deep);
+        }
+
+        .card--assessment .card-link:hover {
+            background: var(--green-main);
+            color: white;
+        }
+
+        /* Activity card variant */
+        .card--activity {
+            border-top: 4px solid var(--gold-warm);
+        }
+
+        .card--activity .card-link {
+            background: var(--gold-light);
+            color: #8a6100;
+        }
+
+        .card--activity .card-link:hover {
+            background: var(--gold-warm);
+            color: white;
+        }
+
+        .lang-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            font-size: 1.4rem;
+            color: white;
+            margin-bottom: 14px;
+            flex-shrink: 0;
+        }
+
+        .python { background: linear-gradient(135deg, #4a90d9, #1e5dbb); }
+        .java { background: linear-gradient(135deg, #ff8a00, #c75d00); }
+        .javascript { background: linear-gradient(135deg, #f7d154, #d99d00); color: #3a2b00; }
+        .php { background: linear-gradient(135deg, #6b7ae8, #3d4cc2); }
+        .cpp { background: linear-gradient(135deg, #0074b8, #004f7a); }
+
+        .card h3 {
+            margin: 0 0 6px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            margin: 0 0 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.83rem;
+            flex: 1;
+        }
+
+        .meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 0.65rem;
+            color: var(--stone);
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .meta i {
+            font-size: 0.8rem;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 11px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.82rem;
+            transition: all 0.2s ease;
+            margin-top: auto;
+            gap: 6px;
+        }
+
+        /* ----- RESPONSIVE ----- */
+        @media (max-width: 640px) {
+            .page-shell {
+                padding: 16px 14px 40px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                padding: 18px;
+            }
+
+            .action-btn {
+                justify-content: center;
+            }
+
+            .title-wrap h1 {
+                font-size: 1.3rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header h2 {
+                font-size: 1rem;
+            }
+        }
+
+        /* ----- DECORATIVE ACCENTS ----- */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 0 0 0 80px;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .card--assessment::after {
+            background: var(--green-main);
+        }
+
+        .card--activity::after {
+            background: var(--gold-warm);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-shell">
+
+        <!-- ===== TOP BAR ===== -->
+        <div class="topbar">
+            <div class="title-wrap">
+                <span>Learning Path</span>
+                <h1>{{ 'Learning Modules' if library_mode == 'modules' else 'Assessment' }}</h1>
+            </div>
+            <a href="/student_dashboard" class="action-btn">
+                <i class="fas fa-arrow-left"></i> Back to dashboard
+            </a>
+        </div>
+
+        {% if library_mode != 'modules' %}
+        <!-- ===== ASSESSMENTS SECTION ===== -->
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-clipboard-check" style="color: var(--green-main);"></i>
+                Assessment
+            </h2>
+            <span class="badge-count">2 tracks</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="grid">
+            <!-- Python Assessment -->
+            <div class="card card--assessment">
+                <div class="lang-tag python"><i class="fab fa-python"></i></div>
+                <h3>Python</h3>
+                <p>Read the Python module lesson first, then continue to the graded assessment.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Module lesson first
+                </div>
+                <a href="/student_modules/python/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Read Python module
+                </a>
+            </div>
+
+            <!-- Java Assessment -->
+            <div class="card card--assessment">
+                <div class="lang-tag java"><i class="fab fa-java"></i></div>
+                <h3>Java</h3>
+                <p>Read the Java module lesson first, then continue to the graded assessment.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Module lesson first
+                </div>
+                <a href="/student_modules/java/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Read Java module
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if library_mode == 'modules' %}
+        <!-- ===== ASSESSMENT MODULES SECTION ===== -->
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-clipboard-check" style="color: var(--green-main);"></i>
+                Assessment Modules
+            </h2>
+            <span class="badge-count">2 tracks</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="grid">
+            <!-- Python Module -->
+            <div class="card card--activity">
+                <div class="lang-tag python"><i class="fab fa-python"></i></div>
+                <h3>Python</h3>
+                <p>Learn Python basics, variables, loops, and logic through guided lessons.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Learning module
+                </div>
+                <a href="/student_modules/python/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Open Python module
+                </a>
+            </div>
+
+            <!-- Java Module -->
+            <div class="card card--activity">
+                <div class="lang-tag java"><i class="fab fa-java"></i></div>
+                <h3>Java</h3>
+                <p>Build Java fundamentals through guided learning lessons.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Learning module
+                </div>
+                <a href="/student_modules/java/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Open Java module
+                </a>
+            </div>
+        </div>
+
+        <!-- ===== ACTIVITIES MODULES SECTION ===== -->
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-laptop-code" style="color: var(--gold-warm);"></i>
+                Activities Modules
+            </h2>
+            <span class="badge-count">3 tracks</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="grid">
+            <!-- JavaScript Module -->
+            <div class="card card--activity">
+                <div class="lang-tag javascript"><i class="fab fa-js"></i></div>
+                <h3>JavaScript</h3>
+                <p>Practice variables and functions through guided JavaScript lessons.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Learning module
+                </div>
+                <a href="/student_modules/javascript/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Open JavaScript module
+                </a>
+            </div>
+
+            <!-- PHP Module -->
+            <div class="card card--activity">
+                <div class="lang-tag php"><i class="fab fa-php"></i></div>
+                <h3>PHP</h3>
+                <p>Start with PHP fundamentals and continue to condition-based lessons.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Learning module
+                </div>
+                <a href="/student_modules/php/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Open PHP module
+                </a>
+            </div>
+
+            <!-- C++ Module -->
+            <div class="card card--activity">
+                <div class="lang-tag cpp"><i class="fas fa-code"></i></div>
+                <h3>C++</h3>
+                <p>Logic-building lessons and C++ basics for beginner programmers.</p>
+                <div class="meta">
+                    <i class="fas fa-book-open"></i> Learning module
+                </div>
+                <a href="/student_modules/cpp/1" class="card-link">
+                    <i class="fas fa-arrow-right"></i> Open C++ module
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Bootstrap JS (optional, for any interactive components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

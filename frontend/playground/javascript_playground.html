@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Playground · BlockLearn Studio</title>
+    <title>JavaScript Blockly Playground · BlockLearn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blockly.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blocks/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blocks/javascript_compressed.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f0f6f3; line-height: 1.5; }
@@ -25,6 +26,9 @@
             --shadow-hover: 0 16px 40px rgba(26, 107, 79, 0.12);
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 72px;
+            --js-color: #f7df1e;
+            --js-light: #fef9e7;
+            --js-dark: #9a7020;
         }
 
         body::before {
@@ -90,22 +94,23 @@
             display: flex;
             align-items: center;
             transition: all 0.3s ease;
-            gap: 12px;
+            gap: 0;
             overflow: hidden;
-            padding: 1rem 1.2rem;
+            padding: 1rem 0.4rem;
         }
 
-        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; }
+        .sidebar-logo h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; transition: all 0.3s ease; white-space: nowrap; color: #ffffff; }
         .sidebar-logo h2 span { color: var(--gold-warm); }
         .sidebar-logo p { font-size: 0.6rem; opacity: 0.6; margin: 2px 0 0 0; transition: all 0.3s ease; white-space: nowrap; }
         .sidebar-logo-left { display: flex; flex-direction: column; align-items: flex-start; transition: all 0.3s ease; }
+        .sidebar-logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
 
         .sidebar-toggle-btn {
             background: rgba(255,255,255,0.10);
             border: none;
             color: #e2f0ea;
             font-size: 1.1rem;
-            padding: 6px 10px;
+            padding: 6px 10px; margin-right: 8px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -379,12 +384,12 @@
         .card-header-custom h3 { font-size: 1rem; font-weight: 700; color: #1a4a3a; margin: 0; }
 
         .lang-badge {
-            background: var(--green-light);
+            background: var(--js-light);
             padding: 4px 12px;
             border-radius: 40px;
             font-size: 0.65rem;
             font-weight: 600;
-            color: var(--green-dark);
+            color: var(--js-dark);
         }
 
         .window-controls { display: flex; gap: 6px; align-items: center; }
@@ -448,7 +453,6 @@
         }
         .btn-run-custom:hover { background: #0d573f; transform: translateY(-2px); }
 
-        /* Submit Button - Yellow/Gold */
         .btn-submit-custom {
             flex: 1; border: none; padding: 10px; border-radius: 40px;
             font-weight: 700; transition: 0.2s; font-size: 0.85rem;
@@ -476,7 +480,6 @@
         .blocklyTrash { opacity: 1 !important; transition: all 0.3s ease; }
         .blocklyTrash:hover { transform: scale(1.2); }
 
-        /* Expected Output in Banner */
         .expected-output-box {
             background: rgba(255,255,255,0.15);
             border-radius: 12px;
@@ -535,27 +538,30 @@
 <body>
 
 <div class="app-container">
-    <!-- ===== SIDEBAR ===== -->
+    <!-- ===== SIDEBAR (SAME AS PHP) ===== -->
     <aside class="sidebar expanded" id="sidebar">
         <div class="sidebar-logo">
-            <div class="sidebar-logo-left">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="sidebar-logo-image"><div class="sidebar-logo-left">
                 <h2>Block<span>Learn</span></h2>
                 <p>PNHS · ICT Studio</p>
             </div>
             <button class="sidebar-toggle-btn" id="toggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
-                <i class="fas fa-times icon-x"></i>
-                <i class="fas fa-bars icon-bars"></i>
+                <iconify-icon icon="lucide:panel-left-close" class="icon-x"></iconify-icon>
+                <iconify-icon icon="lucide:menu" class="icon-bars"></iconify-icon>
             </button>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span>Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span>Python</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom active"><i class="fab fa-js"></i><span>JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom"><i class="fab fa-html5"></i><span>HTML</span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span>Progress</span></a></div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span>Achievements</span></a></div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span>Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders-h"></i><span>Settings</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="/assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span>Assessments</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span>Progress</span></a></div>
+            <div class="nav-section-label">Languages</div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span>PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom active"><iconify-icon icon="logos:javascript"></iconify-icon><span>JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span>C++</span></a></div>
+            <div class="nav-section-label">Account</div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span>Progress</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span>Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span>Settings</span></a></div>
         </nav>
         <div class="sidebar-footer">
             <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Sign out</span></a>
@@ -586,13 +592,13 @@
         <div class="activity-selector">
             <div class="title"><i class="fas fa-graduation-cap me-2"></i>JavaScript Activities</div>
             <div class="activity-btns">
-                <button class="activity-btn active" data-activity="hello-world" onclick="loadActivity('hello-world')">
-                    <i class="fas fa-terminal me-1"></i> Hello World
+                <button class="activity-btn active" data-activity="hello-js" onclick="loadActivity('hello-js')">
+                    <i class="fas fa-terminal me-1"></i> Hello JS
                     <span class="difficulty-tag difficulty-easy">Easy</span>
                     <span class="step-badge">1</span>
                 </button>
-                <button class="activity-btn" data-activity="variable-greeting" onclick="loadActivity('variable-greeting')">
-                    <i class="fas fa-cube me-1"></i> Variable Greeting
+                <button class="activity-btn" data-activity="store-score" onclick="loadActivity('store-score')">
+                    <i class="fas fa-cube me-1"></i> Store Score
                     <span class="difficulty-tag difficulty-easy">Easy</span>
                     <span class="step-badge">2</span>
                 </button>
@@ -601,10 +607,15 @@
                     <span class="difficulty-tag difficulty-medium">Medium</span>
                     <span class="step-badge">3</span>
                 </button>
-                <button class="activity-btn" data-activity="temperature" onclick="loadActivity('temperature')">
-                    <i class="fas fa-thermometer-half me-1"></i> Temperature
-                    <span class="difficulty-tag difficulty-hard">Hard</span>
+                <button class="activity-btn" data-activity="greater-than" onclick="loadActivity('greater-than')">
+                    <i class="fas fa-code-branch me-1"></i> Greater Than
+                    <span class="difficulty-tag difficulty-medium">Medium</span>
                     <span class="step-badge">4</span>
+                </button>
+                <button class="activity-btn" data-activity="repeat-message" onclick="loadActivity('repeat-message')">
+                    <i class="fas fa-list-ol me-1"></i> Repeat Message
+                    <span class="difficulty-tag difficulty-hard">Hard</span>
+                    <span class="step-badge">5</span>
                 </button>
                 <button class="activity-btn" data-activity="free-play" onclick="loadActivity('free-play')">
                     <i class="fas fa-play me-1"></i> Free Play
@@ -617,13 +628,13 @@
             <div class="activity-banner-info">
                 <h4>
                     <i class="fas fa-code me-2"></i>
-                    <span id="bannerActivityName">Hello World</span>
+                    <span id="bannerActivityName">Hello JS</span>
                     <span class="difficulty-tag difficulty-easy" id="bannerDifficulty">Easy</span>
                 </h4>
-                <p id="bannerInstructions">Build a program that prints "Hello, World!"</p>
+                <p id="bannerInstructions">Build a JavaScript program that prints "Hello, JavaScript!"</p>
                 <div class="expected-output-box">
                     <span class="label"><i class="fas fa-eye me-1"></i>Expected Output</span>
-                    <span class="value" id="bannerExpectedOutput">"Hello, World!"</span>
+                    <span class="value" id="bannerExpectedOutput">Hello, JavaScript!</span>
                 </div>
             </div>
             <button class="btn-clear-activity" onclick="clearWorkspace()">
@@ -634,7 +645,7 @@
         <!-- Workspace -->
         <div class="workspace-card">
             <div class="card-header-custom">
-                <h3><i class="fas fa-cubes me-2" style="color:var(--green-main)"></i>JavaScript Blockly</h3>
+                <h3><i class="fas fa-cubes me-2" style="color:var(--js-color)"></i>JavaScript Blockly</h3>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <div class="window-controls">
                         <button class="window-btn minimize" onclick="minimizeWorkspace()" title="Minimize">
@@ -663,8 +674,8 @@
                 <div class="output-label"><i class="fas fa-terminal me-1"></i> JavaScript Output</div>
                 <div class="output-area" id="outputArea">Build your solution using blocks. Click RUN to see the output!</div>
                 <div class="action-buttons">
-                    <button class="btn-run-custom" onclick="runJavaScriptCode()"><i class="fas fa-play me-2"></i> Run Code</button>
-                    <button class="btn-submit-custom" onclick="saveJavaScriptPractice()"><i class="fas fa-paper-plane me-2"></i> Submit</button>
+                    <button class="btn-run-custom" onclick="runCode()"><i class="fas fa-play me-2"></i> Run Code</button>
+                    <button class="btn-submit-custom" onclick="submitCode()"><i class="fas fa-paper-plane me-2"></i> Submit</button>
                 </div>
             </div>
         </div>
@@ -673,26 +684,57 @@
 
 <script>
     // ============================================================
-    // BLOCK REGISTRATION
+    // BLOCK REGISTRATION - EXACT COPY NG PHP BLOCK STRUCTURE
     // ============================================================
     
     console.log('Blockly version:', Blockly.version || 'unknown');
 
     // ===== 1. REGISTER BLOCK DEFINITIONS =====
-    Blockly.Blocks['console_log'] = {
+    // SAME AS PHP: BASIC, MATH, VARIABLES, LOGIC, LOOPS
+    
+    // JavaScript console.log block (katumbas ng php_echo)
+    Blockly.Blocks['js_print'] = {
         init: function() {
-            this.appendValueInput('MESSAGE')
+            this.appendValueInput('TEXT')
                 .setCheck(['String', 'Number'])
                 .appendField('console.log');
             this.setInputsInline(true);
             this.setPreviousStatement(true, null);
             this.setNextStatement(true, null);
-            this.setColour('#F7DF1E');
-            this.setTooltip('Log message to console');
+            this.setColour('#f7df1e');
+            this.setTooltip('Print to console in JavaScript');
         }
     };
 
-    Blockly.Blocks['math_operation'] = {
+    // JavaScript variable declaration block (katumbas ng php_variable)
+    Blockly.Blocks['js_set'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('var')
+                .appendField(new Blockly.FieldTextInput('name'), 'NAME')
+                .appendField('=');
+            this.appendValueInput('VALUE');
+            this.setInputsInline(true);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#8b5cf6');
+            this.setTooltip('Create a JavaScript variable');
+        }
+    };
+
+    // JavaScript get variable block (katumbas ng php_variable_get)
+    Blockly.Blocks['js_get'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldTextInput('name'), 'NAME');
+            this.setOutput(true, ['String', 'Number']);
+            this.setColour('#8b5cf6');
+            this.setTooltip('Get variable value');
+        }
+    };
+
+    // JavaScript math operation block (katumbas ng php_math_operation)
+    Blockly.Blocks['js_math'] = {
         init: function() {
             this.appendValueInput('A')
                 .setCheck('Number')
@@ -714,7 +756,8 @@
         }
     };
 
-    Blockly.Blocks['math_number'] = {
+    // JavaScript number block (katumbas ng php_number)
+    Blockly.Blocks['js_number'] = {
         init: function() {
             this.appendDummyInput()
                 .appendField(new Blockly.FieldNumber(0, -Infinity, Infinity, 1), 'NUM');
@@ -724,33 +767,8 @@
         }
     };
 
-    Blockly.Blocks['variable_block'] = {
-        init: function() {
-            this.appendDummyInput()
-                .appendField('var')
-                .appendField(new Blockly.FieldTextInput('myVar'), 'VAR_NAME')
-                .appendField('=');
-            this.appendValueInput('VALUE')
-                .setCheck(['String', 'Number']);
-            this.setInputsInline(true);
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour('#8b5cf6');
-            this.setTooltip('Create a variable');
-        }
-    };
-
-    Blockly.Blocks['variable_get'] = {
-        init: function() {
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldTextInput('myVar'), 'VAR_NAME');
-            this.setOutput(true, ['String', 'Number']);
-            this.setColour('#8b5cf6');
-            this.setTooltip('Get variable value');
-        }
-    };
-
-    Blockly.Blocks['text'] = {
+    // JavaScript text block (katumbas ng php_text)
+    Blockly.Blocks['js_text'] = {
         init: function() {
             this.appendDummyInput()
                 .appendField(new Blockly.FieldTextInput(''), 'TEXT');
@@ -760,7 +778,80 @@
         }
     };
 
-    // ===== 2. REGISTER JAVASCRIPT GENERATORS =====
+    // JavaScript if-else block (katumbas ng php_if)
+    Blockly.Blocks['js_if'] = {
+        init: function() {
+            this.appendValueInput('IF0')
+                .setCheck('Boolean')
+                .appendField('if');
+            this.appendStatementInput('DO0')
+                .appendField('then');
+            this.appendStatementInput('ELSE')
+                .appendField('else');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#f0b84d');
+            this.setTooltip('If-Else statement in JavaScript');
+        }
+    };
+
+    // JavaScript compare block (katumbas ng php_compare)
+    Blockly.Blocks['js_compare'] = {
+        init: function() {
+            this.appendValueInput('A')
+                .setCheck(['Number', 'String']);
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldDropdown([
+                    ['=', 'EQ'],
+                    ['≠', 'NEQ'],
+                    ['>', 'GT'],
+                    ['<', 'LT'],
+                    ['≥', 'GTE'],
+                    ['≤', 'LTE']
+                ]), 'OP');
+            this.appendValueInput('B')
+                .setCheck(['Number', 'String']);
+            this.setInputsInline(true);
+            this.setOutput(true, 'Boolean');
+            this.setColour('#f0b84d');
+            this.setTooltip('Compare two values');
+        }
+    };
+
+    // JavaScript for loop block (katumbas ng php_for)
+    Blockly.Blocks['js_for'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('for (let ')
+                .appendField(new Blockly.FieldTextInput('i'), 'VAR')
+                .appendField(' = ');
+            this.appendValueInput('FROM')
+                .setCheck('Number');
+            this.appendDummyInput()
+                .appendField('; ')
+                .appendField(new Blockly.FieldTextInput('i'), 'VAR2')
+                .appendField(' <= ');
+            this.appendValueInput('TO')
+                .setCheck('Number');
+            this.appendDummyInput()
+                .appendField('; ')
+                .appendField(new Blockly.FieldTextInput('i'), 'VAR3')
+                .appendField('++) {');
+            this.appendStatementInput('DO')
+                .appendField('body');
+            this.appendDummyInput()
+                .appendField('}');
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour('#d97706');
+            this.setTooltip('For loop in JavaScript');
+        }
+    };
+
+    // ============================================================
+    // JAVASCRIPT GENERATORS (for JavaScript code generation)
+    // ============================================================
+
     if (typeof Blockly.JavaScript === 'undefined') {
         console.warn('Blockly.JavaScript not available, trying to get generator...');
         try {
@@ -778,12 +869,27 @@
     }
 
     if (Blockly.JavaScript) {
-        Blockly.JavaScript['console_log'] = function(block) {
-            var msg = Blockly.JavaScript.valueToCode(block, 'MESSAGE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
-            return 'console.log(' + msg + ');\n';
+        // JavaScript console.log generator (katumbas ng php_echo)
+        Blockly.JavaScript['js_print'] = function(block) {
+            var text = Blockly.JavaScript.valueToCode(block, 'TEXT', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'console.log(' + text + ');\n';
         };
 
-        Blockly.JavaScript['math_operation'] = function(block) {
+        // JavaScript variable generator (katumbas ng php_variable)
+        Blockly.JavaScript['js_set'] = function(block) {
+            var name = block.getFieldValue('NAME');
+            var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'let ' + name + ' = ' + value + ';\n';
+        };
+
+        // JavaScript get variable generator (katumbas ng php_variable_get)
+        Blockly.JavaScript['js_get'] = function(block) {
+            var name = block.getFieldValue('NAME');
+            return [name, Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        // JavaScript math operation generator (katumbas ng php_math_operation)
+        Blockly.JavaScript['js_math'] = function(block) {
             var a = Blockly.JavaScript.valueToCode(block, 'A', Blockly.JavaScript.ORDER_ATOMIC) || '0';
             var b = Blockly.JavaScript.valueToCode(block, 'B', Blockly.JavaScript.ORDER_ATOMIC) || '0';
             var op = block.getFieldValue('OP');
@@ -791,30 +897,51 @@
             return ['(' + a + ' ' + symbol + ' ' + b + ')', Blockly.JavaScript.ORDER_ATOMIC];
         };
 
-        Blockly.JavaScript['math_number'] = function(block) {
+        // JavaScript number generator (katumbas ng php_number)
+        Blockly.JavaScript['js_number'] = function(block) {
             var num = block.getFieldValue('NUM');
             return [num, Blockly.JavaScript.ORDER_ATOMIC];
         };
 
-        Blockly.JavaScript['variable_block'] = function(block) {
-            var name = block.getFieldValue('VAR_NAME');
-            var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
-            return 'var ' + name + ' = ' + value + ';\n';
-        };
-
-        Blockly.JavaScript['variable_get'] = function(block) {
-            var name = block.getFieldValue('VAR_NAME');
-            return [name, Blockly.JavaScript.ORDER_ATOMIC];
-        };
-
-        Blockly.JavaScript['text'] = function(block) {
+        // JavaScript text generator (katumbas ng php_text)
+        Blockly.JavaScript['js_text'] = function(block) {
             var text = block.getFieldValue('TEXT') || '';
             return ['"' + text + '"', Blockly.JavaScript.ORDER_ATOMIC];
         };
 
-        console.log(' JavaScript generators registered successfully');
+        // JavaScript compare generator (katumbas ng php_compare)
+        Blockly.JavaScript['js_compare'] = function(block) {
+            var a = Blockly.JavaScript.valueToCode(block, 'A', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var b = Blockly.JavaScript.valueToCode(block, 'B', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var op = block.getFieldValue('OP');
+            var symbol = op === 'EQ' ? '==' : op === 'NEQ' ? '!=' : op === 'GT' ? '>' : op === 'LT' ? '<' : op === 'GTE' ? '>=' : '<=';
+            return ['(' + a + ' ' + symbol + ' ' + b + ')', Blockly.JavaScript.ORDER_ATOMIC];
+        };
+
+        // JavaScript if-else generator (katumbas ng php_if)
+        Blockly.JavaScript['js_if'] = function(block) {
+            var condition = Blockly.JavaScript.valueToCode(block, 'IF0', Blockly.JavaScript.ORDER_ATOMIC) || 'false';
+            var doCode = Blockly.JavaScript.statementToCode(block, 'DO0') || '';
+            var elseCode = Blockly.JavaScript.statementToCode(block, 'ELSE') || '';
+            var code = 'if (' + condition + ') {\n' + doCode + '}';
+            if (elseCode) {
+                code += ' else {\n' + elseCode + '}';
+            }
+            return code + '\n';
+        };
+
+        // JavaScript for loop generator (katumbas ng php_for)
+        Blockly.JavaScript['js_for'] = function(block) {
+            var varName = block.getFieldValue('VAR');
+            var from = Blockly.JavaScript.valueToCode(block, 'FROM', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var to = Blockly.JavaScript.valueToCode(block, 'TO', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+            var doCode = Blockly.JavaScript.statementToCode(block, 'DO') || '';
+            return 'for (let ' + varName + ' = ' + from + '; ' + varName + ' <= ' + to + '; ' + varName + '++) {\n' + doCode + '}\n';
+        };
+
+        console.log('JavaScript generators registered successfully');
     } else {
-        console.error(' Blockly.JavaScript is not available!');
+        console.error('Blockly.JavaScript is not available!');
     }
 
     // ============================================================
@@ -855,48 +982,46 @@
 
     // ===== BLOCKLY SETUP =====
     let workspace;
-    let currentActivity = 'hello-world';
+    let currentActivity = 'hello-js';
     let isMaximized = false;
     let previousHeight = 460;
     let currentZoom = 1;
 
-    // ===== ACTIVITY CONFIGURATIONS =====
+    // ===== ACTIVITY CONFIGURATIONS (EXACT COPY NG PHP) =====
     const jsActivities = {
-        'hello-world': {
-            name: 'Hello World',
+        'hello-js': {
+            name: 'Hello JS',
             difficulty: 'Easy',
             step: 1,
-            toolboxCategories: ['JS Basic'],
+            toolboxCategories: ['JavaScript Basic'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Print "Hello, World!" to the console.\n\nBLOCKS NEEDED: console.log, TEXT\n\nSTEPS:\n1. Drag console.log from BASIC\n2. Drag TEXT from BASIC and attach INSIDE console.log\n3. Type "Hello, World!" in TEXT\n4. Click RUN CODE`,
-            expected: '"Hello, World!"',
+            instructions: `TASK: Print "Hello, JavaScript!" to the console.\n\nBLOCKS NEEDED: console.log, TEXT\n\nSTEPS:\n1. Drag console.log from BASIC\n2. Drag TEXT from BASIC and attach INSIDE console.log\n3. Type "Hello, JavaScript!" in TEXT\n4. Click RUN CODE`,
+            expected: '"Hello, JavaScript!"',
             checkCode: function(code) {
-                if (code.includes('console.log("Hello, World!")') || code.includes("console.log('Hello, World!')")) {
-                    return { correct: true, message: 'Correct! Output: <span class="highlight">"Hello, World!"</span>' };
+                if (code.includes('console.log("Hello, JavaScript!")')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">"Hello, JavaScript!"</span>' };
                 } else if (code.includes('console.log')) {
-                    return { correct: false, message: 'Error: You used console.log, but the message should be <span class="highlight">"Hello, World!"</span>.' };
+                    return { correct: false, message: 'Error: You used console.log, but the message should be <span class="highlight">"Hello, JavaScript!"</span>.' };
                 } else {
-                    return { correct: false, message: 'Error: You need console.log to print <span class="highlight">"Hello, World!"</span>.' };
+                    return { correct: false, message: 'Error: You need console.log to print <span class="highlight">"Hello, JavaScript!"</span>.' };
                 }
             }
         },
-        'variable-greeting': {
-            name: 'Variable Greeting',
+        'store-score': {
+            name: 'Store Score',
             difficulty: 'Easy',
             step: 2,
-            toolboxCategories: ['JS Basic', 'JS Variables'],
+            toolboxCategories: ['JavaScript Basic', 'JavaScript Variables'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Create a variable called "name" with YOUR NAME and print it.\n\nNote: SYNTAX GUIDE: var name = "Your Name";\n\nExample: var name = "Ana";\n\nBLOCKS NEEDED: var, TEXT, console.log, variable_get\n\nSTEPS:\n1. Drag "var myVar =" from VARIABLES\n2. Change "myVar" to "name"\n3. Drag TEXT from BASIC and attach it (type your name, e.g., "Ana")\n4. Drag console.log from BASIC\n5. Drag variable_get from VARIABLES and attach INSIDE console.log\n6. Change variable_get to "name"\n7. Click RUN CODE\n\nTip: Use the TEXT block from BASIC (not typing directly!) to add quotes around your name.`,
-            expected: '"Your Name"',
+            instructions: `TASK: Create a variable called "score" with value 90 and print it.\n\nBLOCKS NEEDED: var, console.log, NUMBER, variable_get\n\nSTEPS:\n1. Drag "var" from VARIABLES\n2. Change "name" to "score"\n3. Attach a NUMBER block with value 90\n4. Drag console.log from BASIC\n5. Drag variable_get from VARIABLES and attach INSIDE console.log\n6. Change variable_get to "score"\n7. Click RUN CODE`,
+            expected: '90',
             checkCode: function(code) {
-                if (code.includes('var name = "') && code.includes('console.log(name)')) {
-                    return { correct: true, message: 'Correct! Your variable <span class="highlight">"name"</span> was printed successfully!' };
-                } else if (code.includes('var name') && code.includes('console.log')) {
-                    return { correct: false, message: 'Error: Check if you used the TEXT block for your name. Your name should be in quotes: <span class="highlight">"Your Name"</span>' };
-                } else if (code.includes('var name')) {
-                    return { correct: false, message: 'Error: You created the variable, but need console.log to print it.' };
+                if (code.includes('let score = 90;') && code.includes('console.log(score)')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">90</span>' };
+                } else if (code.includes('score') && code.includes('console.log')) {
+                    return { correct: false, message: 'Error: Make sure score = 90 and you printed the variable.' };
                 } else {
-                    return { correct: false, message: 'Error: Need: var name = <span class="highlight">"Your Name"</span> (use TEXT block!) and console.log(name).' };
+                    return { correct: false, message: 'Error: Need: let score = 90; console.log(score);' };
                 }
             }
         },
@@ -904,35 +1029,53 @@
             name: 'Add Numbers',
             difficulty: 'Medium',
             step: 3,
-            toolboxCategories: ['JS Basic', 'JS Math'],
+            toolboxCategories: ['JavaScript Basic', 'JavaScript Math'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Add 5 + 10 and print the result.\n\nBLOCKS NEEDED: console.log, math_number, math_operation\n\nSTEPS:\n1. Drag console.log\n2. Inside console.log, add math_operation (+)\n3. Add two math_number blocks: 5 and 10\n4. Click RUN CODE`,
-            expected: '15',
+            instructions: `TASK: Add 25 and 15 and print the result.\n\nBLOCKS NEEDED: console.log, math_operation, number\n\nSTEPS:\n1. Drag console.log\n2. Inside console.log, add math_operation (+)\n3. Add two number blocks: 25 and 15\n4. Click RUN CODE`,
+            expected: '40',
             checkCode: function(code) {
-                if (code.includes('console.log((5 + 10))') || code.includes('console.log((10 + 5))')) {
-                    return { correct: true, message: 'Correct! 5 + 10 = <span class="highlight">15</span>' };
+                if (code.includes('console.log((25 + 15))') || code.includes('console.log(25 + 15)')) {
+                    return { correct: true, message: 'Correct! 25 + 15 = <span class="highlight">40</span>' };
                 } else if (code.includes('console.log') && code.includes('+')) {
-                    return { correct: false, message: 'Error: You used console.log and +, but check your numbers. Should be 5 + 10.' };
+                    return { correct: false, message: 'Error: You used console.log and +, but check your numbers. Should be 25 + 15.' };
                 } else {
-                    return { correct: false, message: 'Error: Need console.log with math_operation (ADD) for 5 + 10.' };
+                    return { correct: false, message: 'Error: Need console.log with math_operation (ADD) for 25 + 15.' };
                 }
             }
         },
-        'temperature': {
-            name: 'Temperature',
-            difficulty: 'Hard',
+        'greater-than': {
+            name: 'Greater Than',
+            difficulty: 'Medium',
             step: 4,
-            toolboxCategories: ['JS Basic', 'JS Math'],
+            toolboxCategories: ['JavaScript Basic', 'JavaScript Logic'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Convert 32°C to Fahrenheit. Formula: (32 × 9) + 160\n\nBLOCKS NEEDED: console.log, math_number, math_operation\n\nSTEPS:\n1. Drag console.log\n2. Inside console.log, add math_operation (×) for 32 × 9\n3. Add another math_operation (+) for + 160\n4. Click RUN CODE`,
-            expected: '448',
+            instructions: `TASK: Check if 20 is greater than 10. If true, print "20 is greater than 10".\n\nBLOCKS NEEDED: if, compare, console.log, number, text\n\nSTEPS:\n1. Drag if block\n2. Add compare (>) block as condition\n3. Set values: 20 and 10\n4. Inside if, add console.log with text "20 is greater than 10"\n5. Click RUN CODE`,
+            expected: '20 is greater than 10',
             checkCode: function(code) {
-                if (code.includes('console.log((((32 * 9) + 160))') || code.includes('console.log(((32 * 9) + 160))')) {
-                    return { correct: true, message: 'Correct! (32 × 9) + 160 = <span class="highlight">448</span>' };
-                } else if (code.includes('console.log') && code.includes('*') && code.includes('+')) {
-                    return { correct: false, message: 'Error: Check your formula: (32 × 9) + 160' };
+                if (code.includes('if (20 > 10)') && code.includes('console.log("20 is greater than 10")')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">"20 is greater than 10"</span>' };
+                } else if (code.includes('if') && code.includes('console.log')) {
+                    return { correct: false, message: 'Error: Check your condition. Should be 20 > 10.' };
                 } else {
-                    return { correct: false, message: 'Error: Need: console.log with math_operation for (32 × 9) + 160' };
+                    return { correct: false, message: 'Error: Need if (20 > 10) with console.log inside.' };
+                }
+            }
+        },
+        'repeat-message': {
+            name: 'Repeat Message',
+            difficulty: 'Hard',
+            step: 5,
+            toolboxCategories: ['JavaScript Basic', 'JavaScript Loops'],
+            blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
+            instructions: `TASK: Print "I love programming!" five times using a for loop.\n\nBLOCKS NEEDED: for loop, console.log, number, text\n\nSTEPS:\n1. Drag for loop\n2. Set counter to "i"\n3. Set from: 0, to: 4 (or 1 to 5)\n4. Inside loop, add console.log with text "I love programming!"\n5. Click RUN CODE`,
+            expected: 'I love programming!\nI love programming!\nI love programming!\nI love programming!\nI love programming!',
+            checkCode: function(code) {
+                if (code.includes('for (let i = 0; i <= 4; i++)') && code.includes('console.log("I love programming!")')) {
+                    return { correct: true, message: 'Correct! Output: <span class="highlight">I love programming! 5 times</span>' };
+                } else if (code.includes('for') && code.includes('console.log')) {
+                    return { correct: false, message: 'Error: Check your loop range. Should run 5 times.' };
+                } else {
+                    return { correct: false, message: 'Error: Need for loop with console.log inside.' };
                 }
             }
         },
@@ -942,40 +1085,51 @@
             step: 0,
             toolboxCategories: ['All'],
             blocksXml: `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`,
-            instructions: `TASK: Build anything you want!\n\nAvailable blocks:\nBASIC: console.log, TEXT\nMATH: math_operation, math_number\nVARIABLES: var, variable_get\n\nTry creating:\n- Calculator with +, -, ×, ÷\n- Any math expression\n- Variables with different values`,
+            instructions: `TASK: Build anything you want!\n\nAvailable blocks:\nBASIC: console.log, TEXT\nMATH: math_operation, number\nVARIABLES: var, variable_get\nLOGIC: if, compare\nLOOPS: for loop\n\nTry creating:\n- Calculator with +, -, ×, ÷\n- Any math expression\n- Variables with different values\n- If-else conditions`,
             expected: 'Your Code',
             checkCode: function(code) {
-                return { correct: true, message: ' Free Play! Your code:\n\n' + code };
+                return { correct: true, message: 'Free Play! Your code:\n\n' + code };
             }
         }
     };
 
-    // ===== TOOLBOX GENERATOR =====
+    // ===== TOOLBOX GENERATOR (EXACT COPY NG PHP STRUCTURE) =====
     function getJSToolbox(categories) {
         const allCategories = {
-            'JS Basic': `
-                <category name="BASIC" colour="#F7DF1E">
-                    <block type="console_log"></block>
-                    <block type="text"></block>
+            'JavaScript Basic': `
+                <category name="BASIC" colour="#f7df1e">
+                    <block type="js_print"></block>
+                    <block type="js_text"></block>
                 </category>`,
-            'JS Math': `
+            'JavaScript Math': `
                 <category name="MATH" colour="#10b981">
-                    <block type="math_operation"></block>
-                    <block type="math_number"></block>
+                    <block type="js_math"></block>
+                    <block type="js_number"></block>
                 </category>`,
-            'JS Variables': `
+            'JavaScript Variables': `
                 <category name="VARIABLES" colour="#8b5cf6">
-                    <block type="variable_block"></block>
-                    <block type="variable_get"></block>
+                    <block type="js_set"></block>
+                    <block type="js_get"></block>
+                </category>`,
+            'JavaScript Logic': `
+                <category name="LOGIC" colour="#f0b84d">
+                    <block type="js_if"></block>
+                    <block type="js_compare"></block>
+                </category>`,
+            'JavaScript Loops': `
+                <category name="LOOPS" colour="#d97706">
+                    <block type="js_for"></block>
                 </category>`
         };
 
         if (categories.includes('All')) {
             return `
                 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">
-                    ${allCategories['JS Basic']}
-                    ${allCategories['JS Math']}
-                    ${allCategories['JS Variables']}
+                    ${allCategories['JavaScript Basic']}
+                    ${allCategories['JavaScript Math']}
+                    ${allCategories['JavaScript Variables']}
+                    ${allCategories['JavaScript Logic']}
+                    ${allCategories['JavaScript Loops']}
                 </xml>`;
         }
 
@@ -1001,7 +1155,7 @@
             renderer: 'zelos'
         });
 
-        console.log(' Blockly workspace initialized');
+        console.log('Blockly workspace initialized');
 
         setTimeout(() => {
             document.querySelectorAll('.blocklyTrash').forEach(el => {
@@ -1038,7 +1192,6 @@
         
         document.getElementById('bannerInstructions').innerHTML = activity.instructions.replace(/\n/g, '<br>');
         
-        // Update Expected Output in Banner
         const expectedEl = document.getElementById('bannerExpectedOutput');
         if (activity.expected) {
             expectedEl.textContent = activity.expected;
@@ -1137,8 +1290,8 @@
         }
     }
 
-    // ===== RUN JAVASCRIPT CODE =====
-    function runJavaScriptCode() {
+    // ===== RUN CODE =====
+    function runCode() {
         try {
             if (!workspace) {
                 document.getElementById('outputArea').innerHTML = 'Workspace not initialized. Please reload.';
@@ -1161,29 +1314,33 @@
                 return;
             }
 
-            let output = 'Code generated:\n\n' + code + '\n\n';
+            const outputArea = document.getElementById('outputArea');
+            const originalConsoleLog = console.log;
+            window.lastJsOutput = '';
             
             try {
                 let consoleOutput = [];
-                let originalConsoleLog = console.log;
                 console.log = function(...args) {
                     consoleOutput.push(args.join(' '));
                 };
                 
                 eval(code);
-                console.log = originalConsoleLog;
-                
+
                 if (consoleOutput.length > 0) {
-                    output += 'Output:\n' + consoleOutput.join('\n');
+                    window.lastJsOutput = consoleOutput.join('\n');
+                    outputArea.textContent = consoleOutput.join('\n');
+                    outputArea.className = 'output-area success';
                 } else {
-                    output += 'No console.log output detected.';
+                    window.lastJsOutput = '';
+                    outputArea.textContent = 'Code ran successfully but no output was printed.';
+                    outputArea.className = 'output-area';
                 }
             } catch(e) {
-                output += 'Execution error: ' + e.message;
+                outputArea.textContent = 'Execution error: ' + e.message;
+                outputArea.className = 'output-area error';
+            } finally {
+                console.log = originalConsoleLog;
             }
-
-            document.getElementById('outputArea').innerHTML = output;
-            document.getElementById('outputArea').className = 'output-area';
 
         } catch(e) {
             document.getElementById('outputArea').innerHTML = 'Error: ' + e.message;
@@ -1192,7 +1349,16 @@
         }
     }
 
-    function saveJavaScriptPractice() {
+    // ===== SUBMIT CODE (AUTO-GRADING) =====
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 18px;border-radius:12px;background:' + (type === 'error' ? '#b33a2a' : '#1a463a') + ';color:#fff;font-size:.8rem;box-shadow:0 8px 32px rgba(0,0,0,.2);';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+    }
+
+    function submitCode() {
         if (!workspace) {
             alert('Workspace not ready. Please reload.');
             return;
@@ -1209,21 +1375,35 @@
             return; 
         }
 
-        let activityName = jsActivities[currentActivity]?.name || 'JavaScript Activity';
+        const activityNumbers = {
+            'hello-js': 1,
+            'store-score': 2,
+            'add-numbers': 3,
+            'greater-than': 4,
+            'repeat-message': 5
+        };
+        const assessmentNumber = activityNumbers[currentActivity];
+        if (!assessmentNumber) {
+            alert('Free Play cannot be submitted as an assessment.');
+            return;
+        }
+
+        const codeBlocks = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
+        const output = window.lastJsOutput || '';
         
-        // Show loading state
         const submitBtn = document.querySelector('.btn-submit-custom');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Submitting...';
         submitBtn.disabled = true;
 
-        fetch('/submit_activity', {
+        fetch('/submit_assessment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                activity_name: activityName,
-                code_blocks: code,
-                language: 'javascript'
+                language: 'javascript',
+                assessment_number: assessmentNumber,
+                code_blocks: codeBlocks,
+                output: output
             })
         })
         .then(response => {
@@ -1239,12 +1419,17 @@
             submitBtn.disabled = false;
             
             if (result.success) {
-                alert('Submitted Successfully!');
-                document.getElementById('outputArea').innerHTML = 'Submitted Successfully!';
+                const earnedPoints = result.points || 0;
+                const maxPoints = result.max_points || 0;
+                const scoreMessage = `Successfully submitted ${earnedPoints}/${maxPoints}`;
+                showToast(scoreMessage, 'success');
+                document.getElementById('outputArea').innerHTML = scoreMessage;
                 document.getElementById('outputArea').className = 'output-area success';
                 if (typeof loadStats === 'function') loadStats();
                 if (typeof loadActivity === 'function') loadActivity(currentActivity);
                 try { localStorage.setItem('student_dashboard_refresh', Date.now().toString()); } catch(e) {}
+                try { localStorage.setItem('progress_updated', Date.now().toString()); } catch(e) {}
+                try { localStorage.setItem('assessment_status_updated', Date.now().toString()); } catch(e) {}
             } else {
                 alert(result.message || 'Submission failed. Please try again.');
             }
@@ -1253,7 +1438,7 @@
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
             console.error('Submit activity failed:', error);
-            alert('Unable to submit. Please try again.');
+            alert(error.message || 'Unable to submit. Please try again.');
         });
     }
 
@@ -1264,17 +1449,17 @@
         if (activity && jsActivities[activity]) {
             loadActivity(activity);
         } else {
-            loadActivity('hello-world');
+            loadActivity('hello-js');
         }
     }
 
     // ===== DOM CONTENT LOADED =====
     document.addEventListener('DOMContentLoaded', function() {
-        console.log(' Page loaded - initializing...');
-        console.log(' Blockly.JavaScript available:', typeof Blockly.JavaScript !== 'undefined');
+        console.log('Page loaded - initializing...');
+        console.log('Blockly.JavaScript available:', typeof Blockly.JavaScript !== 'undefined');
         
         if (typeof Blockly.JavaScript !== 'undefined') {
-            console.log(' Registered generators:', Object.keys(Blockly.JavaScript).filter(key => 
+            console.log('Registered generators:', Object.keys(Blockly.JavaScript).filter(key => 
                 !['init', 'addReservedWords'].includes(key) && typeof Blockly.JavaScript[key] === 'function'
             ));
         }
@@ -1286,7 +1471,7 @@
         setTimeout(() => { 
             if (workspace) {
                 Blockly.svgResize(workspace);
-                console.log(' Workspace resized');
+                console.log('Workspace resized');
             }
         }, 500);
     });

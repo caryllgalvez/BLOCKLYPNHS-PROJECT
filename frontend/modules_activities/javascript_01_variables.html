@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Module 1: Variables Â· BlockLearn</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blockly/8.0.4/blockly.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<link href="/module-assets/css/javascript_01_variables.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+<div class="bg-blob bg-blob--1"></div>
+<div class="bg-blob bg-blob--2"></div>
+</div>
+
+<div class="app">
+<aside class="sidebar" id="sidebar" role="navigation">
+<div class="sidebar-logo">
+<img src="/static/BL-LOGO.png" alt="BlockLearn" class="logo-image">
+<div class="logo-full"><h2>Block<em>Learn</em></h2><p>PNHS &middot; ICT Studio</p></div>
+<div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn"></div>
+<button class="toggle-btn" onclick="collapseSidebar()"><iconify-icon icon="lucide:panel-left-close"></iconify-icon></button>
+</div>
+<div class="hamburger-wrap"><button class="hamburger-btn" onclick="expandSidebar()"><iconify-icon icon="lucide:menu"></iconify-icon></button></div>
+<nav class="sidebar-nav">
+<div class="nav-section-label">Main</div>
+<div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+<div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessment</span></a></div>
+<div class="nav-item"><a href="/student_modules" class="nav-link-custom"><iconify-icon icon="lucide:layers"></iconify-icon><span class="nav-text">Modules</span></a></div>
+<div class="nav-section-label">Languages</div>
+<div class="nav-item"><a href="/student_modules/php/1" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+<div class="nav-item"><a href="/student_modules/javascript/1" class="nav-link-custom active"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+<div class="nav-item"><a href="/student_modules/cpp/1" class="nav-link-custom"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
+<div class="nav-section-label">Account</div>
+<div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
+<div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+</nav>
+</aside>
+
+<main class="main-content" id="mainContent">
+
+<!-- SECTION 1: INTRO -->
+<section class="module-hero" id="section-intro" data-section="intro">
+<div class="module-hero-inner">
+<div class="module-badges">
+<span class="module-badge js"><i class="fab fa-js"></i> JavaScript</span>
+<span class="module-badge diff-beginner"><i class="fas fa-seedling"></i> Beginner</span>
+<span class="module-badge"><i class="fas fa-clock"></i> ~30 mins</span>
+<span class="module-badge"><i class="fas fa-layer-group"></i> Module 1 of 2</span>
+</div>
+<h1>JavaScript <em>Variables</em> &amp; Basics</h1>
+<p>Learn what JavaScript is, how to store data in <code>let</code> variables, output to the console with <code>console.log()</code>, and run math, comparisons, and loops â€” all with Blockly.</p>
+<div class="module-meta">
+<span class="module-meta-item"><i class="fas fa-code"></i> Language: JavaScript ES6+</span>
+<span class="module-meta-item"><i class="fas fa-signal"></i> Difficulty: Beginner</span>
+<span class="module-meta-item"><i class="fas fa-stopwatch"></i> Est. 30 minutes</span>
+</div>
+</div>
+<div style="position:relative;z-index:1;margin-top:.5rem;">
+<a href="#section-intro" onclick="scrollToSection('intro'); return false;" class="btn-mark-complete" style="text-decoration:none;margin-right:8px;"><i class="fas fa-arrow-left"></i> Back to Start</a>
+<button class="btn-mark-complete" data-section="intro" onclick="markSectionComplete('intro')"><i class="fas fa-check"></i> Mark as Read</button>
+</div>
+</section>
+
+<!-- PROGRESS TRACKER -->
+<div class="progress-tracker" id="progressTracker">
+<div class="progress-step" data-step="intro"><span class="step-num">1</span><span class="step-label">Intro</span></div>
+<div class="progress-step" data-step="objectives"><span class="step-num">2</span><span class="step-label">Objectives</span></div>
+<div class="progress-step" data-step="prereq"><span class="step-num">3</span><span class="step-label">Prereq</span></div>
+<div class="progress-step" data-step="lesson"><span class="step-num">4</span><span class="step-label">Lesson</span></div>
+<div class="progress-step" data-step="worked"><span class="step-num">5</span><span class="step-label">Example</span></div>
+<div class="progress-step" data-step="guided"><span class="step-num">6</span><span class="step-label">Guided</span></div>
+<div class="progress-step" data-step="independent"><span class="step-num">7</span><span class="step-label">Independent</span></div>
+<div class="progress-step" data-step="quiz"><span class="step-num">8</span><span class="step-label">Quiz</span></div>
+<div class="progress-step" data-step="assessment"><span class="step-num">9</span><span class="step-label">Assessment</span></div>
+<div class="progress-step" data-step="completion"><span class="step-num">10</span><span class="step-label">Complete</span></div>
+</div>
+
+<!-- SECTION 2: OBJECTIVES -->
+<section class="module-section" id="section-objectives" data-section="objectives">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-bullseye"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 2</div>
+<h2>Learning Objectives</h2>
+<p>By the end of this module, you will be able to:</p>
+</div>
+</div>
+<ul class="objectives-list">
+<li><i class="fas fa-check-circle"></i> Explain what JavaScript is and where it runs (browser-side).</li>
+<li><i class="fas fa-check-circle"></i> Write a JS script using <code>console.log()</code> to output text.</li>
+<li><i class="fas fa-check-circle"></i> Declare variables using <code>let</code> and assign values.</li>
+<li><i class="fas fa-check-circle"></i> Perform math operations (+, -, Ã—, Ã·).</li>
+<li><i class="fas fa-check-circle"></i> Compare values and use <code>if</code> statements.</li>
+<li><i class="fas fa-check-circle"></i> Repeat a message using a <code>for</code> loop.</li>
+</ul>
+<div class="section-actions">
+<button class="btn-mark-complete" data-section="objectives" onclick="markSectionComplete('objectives')"><i class="fas fa-check"></i> Mark as Read</button>
+</div>
+</section>
+
+<!-- SECTION 3: PREREQ -->
+<section class="module-section" id="section-prereq" data-section="prereq">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-clipboard-check"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 3</div>
+<h2>Prerequisite Check</h2>
+<p>Before starting, check what you need to know.</p>
+</div>
+</div>
+<div class="prereq-box">
+<i class="fas fa-check-circle"></i>
+<div>
+<strong>No prerequisites â€” you can start immediately!</strong>
+This is the first JavaScript module. All you need is a web browser and curiosity.
+</div>
+</div>
+<div class="section-actions">
+<button class="btn-mark-complete" data-section="prereq" onclick="markSectionComplete('prereq')"><i class="fas fa-check"></i> Mark as Read</button>
+</div>
+</section>
+
+<!-- SECTION 4: LESSON -->
+<section class="module-section" id="section-lesson" data-section="lesson">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-book-open"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 4</div>
+<h2>Lesson Content</h2>
+<p>Read carefully â€” you'll use these in the practice sections.</p>
+</div>
+</div>
+
+<h3>4.1 What is JavaScript?</h3>
+<p><strong>JavaScript</strong> is a <strong>client-side scripting language</strong> â€” it runs in the browser, not on the server. It makes web pages interactive. Every modern browser can run JavaScript.</p>
+<p>You write JavaScript in a <code>&lt;script&gt;</code> tag or a <code>.js</code> file. Here's the basic structure:</p>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="com">// This is a comment</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Hello, World!"</span>);</pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>Hello, World!</div>
+
+<h3>4.2 Output with <code>console.log()</code></h3>
+<p><code>console.log()</code> prints text to the browser's developer console. It's the JS equivalent of PHP's <code>echo</code>.</p>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Hello, World!"</span>);</pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>Hello, World!</div>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>Every statement ends with a <strong>semicolon</strong> <code>;</code> (though JS is forgiving).</li>
+<li>Text must be wrapped in <strong>quotes</strong> â€” single <code>'...'</code> or double <code>"..."</code>.</li>
+<li>JavaScript is <strong>case-sensitive</strong> â€” <code>console.log</code> works, <code>Console.Log</code> doesn't.</li>
+</ul>
+
+<h3>4.3 Variables â€” <code>let</code> at <code>const</code></h3>
+<p>In modern JavaScript, you declare variables using <code>let</code> (can be changed) or <code>const</code> (cannot be changed). <strong>No <code>$</code> symbol</strong> â€” that's PHP!</p>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="kw">let</span> <span class="var">name</span> = <span class="str">"Anna"</span>;      <span class="com">// string</span>
+<span class="kw">let</span> <span class="var">age</span>  = <span class="num">16</span>;          <span class="com">// number</span>
+<span class="kw">const</span> <span class="var">grade</span> = <span class="num">11</span>;      <span class="com">// constant</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">name</span>);      <span class="com">// prints Anna</span></pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>Anna</div>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>No <code>$</code> prefix â€” that's PHP only.</li>
+<li>Must start with a letter, <code>_</code>, or <code>$</code> (but <code>$</code> is discouraged in modern JS).</li>
+<li>Case-sensitive: <code>name</code> â‰  <code>Name</code>.</li>
+<li>Cannot start with a number.</li>
+</ul>
+
+<h3>4.4 Math Operations</h3>
+<p>JavaScript uses <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> â€” same as PHP.</p>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="num">25</span> + <span class="num">15</span>);   <span class="com">// add</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">80</span> - <span class="num">50</span>);   <span class="com">// subtract</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">10</span> * <span class="num">3</span>);    <span class="com">// multiply</span></pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>40
+30
+30</div>
+
+<h3>4.5 Comparisons at <code>if</code> Statements</h3>
+<p>JavaScript uses the same comparison operators as PHP: <code>&gt;</code>, <code>&lt;</code>, <code>==</code>, <code>!=</code>. Combine with <code>if</code>.</p>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="kw">if</span> (<span class="num">20</span> &gt; <span class="num">10</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"20 is greater than 10"</span>);
+}</pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>20 is greater than 10</div>
+
+<h3>4.6 For Loops</h3>
+<p>The <code>for</code> loop repeats code a set number of times. Modern JS uses <code>let</code> in the loop header.</p>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> = <span class="num">0</span>; <span class="var">i</span> &lt;= <span class="num">4</span>; <span class="var">i</span>++) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"I love programming!"</span>);
+}</pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>I love programming!
+I love programming!
+I love programming!
+I love programming!
+I love programming!</div>
+
+<div class="section-actions">
+<button class="btn-mark-complete" data-section="lesson" onclick="markSectionComplete('lesson')"><i class="fas fa-check"></i> Mark Lesson as Read</button>
+</div>
+</section>
+
+<!-- SECTION 5: WORKED EXAMPLE -->
+<section class="module-section" id="section-worked" data-section="worked">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-laptop-code"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 5</div>
+<h2>Worked Example</h2>
+<p>Let's build a small script step by step.</p>
+</div>
+</div>
+
+<h3>Goal</h3>
+<p>Store a student's name and score in variables, then print them in a sentence.</p>
+
+<h3>Complete Code</h3>
+<div class="code-block">
+<span class="code-label">JavaScript</span>
+<pre><span class="kw">let</span> <span class="var">studentName</span> = <span class="str">"Caryll"</span>;
+<span class="kw">let</span> <span class="var">score</span> = <span class="num">90</span>;
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Student: "</span> + <span class="var">studentName</span> + <span class="str">" | Score: "</span> + <span class="var">score</span>);</pre>
+</div>
+<div class="output-block"><span class="out-label">Output</span>Student: Caryll | Score: 90</div>
+
+<h3>Step-by-Step</h3>
+<ol class="step-list">
+<li><span class="step-num-circle">1</span><div><strong>Declare studentName</strong><p>Store the string "Caryll".</p></div></li>
+<li><span class="step-num-circle">2</span><div><strong>Declare score</strong><p>Store the number 90.</p></div></li>
+<li><span class="step-num-circle">3</span><div><strong>Join with + operator</strong><p>JS uses <code>+</code> to join strings (unlike PHP which uses <code>.</code>).</p></div></li>
+<li><span class="step-num-circle">4</span><div><strong>Output with console.log</strong><p>Prints the combined string.</p></div></li>
+</ol>
+
+<h3>Matching Blockly Blocks</h3>
+<div class="blockly-preview">
+<span class="blk blk-purple">let studentName = <span class="blk blk-green" style="padding:2px 8px;">"Caryll"</span></span>
+<span class="blk-arrow">â†’</span>
+<span class="blk blk-purple">let score = <span class="blk blk-orange" style="padding:2px 8px;">90</span></span>
+<span class="blk-arrow">â†’</span>
+<span class="blk blk-blue">console.log("Student: " + studentName + ...)</span>
+</div>
+
+<div class="section-actions">
+<button class="btn-mark-complete" data-section="worked" onclick="markSectionComplete('worked')"><i class="fas fa-check"></i> I Understand This Example</button>
+</div>
+</section>
+
+<!-- SECTION 6: GUIDED -->
+<section class="module-section" id="section-guided" data-section="guided">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-hands-helping"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 6</div>
+<h2>Guided Practice</h2>
+<p>Try both activities in the Blockly workspace below.</p>
+</div>
+</div>
+
+<div class="activity-tabs">
+<button class="activity-tab active" data-guided="hello-js" onclick="loadGuided('hello-js')"><i class="fas fa-terminal"></i> Hello JS <span class="step-num-badge">1</span></button>
+<button class="activity-tab" data-guided="store-score" onclick="loadGuided('store-score')"><i class="fas fa-cube"></i> Store Score <span class="step-num-badge">2</span></button>
+</div>
+
+<div id="guidedInstructions">
+<h3 id="guidedTitle">Activity 1: Hello JS</h3>
+<p id="guidedTask">Print "Hello, JavaScript!" to the console.</p>
+<div class="guided-step" data-step="g1"><div class="guided-check" onclick="toggleGuidedStep('g1')"><i class="fas fa-check"></i></div><div class="guided-body"><strong>Step 1 â€” Add console.log</strong><p>Drag <code>console.log</code> from <strong>BASIC</strong> into the workspace.</p></div></div>
+<div class="guided-step" data-step="g2"><div class="guided-check" onclick="toggleGuidedStep('g2')"><i class="fas fa-check"></i></div><div class="guided-body"><strong>Step 2 â€” Add text</strong><p>Drag a <code>TEXT</code> block and attach inside <code>console.log</code>.</p></div></div>
+<div class="guided-step" data-step="g3"><div class="guided-check" onclick="toggleGuidedStep('g3')"><i class="fas fa-check"></i></div><div class="guided-body"><strong>Step 3 â€” Type message</strong><p>Type: <code>Hello, JavaScript!</code></p></div></div>
+<div class="guided-step" data-step="g4"><div class="guided-check" onclick="toggleGuidedStep('g4')"><i class="fas fa-check"></i></div><div class="guided-body"><strong>Step 4 â€” Run and check</strong><p>Click <strong>Run Code</strong>. Output: <code>Hello, JavaScript!</code></p></div></div>
+</div>
+
+<h3 style="margin-top:1.5rem;"><i class="fas fa-cubes" style="color:var(--js-dark);margin-right:6px;"></i>Guided Workspace</h3>
+<div class="workspace-card">
+<div class="workspace-header">
+<h4><i class="fas fa-cubes"></i>JavaScript Blockly</h4>
+<div class="workspace-controls">
+<button class="workspace-btn" onclick="zoomWs1('in')"><i class="fas fa-search-plus"></i></button>
+<button class="workspace-btn" onclick="zoomWs1('out')"><i class="fas fa-search-minus"></i></button>
+<button class="workspace-btn" onclick="zoomWs1('reset')"><i class="fas fa-expand"></i></button>
+<button class="workspace-btn danger" onclick="clearWs1()"><i class="fas fa-trash"></i></button>
+<span class="workspace-lang-badge"><i class="fab fa-js"></i> JavaScript</span>
+</div>
+</div>
+<div id="blocklyDiv"></div>
+<div class="output-section">
+<div class="output-label"><i class="fas fa-terminal"></i> JavaScript Output</div>
+<div class="output-area" id="outputArea">Build your solution. Click RUN!</div>
+<div class="workspace-actions">
+<button class="btn-run" onclick="runWs1()"><i class="fas fa-play"></i> Run Code</button>
+<button class="btn-check" onclick="checkGuided()"><i class="fas fa-circle-check"></i> Check Answer</button>
+</div>
+</div>
+</div>
+
+<div class="section-actions">
+<button class="btn-mark-complete" data-section="guided" onclick="markSectionComplete('guided')"><i class="fas fa-check"></i> Mark Guided Practice Complete</button>
+</div>
+</section>
+
+<!-- SECTION 7: INDEPENDENT -->
+<section class="module-section" id="section-independent" data-section="independent">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-user-graduate"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 7</div>
+<h2>Independent Practice</h2>
+<p>Solve these on your own.</p>
+</div>
+</div>
+
+<div class="task-card">
+<div class="task-badge">Task 1</div>
+<h3>Add Numbers</h3>
+<p>Add 25 and 15, then print the result.</p>
+<div class="output-block"><span class="out-label">Expected Output</span>40</div>
+<h4>Requirements</h4>
+<ul class="req-list">
+<li><i class="fas fa-circle-check"></i> Use <code>console.log</code></li>
+<li><i class="fas fa-circle-check"></i> Use math <code>+</code> operation</li>
+<li><i class="fas fa-circle-check"></i> Numbers: 25 and 15</li>
+</ul>
+</div>
+
+<div class="task-card">
+<div class="task-badge">Task 2</div>
+<h3>Greater Than</h3>
+<p>Check if 20 is greater than 10. If true, print "20 is greater than 10".</p>
+<div class="output-block"><span class="out-label">Expected Output</span>20 is greater than 10</div>
+<h4>Requirements</h4>
+<ul class="req-list">
+<li><i class="fas fa-circle-check"></i> Use <code>if</code> block</li>
+<li><i class="fas fa-circle-check"></i> Use <code>&gt;</code> compare</li>
+<li><i class="fas fa-circle-check"></i> Put <code>console.log</code> inside</li>
+</ul>
+</div>
+
+<h3 style="margin-top:1.5rem;"><i class="fas fa-cubes" style="color:var(--js-dark);margin-right:6px;"></i>Independent Workspace</h3>
+<div class="workspace-card">
+<div class="workspace-header">
+<h4><i class="fas fa-cubes"></i>Independent Practice</h4>
+<div class="workspace-controls">
+<button class="workspace-btn" onclick="zoomWs2('in')"><i class="fas fa-search-plus"></i></button>
+<button class="workspace-btn" onclick="zoomWs2('out')"><i class="fas fa-search-minus"></i></button>
+<button class="workspace-btn" onclick="zoomWs2('reset')"><i class="fas fa-expand"></i></button>
+<button class="workspace-btn danger" onclick="clearWs2()"><i class="fas fa-trash"></i></button>
+<span class="workspace-lang-badge"><i class="fab fa-js"></i> JavaScript</span>
+</div>
+</div>
+<div id="blocklyDiv2" style="height:380px;width:100%;background:#fefefb"></div>
+<div class="output-section">
+<div class="output-label"><i class="fas fa-terminal"></i> JavaScript Output</div>
+<div class="output-area" id="outputArea2">Try your own code here.</div>
+<div class="workspace-actions">
+<button class="btn-run" onclick="runWs2()"><i class="fas fa-play"></i> Run Code</button>
+</div>
+</div>
+</div>
+
+<div class="section-actions">
+<button class="btn-mark-complete" data-section="independent" onclick="markSectionComplete('independent')"><i class="fas fa-check"></i> I've Completed These Tasks</button>
+</div>
+</section>
+
+<!-- SECTION 8: QUIZ -->
+<section class="module-section" id="section-quiz" data-section="quiz">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-brain"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 8</div>
+<h2>Knowledge Check</h2>
+<p>Answer 3 questions. Need 2+ correct to pass.</p>
+</div>
+</div>
+
+<div class="quiz-container" id="quizContainer">
+<div class="quiz-question" data-q="0">
+<div class="quiz-q-num">Question 1 of 3</div>
+<div class="quiz-q-text">Which keyword declares a variable in modern JavaScript?</div>
+<div class="quiz-options">
+<button class="quiz-option" onclick="answerQuiz(0,0)">$var</button>
+<button class="quiz-option" onclick="answerQuiz(0,1)">let</button>
+<button class="quiz-option" onclick="answerQuiz(0,2)">dim</button>
+<button class="quiz-option" onclick="answerQuiz(0,3)">declare</button>
+</div>
+<div class="quiz-feedback" id="feedback-0"></div>
+</div>
+
+<div class="quiz-question" data-q="1">
+<div class="quiz-q-num">Question 2 of 3</div>
+<div class="quiz-q-text">Which method prints text to the console in JavaScript?</div>
+<div class="quiz-options">
+<button class="quiz-option" onclick="answerQuiz(1,0)">echo</button>
+<button class="quiz-option" onclick="answerQuiz(1,1)">print</button>
+<button class="quiz-option" onclick="answerQuiz(1,2)">console.log()</button>
+<button class="quiz-option" onclick="answerQuiz(1,3)">println</button>
+</div>
+<div class="quiz-feedback" id="feedback-1"></div>
+</div>
+
+<div class="quiz-question" data-q="2">
+<div class="quiz-q-num">Question 3 of 3</div>
+<div class="quiz-q-text">What does this loop do? <code>for (let i = 0; i &lt;= 4; i++) { console.log("JS"); }</code></div>
+<div class="quiz-options">
+<button class="quiz-option" onclick="answerQuiz(2,0)">Prints "JS" once</button>
+<button class="quiz-option" onclick="answerQuiz(2,1)">Prints "JS" 5 times</button>
+<button class="quiz-option" onclick="answerQuiz(2,2)">Prints "JS" 4 times</button>
+<button class="quiz-option" onclick="answerQuiz(2,3)">Does nothing</button>
+</div>
+<div class="quiz-feedback" id="feedback-2"></div>
+</div>
+</div>
+
+<div class="quiz-result" id="quizResult" style="display:none;">
+<div class="quiz-result-inner">
+<div class="quiz-result-icon" id="quizResultIcon"></div>
+<h3 id="quizResultTitle"></h3>
+<p id="quizResultText"></p>
+<div class="quiz-result-actions">
+<button class="btn-retry" onclick="resetQuiz()"><i class="fas fa-rotate-right"></i> Retry Quiz</button>
+<button class="btn-review" onclick="scrollToSection('lesson')"><i class="fas fa-book-open"></i> Review Lesson</button>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 9: ASSESSMENT -->
+<section class="module-section" id="section-assessment" data-section="assessment">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-trophy"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 9</div>
+<h2>Final Assessment</h2>
+<p>Build the required script. Score 75 or higher to pass.</p>
+</div>
+</div>
+
+<div class="task-card">
+<div class="task-badge">Final Assessment</div>
+<h3>Repeat a Message Five Times</h3>
+<p>Print "I love programming!" 5 times using a <code>for</code> loop.</p>
+<div class="output-block"><span class="out-label">Expected Output</span>I love programming!
+I love programming!
+I love programming!
+I love programming!
+I love programming!</div>
+<h4>Requirements</h4>
+<ul class="req-list">
+<li><i class="fas fa-circle-check"></i> Use a <code>for</code> loop</li>
+<li><i class="fas fa-circle-check"></i> Loop runs exactly 5 times</li>
+<li><i class="fas fa-circle-check"></i> Use <code>console.log</code> with text "I love programming!"</li>
+<li><i class="fas fa-circle-check"></i> Output must match</li>
+</ul>
+</div>
+
+<div class="workspace-card">
+<div class="workspace-header">
+<h4><i class="fas fa-cubes"></i>Assessment Workspace</h4>
+<div class="workspace-controls">
+<button class="workspace-btn" onclick="zoomWs3('in')"><i class="fas fa-search-plus"></i></button>
+<button class="workspace-btn" onclick="zoomWs3('out')"><i class="fas fa-search-minus"></i></button>
+<button class="workspace-btn" onclick="zoomWs3('reset')"><i class="fas fa-expand"></i></button>
+<button class="workspace-btn danger" onclick="clearWs3()"><i class="fas fa-trash"></i></button>
+<span class="workspace-lang-badge"><i class="fab fa-js"></i> JavaScript</span>
+</div>
+</div>
+<div id="blocklyDiv3" style="height:380px;width:100%;background:#fefefb"></div>
+<div class="output-section">
+<div class="output-label"><i class="fas fa-terminal"></i> JavaScript Output</div>
+<div class="output-area" id="outputArea3">Build your solution here.</div>
+<div class="workspace-actions">
+<button class="btn-run" onclick="runWs3()"><i class="fas fa-play"></i> Run Code</button>
+<button class="btn-check" onclick="submitAssessment()"><i class="fas fa-paper-plane"></i> Submit Assessment</button>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 10: COMPLETION -->
+<section class="module-section" id="section-completion" data-section="completion">
+<div class="section-head">
+<div class="section-icon"><i class="fas fa-flag-checkered"></i></div>
+<div class="section-head-text">
+<div class="section-kicker">Section 10</div>
+<h2>Module Completion</h2>
+<p>Your results and next steps.</p>
+</div>
+</div>
+<div id="completionPanel">
+<p style="color:var(--stone-light);">Complete the assessment to see your results here.</p>
+</div>
+</section>
+
+</main>
+</div>
+
+<div class="toast-box" id="toastBox"></div>
+
+<script src="/module-assets/js/javascript_01_variables.js"></script>
+</body>
+</html>

@@ -186,7 +186,7 @@
         }
         .logo-full h2 {
             font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
-            margin: 0; white-space: nowrap;
+            margin: 0; white-space: nowrap; color: #2e6f40;
         }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
         .logo-full p {
@@ -713,6 +713,7 @@
         .info-value {
             font-weight: 700; color: var(--text-primary); font-size: 0.82rem;
             text-align: right; transition: color 0.4s ease;
+            min-width: 0; overflow-wrap: anywhere;
         }
 
         /* ===== BUTTONS ===== */
@@ -898,12 +899,11 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="/teacher_scores" class="nav-link-custom">
-                    <i class="fas fa-tasks"></i>
-                    <span class="nav-text">Scores</span>
+                <a href="/teacher_score_results" class="nav-link-custom">
+                    <i class="fas fa-star"></i>
+                    <span class="nav-text">Student Scores</span>
                 </a>
             </div>
-
             <div class="nav-section-label">Insights</div>
             <div class="nav-item">
                 <a href="/teacher_reports_analytics" class="nav-link-custom">
@@ -911,14 +911,6 @@
                     <span class="nav-text">Reports & Analytics</span>
                 </a>
             </div>
-            <div class="nav-item">
-                <a href="/teacher_tickets" class="nav-link-custom">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span class="nav-text">Tickets</span>
-                    <span class="nav-badge" id="ticketNavBadge" style="display:none;" title="Unresolved tickets"></span>
-                </a>
-            </div>
-
             <div class="nav-section-label">Account</div>
             <div class="nav-item">
                 <a href="/teacher_profile" class="nav-link-custom active" aria-current="page">
@@ -980,8 +972,8 @@
                             <button onclick="markAllRead()">Mark all read</button>
                         </div>
                         <div id="notifList"></div>
-                        <div class="nd-footer">
-                            <a href="/teacher_tickets">View all tickets</a>
+                        <div class="npyd-footer">
+                            <a href="/ict_support_dashboard">View all tickets</a>
                         </div>
                     </div>
                 </div>
@@ -1024,11 +1016,6 @@
                     <h3 id="profileName">ICT Teacher</h3>
                     <p id="profileUsername"><i class="fas fa-id-card me-1"></i>@teacher</p>
                 </div>
-                <div style="margin-left:auto;">
-                    <span class="badge bg-success" style="font-weight:600;padding:6px 14px;">
-                        <i class="fas fa-check-circle me-1"></i>Active
-                    </span>
-                </div>
             </div>
         </div>
 
@@ -1061,15 +1048,6 @@
                 <div class="stat-label">Class average</div>
                 <div class="stat-progress"><div class="stat-progress-fill" data-width="0%"></div></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span>Pending Tickets</span>
-                    <div class="stat-icon"><i class="fas fa-ticket"></i></div>
-                </div>
-                <div class="stat-value" data-target="0" id="statPending">0</div>
-                <div class="stat-label">Need attention</div>
-                <div class="stat-progress"><div class="stat-progress-fill" data-width="0%"></div></div>
-            </div>
         </div>
 
         <!-- PERSONAL INFO -->
@@ -1100,16 +1078,8 @@
                     <span class="info-value" id="infoEmail">-</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label"><i class="fas fa-calendar"></i> Joined</span>
+                    <span class="info-label"><i class="fas fa-calendar"></i> Joined On</span>
                     <span class="info-value" id="infoJoined">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label"><i class="fas fa-shield-halved"></i> Status</span>
-                    <span class="info-value" id="infoStatus">Active</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label"><i class="fas fa-phone"></i> Phone</span>
-                    <span class="info-value" id="infoPhone">Not set</span>
                 </div>
             </div>
         </div>
@@ -1133,10 +1103,6 @@
                     <div class="mb-3">
                         <label class="form-label-custom"><i class="fas fa-envelope"></i> Email Address</label>
                         <input type="email" class="form-control-custom" id="editEmail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label-custom"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" class="form-control-custom" id="editPhone">
                     </div>
                     <hr class="modal-divider" style="border-color:var(--border-fresh);">
                     <div class="mb-3">
@@ -1331,29 +1297,16 @@ function populateProfile(d) {
     document.getElementById('infoUsername').textContent = username;
     document.getElementById('infoEmail').textContent = d.email || 'Not set';
     document.getElementById('infoJoined').textContent = d.created_at || 'Recently';
-    document.getElementById('infoStatus').textContent = 'Active';
-
     // Stats
     animateValue('statStudents', d.total_students || 0);
     animateValue('statActivities', d.total_activities || 0);
     animateValue('statAvg', d.average_score || 0, '%');
     
-    // Pending tickets
-    fetch('/get_ticket_count')
-        .then(r => r.json())
-        .then(t => {
-            if (t.success) {
-                animateValue('statPending', t.pending || 0);
-            }
-        })
-        .catch(() => animateValue('statPending', 0));
-
     setTimeout(() => {
         const fills = document.querySelectorAll('.stat-progress-fill');
         if (fills[0]) fills[0].style.width = '100%';
         if (fills[1]) fills[1].style.width = Math.min((d.total_activities || 0) * 10, 100) + '%';
         if (fills[2]) fills[2].style.width = Math.min(d.average_score || 0, 100) + '%';
-        if (fills[3]) fills[3].style.width = '0%';
     }, 300);
 
     // Edit form prefill
@@ -1387,8 +1340,7 @@ function handleProfileSave(e) {
     }
     const payload = {
         full_name: document.getElementById('editName').value,
-        email: document.getElementById('editEmail').value,
-        phone: document.getElementById('editPhone').value
+        email: document.getElementById('editEmail').value
     };
     if (pw) {
         payload.new_password = pw;

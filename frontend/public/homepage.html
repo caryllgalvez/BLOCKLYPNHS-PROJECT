@@ -1,5 +1,3 @@
-Here's the improved login page with a refined BlockLearn title, proper logo sizing, and a professional look while keeping all your original functionality.
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +37,6 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       background-color: #f7faf8;
       position: relative;
     }
-    /* Overlay for better readability */
     body::before {
       content: '';
       position: fixed;
@@ -47,7 +44,7 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.08);
       backdrop-filter: blur(1px);
       z-index: 0;
     }
@@ -55,19 +52,19 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       position: relative;
       z-index: 1;
     }
-    /* Professional card */
     .login-card {
       background: rgba(255, 255, 255, 0.97);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      width: min(100%, 380px);
+      margin: 0 auto;
     }
     .login-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
     }
-    /* Input fields */
     .form-input {
       transition: all 0.2s ease;
       background: #f8faf9;
@@ -81,14 +78,14 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
     .form-input:hover {
       border-color: #bccfc4;
     }
-    /* Role tabs */
     .role-tab {
       transition: all 0.2s ease;
       border: 2px solid #e8edeb;
       background: #f8faf9;
       padding: 10px 0;
-      border-radius: 12px;
+      border-radius: 10px;
       font-weight: 500;
+      font-size: 11px;
     }
     .role-tab:hover {
       border-color: #bccfc4;
@@ -102,7 +99,6 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       color: #1f4f2e;
       box-shadow: 0 4px 12px rgba(46, 111, 64, 0.12);
     }
-    /* Submit button */
     .btn-submit {
       background: linear-gradient(135deg, #2e6f40 0%, #1f4f2e 100%);
       transition: all 0.3s ease;
@@ -114,7 +110,6 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
     .btn-submit:active {
       transform: translateY(0);
     }
-    /* Toast styles */
     .toast-success {
       background: #ecfdf5;
       border: 1px solid #a7f3d0;
@@ -130,13 +125,12 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       border: 1px solid #fcd34d;
       color: #92400e;
     }
-    /* Custom checkbox */
     .custom-checkbox {
       appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border: 2px solid #d1d9d4;
-      border-radius: 6px;
+      border-radius: 5px;
       transition: all 0.2s ease;
       cursor: pointer;
       position: relative;
@@ -153,13 +147,12 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
     }
     .custom-checkbox:hover {
       border-color: #2e6f40;
     }
-    /* Link hover */
     .link-hover {
       transition: all 0.2s ease;
       position: relative;
@@ -177,7 +170,6 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
     .link-hover:hover::after {
       width: 100%;
     }
-    /* Navigation */
     .nav-link {
       transition: all 0.2s ease;
       position: relative;
@@ -195,61 +187,72 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
     .nav-link:hover::after {
       width: 100%;
     }
-    /* Brand title gradient */
     .brand-title {
-      background: linear-gradient(135deg, #2e6f40 0%, #3d8c52 50%, #2e6f40 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #2e6f40;
+    }
+    .brand-title .brand-learn {
+      color: #e8a838;
+    }
+    /* Compact spacing */
+    .compact-space > * + * {
+      margin-top: 0.75rem;
     }
   </style>
 </head>
 <body class="font-sans bg-white text-neutral-900 h-screen overflow-hidden flex flex-col">
 
-  <!-- Navigation Bar -->
-  <nav class="fixed top-0 left-0 right-0 h-20 bg-white/95 backdrop-blur-md z-50 border-b border-neutral-200/50 shadow-sm">
+  <!-- Navigation Bar - Compact -->
+  <nav class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md z-50 border-b border-neutral-200/50 shadow-sm">
     <div class="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3 group">
-        <img src="/static/pnhs-logo.png" alt="PNHS Logo" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105">
-        <span class="text-2xl font-extrabold tracking-tight brand-title">BlockLearn</span>
+      <a href="/" class="flex items-center gap-2.5 group">
+        <img src="/static/pnhs-logo.png" alt="PNHS Logo" class="h-10 w-auto transition-transform duration-300 group-hover:scale-105">
+        <span class="text-xl font-extrabold tracking-tight brand-title">Block<span class="brand-learn">Learn</span></span>
       </a>
-      <div class="flex items-center gap-8">
+      <div class="flex items-center gap-6">
         <a href="/about" class="text-sm font-medium text-neutral-600 hover:text-[#2e6f40] transition-all duration-200 nav-link">About</a>
-        <a href="/contact" class="text-sm font-medium text-neutral-600 hover:text-[#2e6f40] transition-all duration-200 nav-link">Contact</a>
       </div>
     </div>
   </nav>
 
   <!-- Main Content -->
-  <main class="flex-1 flex items-center justify-center pt-20">
-    <div class="w-full max-w-md px-6">
-      <div class="login-card rounded-3xl p-8">
+  <main class="flex-1 flex items-center justify-center pt-16">
+    <div class="w-full max-w-[340px] px-3">
+      <div class="login-card rounded-2xl p-4">
 
-        <!-- Card Header -->
-        <div class="text-center mb-6">
-          <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Welcome back</h2>
-          <p class="text-sm text-neutral-500 mt-1 font-light">Sign in to continue to BlockLearn</p>
+        <!-- Card Header - Compact -->
+        <div class="text-center mb-1">
+          <div class="flex justify-center mt-0 mb-0">
+            <div class="flex items-center justify-center" style="width:90px; height:90px; margin-top: 0;">
+              <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="object-contain" style="width:90px; height:90px;">
+            </div>
+          </div>
+          <h2 class="text-[1.7rem] font-bold tracking-tight text-neutral-900 mt-0">Login</h2>
+          <p class="text-[11px] text-neutral-500 mt-0 font-light">Sign in to continue to BlockLearn</p>
         </div>
 
         <!-- Login Form -->
-        <form id="loginForm" class="space-y-5" onsubmit="return handleLogin(event)">
+        <form id="loginForm" class="space-y-2" autocomplete="off" onsubmit="return handleLogin(event)">
           
           <!-- Role Selector -->
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">I am a</label>
-            <div class="grid grid-cols-2 gap-3">
+            <label class="block text-[10px] font-semibold uppercase tracking-widest text-neutral-500 mb-1.5">I am a</label>
+            <div class="grid grid-cols-3 gap-2">
               <label class="cursor-pointer">
                 <input type="radio" name="loginRole" value="student" class="peer hidden" checked>
-                <div class="role-tab flex items-center justify-center gap-2">
-                  <iconify-icon icon="lucide:graduation-cap" width="18" height="18"></iconify-icon>
-                  Student
+                <div class="role-tab flex items-center justify-center">
+                  <span>Student</span>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" name="loginRole" value="teacher" class="peer hidden">
-                <div class="role-tab flex items-center justify-center gap-2">
-                  <iconify-icon icon="lucide:book-open-check" width="18" height="18"></iconify-icon>
-                  Teacher
+                <div class="role-tab flex items-center justify-center">
+                  <span>Teacher</span>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="loginRole" value="ict_support" class="peer hidden">
+                <div class="role-tab flex items-center justify-center">
+                  <span>ICT Support</span>
                 </div>
               </label>
             </div>
@@ -257,53 +260,61 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
 
           <!-- Dynamic field -->
           <div>
-            <label id="identifierLabel" for="loginIdentifier" class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">LRN (Learner Reference Number)</label>
-            <div class="relative">
-              <iconify-icon id="identifierIcon" icon="lucide:hash" width="18" height="18" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"></iconify-icon>
-              <input type="text" id="loginIdentifier" placeholder="e.g. 123456789012" required
-                class="form-input w-full pl-10 pr-4 py-3 text-sm rounded-xl focus:outline-none placeholder:text-neutral-400">
-            </div>
+            <label id="identifierLabel" for="loginIdentifier" class="block text-[10px] font-semibold uppercase tracking-widest text-neutral-500 mb-1.5">LRN (Learner Reference Number)</label>
+            <input type="text" id="loginIdentifier" autocomplete="off" placeholder="e.g. 123456789012" required
+              class="form-input w-full px-3 py-2.5 text-sm rounded-lg focus:outline-none placeholder:text-neutral-400">
           </div>
 
           <!-- Password -->
           <div>
-            <label for="loginPassword" class="block text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-2">Password</label>
+            <label for="loginPassword" class="block text-[10px] font-semibold uppercase tracking-widest text-neutral-500 mb-1.5">Password</label>
             <div class="relative">
-              <iconify-icon icon="lucide:lock" width="18" height="18" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"></iconify-icon>
-              <input type="password" id="loginPassword" placeholder="Enter your password" required
-                class="form-input w-full pl-10 pr-11 py-3 text-sm rounded-xl focus:outline-none placeholder:text-neutral-400">
-              <button type="button" onclick="togglePw('loginPassword','loginEye')" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 transition-all duration-200 hover:scale-110">
-                <iconify-icon id="loginEye" icon="lucide:eye" width="18" height="18"></iconify-icon>
+              <input type="password" id="loginPassword" autocomplete="new-password" placeholder="Enter your password" required
+                class="form-input w-full pr-10 px-3 py-2.5 text-sm rounded-lg focus:outline-none placeholder:text-neutral-400">
+              <button type="button" onclick="togglePw('loginPassword','loginEye')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 transition-all duration-200 hover:scale-110">
+                <iconify-icon id="loginEye" icon="lucide:eye" width="16" height="16"></iconify-icon>
               </button>
             </div>
           </div>
 
-          <!-- Remember & Forgot -->
-          <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" class="custom-checkbox">
-              <span class="text-sm text-neutral-600 group-hover:text-neutral-800 transition-colors">Remember me</span>
+          <!-- Staff-only validation code -->
+          <div id="staffCodeGroup" class="hidden">
+            <label id="staffCodeLabel" for="staffValidationCode" class="block text-[10px] font-semibold uppercase tracking-widest text-neutral-500 mb-1.5">Staff Validation Code</label>
+            <input type="password" id="staffValidationCode" autocomplete="off" placeholder="Enter validation code"
+              class="form-input w-full px-3 py-2.5 text-sm rounded-lg focus:outline-none placeholder:text-neutral-400">
+          </div>
+
+          <!-- Forgot password -->
+          <div class="flex items-center justify-end">
+            <label class="flex items-center gap-2 cursor-pointer group mr-auto">
+              <input type="checkbox" id="rememberAccount" class="custom-checkbox">
+              <span class="text-xs text-neutral-600 group-hover:text-neutral-800 transition-colors">Remember account</span>
             </label>
-            <a href="#" class="text-sm font-medium text-[#2e6f40] hover:text-[#1f4f2e] transition-all duration-200 link-hover">Forgot password?</a>
+            <a href="/forgot-password" class="text-xs font-medium text-[#2e6f40] hover:text-[#1f4f2e] transition-all duration-200 link-hover">Forgot password?</a>
           </div>
 
           <!-- Submit -->
           <button type="submit" id="loginBtn"
-            class="btn-submit w-full py-3.5 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#2e6f40]/20">
+            class="btn-submit w-full py-2.5 text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 shadow-md shadow-[#2e6f40]/20">
             <span id="loginBtnText">Sign In</span>
-            <iconify-icon id="loginSpinner" icon="lucide:loader-2" width="18" height="18" class="hidden animate-spin"></iconify-icon>
+            <iconify-icon id="loginSpinner" icon="lucide:loader-2" width="16" height="16" class="hidden animate-spin"></iconify-icon>
           </button>
 
           <!-- Register link -->
-          <p class="text-center text-sm text-neutral-500 mt-3">
+          <p class="text-center text-xs text-neutral-500 -mt-1 mb-1">
             Don't have an account?
-            <a href="/registeracc" class="font-semibold text-[#2e6f40] hover:text-[#1f4f2e] transition-all duration-200 link-hover">Register here</a>
+            <a href="/registeracc" class="font-semibold text-[#2e6f40] hover:text-[#1f4f2e] transition-all duration-200 link-hover">Create Account</a>
           </p>
+
+          <!-- School Branding -->
+          <div class="text-center pt-2 border-t border-neutral-200/50">
+            <p class="text-[10px] font-medium text-neutral-500">PNHS-Main · Senior High School</p>
+          </div>
 
         </form>
 
         <!-- Toast -->
-        <div id="toast" class="hidden mt-5 p-3.5 rounded-xl text-sm font-medium text-center transition-all duration-300"></div>
+        <div id="toast" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium text-center transition-all duration-300"></div>
 
       </div>
     </div>
@@ -323,26 +334,52 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       }
     }
 
-    // Dynamic label & icon for LRN / Username based on role
+    // Dynamic label for LRN / Username based on role
     function updateIdentifierField() {
       const role = document.querySelector('input[name="loginRole"]:checked');
       if (!role) return;
       const label = document.getElementById('identifierLabel');
-      const icon = document.getElementById('identifierIcon');
       const input = document.getElementById('loginIdentifier');
+      const staffCodeGroup = document.getElementById('staffCodeGroup');
+      const staffCodeLabel = document.getElementById('staffCodeLabel');
+      const staffCodeInput = document.getElementById('staffValidationCode');
 
       if (role.value === 'student') {
         label.textContent = 'LRN (Learner Reference Number)';
-        icon.setAttribute('icon', 'lucide:hash');
         input.placeholder = 'e.g. 123456789012';
         input.required = true;
-      } else {
+        staffCodeGroup.classList.add('hidden');
+        staffCodeInput.required = false;
+      } else if (role.value === 'teacher') {
         label.textContent = 'Username';
-        icon.setAttribute('icon', 'lucide:user');
         input.placeholder = 'Enter your username';
         input.required = true;
+        staffCodeLabel.textContent = 'Teacher Validation Code';
+        staffCodeGroup.classList.remove('hidden');
+        staffCodeInput.required = true;
+      } else if (role.value === 'ict_support') {
+        label.textContent = 'ICT - Admin';
+        input.placeholder = 'Enter your ICT - Support username';
+        input.required = true;
+        staffCodeLabel.textContent = 'ICT Support Validation Code';
+        staffCodeGroup.classList.remove('hidden');
+        staffCodeInput.required = true;
       }
       input.value = '';
+      staffCodeInput.value = '';
+      loadRememberedAccount(role.value);
+    }
+
+    function rememberKey(role) {
+      return `blocklearn_account_${role}`;
+    }
+
+    function loadRememberedAccount(role) {
+      const saved = localStorage.getItem(rememberKey(role));
+      const input = document.getElementById('loginIdentifier');
+      const remember = document.getElementById('rememberAccount');
+      input.value = saved || '';
+      remember.checked = Boolean(saved);
     }
 
     document.querySelectorAll('input[name="loginRole"]').forEach(radio => {
@@ -354,7 +391,7 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
     function showToast(msg, type) {
       const t = document.getElementById('toast');
       t.textContent = msg;
-      t.className = 'mt-5 p-3.5 rounded-xl text-sm font-medium text-center transition-all duration-300';
+      t.className = 'mt-3 p-2.5 rounded-lg text-xs font-medium text-center transition-all duration-300';
       if (type === 'success') {
         t.classList.add('toast-success');
       } else if (type === 'error') {
@@ -364,7 +401,6 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       }
       t.classList.remove('hidden');
       
-      // Auto-hide after 5 seconds
       clearTimeout(window.toastTimeout);
       window.toastTimeout = setTimeout(() => {
         t.classList.add('hidden');
@@ -379,9 +415,11 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       const spin = document.getElementById('loginSpinner');
       const role = document.querySelector('input[name="loginRole"]:checked').value;
       const identifier = document.getElementById('loginIdentifier').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const validationCode = document.getElementById('staffValidationCode').value;
+      const rememberAccount = document.getElementById('rememberAccount').checked;
 
-      if (!identifier || !password) {
+      if (!identifier || !password || (role !== 'student' && !validationCode)) {
         showToast('Please fill in all fields.', 'error');
         return false;
       }
@@ -389,8 +427,13 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
       const payload = { role, password };
       if (role === 'student') {
         payload.lrn = identifier;
-      } else {
+      } else if (role === 'teacher') {
         payload.username = identifier;
+      } else if (role === 'ict_support') {
+        payload.employee_id = identifier;
+      }
+      if (role !== 'student') {
+        payload.validation_code = validationCode;
       }
 
       btn.disabled = true;
@@ -407,10 +450,24 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
         const result = await response.json();
 
         if (result.success) {
-          const label = role === 'teacher' ? 'Teacher' : 'Student';
-          showToast(`Welcome back! Signed in as ${label}.`, 'success');
+          if (rememberAccount) {
+            localStorage.setItem(rememberKey(role), identifier);
+          } else {
+            localStorage.removeItem(rememberKey(role));
+          }
+          const roleNames = {
+            student: 'Student',
+            teacher: 'Teacher',
+            ict_support: 'ICT Tech Support'
+          };
+          showToast(`Welcome back! Signed in as ${roleNames[role]}.`, 'success');
           setTimeout(() => {
-            window.location.href = result.redirect || (role === 'teacher' ? '/teacher_dashboard' : '/student_dashboard');
+            const redirects = {
+              student: '/student_dashboard',
+              teacher: '/teacher_dashboard',
+              ict_support: '/ict_support_dashboard'
+            };
+            window.location.href = result.redirect || redirects[role];
           }, 800);
         } else {
           showToast(result.message || 'Invalid login credentials.', 'error');
@@ -433,4 +490,3 @@ Here's the improved login page with a refined BlockLearn title, proper logo sizi
 
 </body>
 </html>
-```

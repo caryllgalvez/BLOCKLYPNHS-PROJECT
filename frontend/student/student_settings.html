@@ -6,6 +6,8 @@
     <title>Settings · BlockLearn Studio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- ADDED: iconify (ginamit ng dashboard sidebar) -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -119,12 +121,10 @@
             transition: background 0.4s ease, color 0.4s ease;
         }
 
-        .bg-layer {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-        }
+        /* ===== BACKGROUND ===== */
+        .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-layer::before {
-            content: '';
-            position: absolute; inset: 0;
+            content: ''; position: absolute; inset: 0;
             background-image:
                 linear-gradient(var(--grid-line) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -137,15 +137,8 @@
             animation: blobDrift 22s ease-in-out infinite alternate;
             transition: opacity 0.4s ease;
         }
-        .bg-blob--1 {
-            width: 480px; height: 480px; top: -12%; right: -6%;
-            background: radial-gradient(circle, rgba(40,168,122,0.4), transparent 70%);
-        }
-        .bg-blob--2 {
-            width: 380px; height: 380px; bottom: -10%; left: 8%;
-            background: radial-gradient(circle, rgba(232,168,56,0.25), transparent 70%);
-            animation-duration: 28s; animation-delay: -6s;
-        }
+        .bg-blob--1 { width: 480px; height: 480px; top: -12%; right: -6%; background: radial-gradient(circle, rgba(40,168,122,0.4), transparent 70%); }
+        .bg-blob--2 { width: 380px; height: 380px; bottom: -10%; left: 8%; background: radial-gradient(circle, rgba(232,168,56,0.25), transparent 70%); animation-duration: 28s; animation-delay: -6s; }
         @keyframes blobDrift {
             0%   { transform: translate(0, 0) scale(1); }
             50%  { transform: translate(25px, -30px) scale(1.04); }
@@ -154,7 +147,7 @@
 
         .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
-        /* ===== SIDEBAR ===== */
+        /* ===== SIDEBAR ===== (COPIED FROM DASHBOARD — logo image version) */
         .sidebar {
             width: var(--sidebar-w);
             background: linear-gradient(175deg, #14423a 0%, #185a48 40%, #1a6850 100%);
@@ -174,29 +167,22 @@
         .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 1.1rem;
+            padding: 1rem 0.4rem 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
-        .logo-full {
-            display: flex; flex-direction: column; flex: 1; min-width: 0;
-            transition: opacity 0.2s ease;
-        }
-        .logo-full h2 {
-            font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
-            margin: 0; white-space: nowrap;
-        }
+        .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
+        .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
+        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; color: #ffffff; }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
-        .logo-full p {
-            font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0;
-            white-space: nowrap; text-transform: uppercase;
-            letter-spacing: 1.2px; font-weight: 600;
-        }
+        .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
         .logo-mono {
-            display: none; width: 100%; text-align: center; flex-shrink: 0;
+            display: none; width: 42px; min-width: 42px; text-align: center; flex-shrink: 0;
+            align-items: center; justify-content: center;
         }
+        .logo-mono img { display: block; width: 42px; height: 42px; object-fit: contain; margin: 0 auto; }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
@@ -208,9 +194,7 @@
         }
         .toggle-btn:hover { background: var(--sidebar-icon-toggle-hover); transform: rotate(90deg); }
 
-        .hamburger-wrap {
-            display: none; padding: 0.4rem 0 0.2rem; justify-content: center;
-        }
+        .hamburger-wrap { display: none; padding: 0.4rem 0 0.2rem; justify-content: center; }
         .hamburger-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
             color: #d8efe5; font-size: 0.85rem; width: 32px; height: 32px;
@@ -221,6 +205,7 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
         .sidebar.collapsed .logo-mono { display: block; }
         .sidebar.collapsed .toggle-btn { display: none; }
@@ -229,11 +214,10 @@
         .sidebar.collapsed .nav-link-custom i { font-size: 1.15rem; }
         .sidebar.collapsed .nav-text { display: none !important; }
         .sidebar.collapsed .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
-        .sidebar.collapsed .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
-        .sidebar.collapsed .sidebar-user-info { display: none !important; }
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
 
         .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
+        .sidebar:not(.collapsed) .logo-image { display: block; }
         .sidebar:not(.collapsed) .logo-full { display: flex; }
         .sidebar:not(.collapsed) .logo-mono { display: none; }
         .sidebar:not(.collapsed) .toggle-btn { display: flex; }
@@ -242,8 +226,6 @@
         .sidebar:not(.collapsed) .nav-link-custom i { font-size: 0.95rem; }
         .sidebar:not(.collapsed) .nav-text { display: inline !important; }
         .sidebar:not(.collapsed) .nav-section-label { height: auto; padding: 1.1rem 1.1rem 0.35rem; opacity: 1; }
-        .sidebar:not(.collapsed) .sidebar-user { justify-content: flex-start; padding: 0.9rem 1.1rem; }
-        .sidebar:not(.collapsed) .sidebar-user-info { display: block !important; }
 
         .nav-section-label {
             font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.5px;
@@ -260,6 +242,9 @@
             white-space: nowrap;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
+        .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.12); }
         .nav-link-custom:focus-visible { outline: 2px solid var(--gold-warm); outline-offset: -2px; }
@@ -279,25 +264,6 @@
         @keyframes pulseDot {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.5); opacity: 0.6; }
-        }
-
-        .sidebar-user {
-            display: flex; align-items: center; gap: 11px;
-            border-top: 1px solid rgba(255,255,255,0.07);
-            transition: all 0.35s ease; overflow: hidden;
-        }
-        .sidebar-avatar {
-            width: 34px; height: 34px; border-radius: 11px;
-            background: linear-gradient(135deg, var(--gold-warm), #d4922a);
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(232,168,56,0.3);
-        }
-        .sidebar-user-info h4 {
-            font-size: 0.78rem; font-weight: 650; margin: 0; white-space: nowrap; color: #d8efe5;
-        }
-        .sidebar-user-info p {
-            font-size: 0.6rem; opacity: 0.45; margin: 1px 0 0; white-space: nowrap;
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -327,30 +293,104 @@
             transition: color 0.4s ease;
         }
         .page-title i { color: var(--gold-warm); margin-right: 8px; font-size: 0.9rem; }
+        .top-bar-right { display: flex; align-items: center; gap: 10px; position: relative; z-index: 200; }
 
-        .top-bar-right {
-            display: flex; align-items: center; gap: 10px;
-            position: relative; z-index: 200;
+        /* Search (COPIED FROM DASHBOARD) */
+        .top-search { position: relative; display: flex; align-items: center; }
+        .top-search i { position: absolute; left: 11px; color: var(--stone-light); font-size: 0.8rem; pointer-events: none; transition: color 0.2s; }
+        .top-search input {
+            width: 200px; padding: 0.45rem 0.7rem 0.45rem 2.2rem;
+            border: 1.5px solid var(--border-fresh); border-radius: 10px;
+            font-size: 0.78rem; font-family: inherit; background: var(--search-bg);
+            color: var(--text-primary); transition: all 0.25s ease;
         }
+        .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
+        .top-search input:focus {
+            outline: none; border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);
+            width: 240px;
+        }
+        .top-search:focus-within i { color: var(--green-main); }
 
-        /* Theme toggle */
         .theme-btn {
             width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.88rem; cursor: pointer;
             transition: all 0.3s ease; flex-shrink: 0;
         }
-        .theme-btn:hover {
-            border-color: var(--gold-warm); color: var(--gold-warm);
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
+        .theme-btn:hover { border-color: var(--gold-warm); color: var(--gold-warm); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
         .theme-btn:focus-visible { outline: 2px solid var(--gold-warm); outline-offset: 2px; }
         .theme-btn .icon-sun { display: none; }
         .theme-btn .icon-moon { display: inline; }
         [data-theme="dark"] .theme-btn .icon-sun { display: inline; }
         [data-theme="dark"] .theme-btn .icon-moon { display: none; }
 
-        /* ===== PROFILE TRIGGER (same as dashboard) ===== */
+        /* ===== NOTIFICATION (COPIED FROM DASHBOARD — badge fixed, gumagana) ===== */
+        .notif-btn {
+            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            background: var(--card-white); display: flex; align-items: center; justify-content: center;
+            color: var(--stone); font-size: 0.9rem; cursor: pointer;
+            transition: all 0.25s ease; position: relative; flex-shrink: 0;
+        }
+        .notif-btn:hover { border-color: var(--green-main); color: var(--green-main); transform: translateY(-1px); box-shadow: var(--shadow-xs); }
+        .notif-btn .notif-badge {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--coral); color: white;
+            font-size: 0.55rem; font-weight: 700;
+            min-width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--card-white);
+        }
+        .notif-badge.hidden { display: none; }
+
+        .notif-dropdown {
+            display: none; position: absolute; top: calc(100% + 12px); right: 0;
+            width: 380px; max-height: 420px;
+            background: var(--dropdown-bg); border-radius: var(--radius-md);
+            border: 1px solid var(--border-fresh);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            z-index: var(--dropdown-z-index); overflow: hidden;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+        .notif-dropdown.open { display: block; animation: dropIn 0.25s ease; }
+        .notif-dropdown .notif-header {
+            padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--pd-sep);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .notif-dropdown .notif-header h6 { font-weight: 700; color: var(--text-primary); margin: 0; font-size: 0.85rem; }
+        .notif-dropdown .notif-header h6 i { color: var(--gold-warm); margin-right: 6px; }
+        .notif-dropdown .notif-header .mark-read-btn {
+            font-size: 0.65rem; color: var(--green-main); cursor: pointer;
+            background: none; border: none; font-weight: 600; transition: color 0.2s;
+        }
+        .notif-dropdown .notif-header .mark-read-btn:hover { color: var(--green-deep); }
+        .notif-dropdown .notif-list { max-height: 340px; overflow-y: auto; padding: 0.3rem 0; }
+        .notif-dropdown .notif-list::-webkit-scrollbar { width: 4px; }
+        .notif-dropdown .notif-list::-webkit-scrollbar-thumb { background: var(--border-fresh); border-radius: 10px; }
+        .notif-item { padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border-fresh); transition: all 0.2s; cursor: default; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: var(--green-soft); }
+        .notif-item.unread { background: var(--blue-soft); border-left: 3px solid var(--blue); }
+        .notif-item.unread:hover { background: #d4e8fa; }
+        [data-theme="dark"] .notif-item.unread:hover { background: #1a3040; }
+        .notif-item .notif-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+        .notif-item .notif-message { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+        .notif-item .notif-time { font-size: 0.6rem; color: var(--stone-light); margin-top: 4px; display: block; }
+        .notif-item .notif-read-btn {
+            font-size: 0.6rem; color: var(--green-main); cursor: pointer;
+            background: none; border: none; margin-top: 4px; font-weight: 600;
+            padding: 2px 8px; border-radius: 20px; transition: all 0.2s;
+        }
+        .notif-item .notif-read-btn:hover { background: var(--green-main); color: white; }
+        .notif-item .score-badge {
+            display: inline-block; background: var(--green-soft); color: var(--green-deep);
+            padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;
+        }
+        .notif-empty { padding: 2rem 1.2rem; text-align: center; color: var(--stone-light); }
+        .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--border-fresh); }
+        .notif-empty p { font-size: 0.8rem; margin: 0; }
+
+        /* ===== PROFILE TRIGGER + DROPDOWN ===== (same as dashboard) */
         .profile-trigger {
             display: flex; align-items: center; gap: 9px;
             cursor: pointer; padding: 4px 10px 4px 4px;
@@ -368,18 +408,11 @@
             color: white; font-size: 0.78rem; flex-shrink: 0;
         }
         .profile-trigger-info { display: flex; flex-direction: column; }
-        .profile-trigger-name {
-            font-size: 0.72rem; font-weight: 650; color: var(--text-primary);
-            line-height: 1.2; white-space: nowrap; transition: color 0.4s ease;
-        }
+        .profile-trigger-name { font-size: 0.72rem; font-weight: 650; color: var(--text-primary); line-height: 1.2; white-space: nowrap; transition: color 0.4s ease; }
         .profile-trigger-role { font-size: 0.6rem; color: var(--stone-light); line-height: 1.2; white-space: nowrap; }
-        .profile-trigger-chevron {
-            color: var(--stone-light); font-size: 0.6rem;
-            margin-left: 2px; transition: transform 0.25s ease;
-        }
+        .profile-trigger-chevron { color: var(--stone-light); font-size: 0.6rem; margin-left: 2px; transition: transform 0.25s ease; }
         .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
 
-        /* ===== PROFILE DROPDOWN (same as dashboard) ===== */
         .profile-dropdown {
             display: none;
             position: absolute; top: calc(100% + 12px); right: 0;
@@ -391,10 +424,7 @@
             overflow: visible;
             transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .profile-dropdown.open {
-            display: block !important;
-            animation: dropIn 0.25s ease;
-        }
+        .profile-dropdown.open { display: block !important; animation: dropIn 0.25s ease; }
         @keyframes dropIn {
             from { opacity: 0; transform: translateY(-8px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
@@ -427,7 +457,7 @@
         .pd-link.logout i { color: var(--coral); }
         .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
 
-        /* ===== GLASS CARD ===== */
+        /* ===== GLASS CARD ===== (SETTINGS CONTENT — unchanged) */
         .glass-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -443,16 +473,11 @@
         }
         .glass-card:hover::before { opacity: 1; }
         .glass-card:hover { box-shadow: var(--shadow-md); }
-
         .glass-card.card-green::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
         .glass-card.card-gold::before { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .glass-card.card-blue::before { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .glass-card.card-coral::before { background: linear-gradient(90deg, var(--coral), #f08070); }
-
-        .card-header-row {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 1.2rem;
-        }
+        .card-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; }
         .card-header-icon {
             width: 42px; height: 42px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
@@ -464,20 +489,11 @@
         .card-blue .card-header-icon { background: var(--blue-soft); color: var(--blue); }
         .card-coral .card-header-icon { background: var(--coral-soft); color: var(--coral); }
         .glass-card:hover .card-header-icon { transform: scale(1.06) rotate(-2deg); }
+        .card-header-text h3 { font-size: 0.95rem; font-weight: 750; color: var(--text-primary); margin: 0; line-height: 1.2; transition: color 0.4s ease; }
+        .card-header-text p { font-size: 0.72rem; color: var(--stone-light); margin: 2px 0 0; transition: color 0.4s ease; }
 
-        .card-header-text h3 {
-            font-size: 0.95rem; font-weight: 750; color: var(--text-primary);
-            margin: 0; line-height: 1.2; transition: color 0.4s ease;
-        }
-        .card-header-text p {
-            font-size: 0.72rem; color: var(--stone-light); margin: 2px 0 0;
-            transition: color 0.4s ease;
-        }
-
-        /* ===== INFO ROWS ===== */
-        .info-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 0;
-        }
+        /* ===== INFO ROWS ===== (SETTINGS CONTENT — unchanged) */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
         .info-row {
             display: flex; justify-content: space-between; align-items: center;
             gap: 12px; padding: 0.75rem 0;
@@ -485,30 +501,16 @@
             transition: border-color 0.4s ease;
         }
         .info-row:last-child { border-bottom: none; }
-        .info-label {
-            color: var(--stone); font-size: 0.82rem; font-weight: 500;
-            display: flex; align-items: center; gap: 6px;
-            transition: color 0.4s ease;
-        }
+        .info-label { color: var(--stone); font-size: 0.82rem; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: color 0.4s ease; }
         .info-label i { font-size: 0.7rem; width: 16px; text-align: center; }
-        .info-value {
-            font-weight: 700; color: var(--text-primary); font-size: 0.82rem;
-            text-align: right; transition: color 0.4s ease;
-        }
+        .info-value { font-weight: 700; color: var(--text-primary); font-size: 0.82rem; text-align: right; transition: color 0.4s ease; }
 
-        /* ===== FORM ELEMENTS ===== */
-        .form-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
-        }
+        /* ===== FORM ELEMENTS ===== (SETTINGS CONTENT — unchanged) */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .form-group { display: flex; flex-direction: column; }
         .form-group.full { grid-column: 1 / -1; }
-        .form-label-custom {
-            display: block; margin-bottom: 0.4rem;
-            font-weight: 600; color: var(--text-secondary);
-            font-size: 0.78rem; transition: color 0.4s ease;
-        }
+        .form-label-custom { display: block; margin-bottom: 0.4rem; font-weight: 600; color: var(--text-secondary); font-size: 0.78rem; transition: color 0.4s ease; }
         .form-label-custom .required { color: var(--coral); margin-left: 2px; }
-
         .form-control-custom {
             width: 100%; padding: 10px 14px;
             border-radius: var(--radius-sm);
@@ -518,10 +520,7 @@
             background: var(--input-bg); color: var(--text-primary);
         }
         .form-control-custom::placeholder { color: var(--stone-light); }
-        .form-control-custom:focus {
-            outline: none; border-color: var(--green-main);
-            box-shadow: 0 0 0 3px var(--input-focus-ring);
-        }
+        .form-control-custom:focus { outline: none; border-color: var(--green-main); box-shadow: 0 0 0 3px var(--input-focus-ring); }
         textarea.form-control-custom { resize: vertical; min-height: 90px; }
         select.form-control-custom {
             appearance: none; cursor: pointer;
@@ -530,10 +529,7 @@
             background-position: right 14px center;
             padding-right: 36px;
         }
-
-        .password-wrap {
-            position: relative; display: flex; align-items: center;
-        }
+        .password-wrap { position: relative; display: flex; align-items: center; }
         .password-wrap .form-control-custom { padding-right: 42px; }
         .password-toggle {
             position: absolute; right: 12px;
@@ -542,21 +538,11 @@
             transition: color 0.2s; display: flex; align-items: center;
         }
         .password-toggle:hover { color: var(--green-main); }
+        .pw-strength-bar { height: 3px; border-radius: 10px; background: var(--chart-grid); margin-top: 6px; overflow: hidden; transition: background 0.4s ease; }
+        .pw-strength-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 0.3s ease, background 0.3s ease; }
+        .pw-strength-text { font-size: 0.6rem; font-weight: 600; margin-top: 3px; transition: color 0.3s ease; }
 
-        .pw-strength-bar {
-            height: 3px; border-radius: 10px; background: var(--chart-grid);
-            margin-top: 6px; overflow: hidden; transition: background 0.4s ease;
-        }
-        .pw-strength-fill {
-            height: 100%; border-radius: 10px; width: 0%;
-            transition: width 0.3s ease, background 0.3s ease;
-        }
-        .pw-strength-text {
-            font-size: 0.6rem; font-weight: 600; margin-top: 3px;
-            transition: color 0.3s ease;
-        }
-
-        /* ===== BUTTONS ===== */
+        /* ===== BUTTONS ===== (SETTINGS CONTENT — unchanged) */
         .btn-primary-custom {
             background: var(--green-deep); color: white; border: none;
             padding: 10px 24px; border-radius: 40px; font-weight: 700;
@@ -564,13 +550,9 @@
             font-family: inherit; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn-primary-custom:hover {
-            background: #0f553f; transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(20,90,66,0.2);
-        }
+        .btn-primary-custom:hover { background: #0f553f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(20,90,66,0.2); }
         .btn-primary-custom:active { transform: translateY(0); }
         .btn-primary-custom:focus-visible { outline: 2px solid var(--gold-warm); outline-offset: 2px; }
-
         .btn-secondary-custom {
             background: transparent; color: var(--text-secondary);
             border: 1.5px solid var(--input-border);
@@ -579,12 +561,8 @@
             font-family: inherit; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn-secondary-custom:hover {
-            border-color: var(--green-main); color: var(--green-main);
-            background: var(--green-soft);
-        }
+        .btn-secondary-custom:hover { border-color: var(--green-main); color: var(--green-main); background: var(--green-soft); }
         .btn-secondary-custom:focus-visible { outline: 2px solid var(--gold-warm); outline-offset: 2px; }
-
         .btn-coral-custom {
             background: var(--coral); color: white; border: none;
             padding: 10px 24px; border-radius: 40px; font-weight: 700;
@@ -592,89 +570,12 @@
             font-family: inherit; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn-coral-custom:hover {
-            background: #c84a3c; transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(224,96,80,0.2);
-        }
+        .btn-coral-custom:hover { background: #c84a3c; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(224,96,80,0.2); }
         .btn-coral-custom:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
-
-        .btn-row {
-            display: flex; gap: 10px; margin-top: 1.2rem; flex-wrap: wrap;
-        }
-
-        /* ===== TICKET STYLES ===== */
-        .ticket-status {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 2px 10px; border-radius: 40px;
-            font-size: 0.6rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .ticket-status.pending { background: var(--gold-light); color: #b45309; }
-        .ticket-status.in_progress { background: var(--blue-soft); color: #1d4ed8; }
-        .ticket-status.resolved { background: var(--green-soft); color: #065f46; }
-        .ticket-status.closed { background: var(--border-fresh); color: var(--stone); }
-
-        .ticket-priority {
-            display: inline-block; padding: 1px 8px;
-            border-radius: 40px; font-size: 0.55rem;
-            font-weight: 600; text-transform: uppercase;
-        }
-        .ticket-priority.low { background: var(--border-fresh); color: var(--stone); }
-        .ticket-priority.medium { background: var(--gold-light); color: #b45309; }
-        .ticket-priority.high { background: var(--coral-soft); color: #dc2626; }
-
-        #ticketList .ticket-item,
-        #ticketList > div:not(.ticket-empty-state):not(:has(> i)) {
-            background: var(--input-bg);
-            border: 1px solid var(--info-border);
-            border-radius: var(--radius-sm);
-            padding: 0.9rem 1rem;
-            margin-bottom: 0.6rem;
-            transition: all 0.25s ease;
-        }
-        #ticketList > div:not(.ticket-empty-state):not(:has(> i)):hover {
-            border-color: var(--green-main);
-            box-shadow: var(--shadow-xs);
-            transform: translateY(-1px);
-        }
-
-        .ticket-empty-state {
-            text-align: center; padding: 1.5rem 1rem; color: var(--stone-light);
-        }
-        .ticket-empty-state i { font-size: 1.8rem; color: var(--border-fresh); margin-bottom: 0.5rem; display: block; }
-        .ticket-empty-state p { font-size: 0.8rem; margin: 0; }
-
-        .ticket-count-badge {
-            display: inline-flex; align-items: center; gap: 4px;
-            background: var(--green-soft); padding: 2px 12px;
-            border-radius: 40px; font-size: 0.62rem; font-weight: 700;
-            color: var(--green-deep); transition: all 0.4s ease;
-        }
-
-        .ticket-header-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 0.8rem;
-        }
-        .ticket-header-row h6 {
-            font-weight: 700; margin: 0; font-size: 0.85rem;
-            color: var(--text-primary); transition: color 0.4s ease;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .ticket-header-row h6 i { color: var(--green-main); }
-
-        .ticket-form-note {
-            font-size: 0.78rem; color: var(--stone-light);
-            margin-bottom: 0.8rem; line-height: 1.5;
-            display: flex; align-items: flex-start; gap: 8px;
-            transition: color 0.4s ease;
-        }
-        .ticket-form-note i { color: var(--gold-warm); margin-top: 2px; flex-shrink: 0; }
+        .btn-row { display: flex; gap: 10px; margin-top: 1.2rem; flex-wrap: wrap; }
 
         /* ===== TOAST ===== */
-        .toast-box {
-            position: fixed; bottom: 24px; right: 24px; z-index: 99999;
-            display: flex; flex-direction: column; gap: 8px;
-        }
+        .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
         .toast-msg {
             background: #1a463a; color: white; padding: 10px 16px;
             border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 500;
@@ -693,18 +594,11 @@
         }
 
         /* ===== ENTRANCE ===== */
-        .fu {
-            opacity: 0; transform: translateY(16px);
-            animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .fu { opacity: 0; transform: translateY(16px); animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
         .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.12s; }
         .e3 { animation-delay: 0.19s; } .e4 { animation-delay: 0.26s; }
-
-        .section-divider {
-            height: 1px; background: var(--section-divider);
-            margin: 0.3rem 0; transition: background 0.4s ease;
-        }
+        .section-divider { height: 1px; background: var(--section-divider); margin: 0.3rem 0; transition: background 0.4s ease; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
@@ -722,25 +616,29 @@
             .sidebar .nav-link-custom i { font-size: 1.15rem; }
             .sidebar .nav-text { display: none !important; }
             .sidebar .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
-            .sidebar .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
-            .sidebar .sidebar-user-info { display: none !important; }
             .sidebar .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
             .main-content { margin-left: var(--sidebar-collapsed-w); padding: 16px; }
             .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
             .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
+            .top-search input { width: 130px; }
+            .top-search input:focus { width: 160px; }
             .glass-card { padding: 1.2rem; }
             .profile-trigger-info { display: none; }
             .profile-dropdown { right: 0; left: auto; min-width: 200px; }
+            .notif-dropdown { width: 320px; right: 0; left: auto; }
         }
         @media (max-width: 576px) {
             .main-content { padding: 12px; }
             .top-bar { flex-wrap: wrap; gap: 8px; }
-            .top-bar-right { margin-left: auto; }
+            .top-bar-right { margin-left: auto; flex-wrap: wrap; }
+            .top-search { order: 10; width: 100%; }
+            .top-search input { width: 100% !important; }
             .glass-card { padding: 1rem; border-radius: var(--radius-md); }
             .btn-row { flex-direction: column; }
             .btn-primary-custom, .btn-secondary-custom, .btn-coral-custom { width: 100%; }
             .card-header-icon { width: 36px; height: 36px; font-size: 0.85rem; border-radius: 10px; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
+            .notif-dropdown { width: 290px; right: 0; left: auto; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -759,85 +657,107 @@
 </div>
 
 <div class="app">
-    <!-- ===== SIDEBAR (walang logout dito) ===== -->
+    <!-- ===== SIDEBAR ===== (COPIED FROM DASHBOARD — logo, iconify icons, complete nav; Settings = active) -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
             <div class="logo-full">
                 <h2>Block<em>Learn</em></h2>
                 <p>PNHS &middot; ICT Studio</p>
             </div>
-            <div class="logo-mono"><span>B<em>L</em></span></div>
+            <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo"></div>
             <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar">
-                <i class="fas fa-times"></i>
+                <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
             </button>
         </div>
         <div class="hamburger-wrap">
             <button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar">
-                <i class="fas fa-bars"></i>
+                <iconify-icon icon="lucide:menu"></iconify-icon>
             </button>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Rewards</div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
+            <div class="nav-section-label">Languages</div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-section-label">Account</div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom active" aria-current="page"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+            <div class="nav-section-label">Support</div>
+            <div class="nav-item"><a href="/student_help" class="nav-link-custom"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a></div>
+            <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a></div>
         </nav>
-        <div class="sidebar-user">
-            <div class="sidebar-avatar" id="sidebarAvatar">S</div>
-            <div class="sidebar-user-info">
-                <h4 id="sidebarName">Student</h4>
-                <p id="sidebarGrade">Grade 11 - ICT</p>
-            </div>
-        </div>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content" id="mainContent">
-        <!-- Top Bar — may profile dropdown sa upper right -->
+        <!-- Top Bar (COPIED FROM DASHBOARD: search + theme + notifications + profile) -->
         <header class="top-bar fu">
             <div>
                 <h1 class="page-title"><i class="fas fa-sliders"></i>Settings</h1>
             </div>
             <div class="top-bar-right">
+                <div class="top-search">
+                    <input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
                     <i class="fas fa-moon icon-moon"></i>
                     <i class="fas fa-sun icon-sun"></i>
                 </button>
 
-                <!-- Profile Trigger + Dropdown (same as dashboard) -->
-                <div style="position: relative;" id="profileWrap">
-                    <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()" tabindex="0" role="button" aria-expanded="false" aria-haspopup="true" aria-label="Profile menu">
-                        <div class="profile-trigger-avatar" id="profileAvatar">S</div>
-                        <div class="profile-trigger-info">
-                            <span class="profile-trigger-name" id="profileName">Student</span>
-                            <span class="profile-trigger-role" id="profileRole">Grade 11 - ICT</span>
+                <div style="position: relative;">
+                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" aria-label="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-badge hidden" id="notifBadge">0</span>
+                    </button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <h6><i class="fas fa-bell"></i> Notifications</h6>
+                            <button class="mark-read-btn" onclick="markAllRead()">Mark all as read</button>
                         </div>
-                        <i class="fas fa-chevron-down profile-trigger-chevron"></i>
-                    </div>
-                    <div class="profile-dropdown" id="profileDropdown" role="menu" aria-label="Profile menu">
-                        <div class="pd-header">
-                            <div class="pd-avatar" id="pdAvatar">S</div>
-                            <div>
-                                <div class="pd-name" id="pdName">Student</div>
-                                <div class="pd-grade" id="pdGrade">Grade 11 - ICT</div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading notifications...</p>
                             </div>
                         </div>
-                        <div class="pd-links">
-                            <a href="/student_profile" class="pd-link" role="menuitem"><i class="fas fa-circle-user"></i> My Profile</a>
-                            <a href="/student_settings" class="pd-link" role="menuitem"><i class="fas fa-sliders"></i> Settings</a>
-                            <a href="/student_achievements" class="pd-link" role="menuitem"><i class="fas fa-medal"></i> Achievements</a>
-                            <div class="pd-sep"></div>
-                            <button class="pd-link logout" role="menuitem" onclick="handleLogout()"><i class="fas fa-right-from-bracket"></i> Log Out</button>
+                    </div>
+                </div>
+
+                <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()" tabindex="0" role="button" aria-expanded="false" aria-haspopup="true" aria-label="Profile menu">
+                    <div class="profile-trigger-avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
+                    <div class="profile-trigger-info">
+                        <span class="profile-trigger-name" id="profileName">{{ full_name or username or 'Student' }}</span>
+                        <span class="profile-trigger-role" id="profileRole">{{ grade_level or 'Grade 11 - ICT' }}</span>
+                    </div>
+                    <i class="fas fa-chevron-down profile-trigger-chevron"></i>
+                </div>
+                <!-- PROFILE DROPDOWN (sibling structure, same as dashboard) -->
+                <div class="profile-dropdown" id="profileDropdown" role="menu" aria-label="Profile menu">
+                    <div class="pd-header">
+                        <div class="pd-avatar"><i class="fas fa-user"></i></div>
+                        <div>
+                            <div class="pd-name" id="pdName">{{ full_name or username or 'Student' }}</div>
+                            <div class="pd-grade" id="pdGrade">{{ grade_level or 'Grade 11 - ICT' }}</div>
                         </div>
+                    </div>
+                    <div class="pd-links">
+                        <a href="/student_profile" class="pd-link" role="menuitem"><i class="fas fa-circle-user"></i> My Profile</a>
+                        <a href="/student_settings" class="pd-link" role="menuitem"><i class="fas fa-sliders"></i> Settings</a>
+                        <a href="/student_help" class="pd-link" role="menuitem"><i class="fas fa-circle-question"></i> Help &amp; FAQ</a>
+                        <div class="pd-sep"></div>
+                        <a href="/logout" class="pd-link logout" role="menuitem"><i class="fas fa-arrow-right-from-bracket"></i> Sign Out</a>
                     </div>
                 </div>
             </div>
         </header>
+
+        <!-- ================= SETTINGS CONTENT (UNCHANGED) ================= -->
 
         <!-- ===== ACCOUNT INFO ===== -->
         <section class="glass-card card-green fu e1" aria-label="Account information">
@@ -933,62 +853,6 @@
             </div>
         </section>
 
-        <!-- ===== SUPPORT TICKETS ===== -->
-        <section class="glass-card card-coral fu e4" aria-label="Support tickets">
-            <div class="card-header-row">
-                <div class="card-header-icon"><i class="fas fa-ticket"></i></div>
-                <div class="card-header-text">
-                    <h3>Support Tickets</h3>
-                    <p>Having trouble? Submit a ticket and the teacher will assist you</p>
-                </div>
-            </div>
-
-            <form id="ticketForm">
-                <div class="ticket-form-note">
-                    <i class="fas fa-lightbulb"></i>
-                    <span>Describe your issue clearly so the teacher can help you faster. Include the activity name and what went wrong.</span>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label-custom" for="ticketSubject">Subject<span class="required">*</span></label>
-                        <input type="text" class="form-control-custom" id="ticketSubject" placeholder="Brief description of your issue" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label-custom" for="ticketPriority">Priority</label>
-                        <select class="form-control-custom" id="ticketPriority">
-                            <option value="low">Low — General question</option>
-                            <option value="medium" selected>Medium — Needs attention</option>
-                            <option value="high">High — Blocking my progress</option>
-                        </select>
-                    </div>
-                    <div class="form-group full">
-                        <label class="form-label-custom" for="ticketMessage">Message<span class="required">*</span></label>
-                        <textarea class="form-control-custom" id="ticketMessage" rows="3" placeholder="Describe your problem in detail. What activity? What happened? Any error messages?" required></textarea>
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button type="button" class="btn-coral-custom" onclick="submitTicket()">
-                        <i class="fas fa-paper-plane"></i> Submit Ticket
-                    </button>
-                </div>
-            </form>
-
-            <div style="margin-top: 1.4rem;">
-                <div class="section-divider" style="margin-bottom: 1rem;"></div>
-                <div class="ticket-header-row">
-                    <h6><i class="fas fa-clock-rotate-left"></i> My Tickets</h6>
-                    <span class="ticket-count-badge">
-                        <i class="fas fa-ticket"></i> <span id="ticketCount">0</span> total
-                    </span>
-                </div>
-                <div id="ticketList">
-                    <div class="ticket-empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No tickets submitted yet.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 </div>
 
@@ -996,7 +860,6 @@
 <div class="toast-box" id="toastBox" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/static/js/tickets.js"></script>
 <script>
 (function() {
     'use strict';
@@ -1007,25 +870,19 @@
     const toastBox = $('#toastBox');
     const profileTrigger = $('#profileTrigger');
     const profileDropdown = $('#profileDropdown');
-    const profileWrap = $('#profileWrap');
     let profileOpen = false;
+    let notifOpen = false;
+    var notificationCount = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
         applySavedTheme();
-        restoreSidebarState();
         loadSettings();
-        setTimeout(function() {
-            if (typeof loadStudentTickets === 'function') {
-                loadStudentTickets();
-            }
-        }, 400);
+        loadUnreadCount();
     });
 
-    window.addEventListener('resize', handleResize);
-
-    /* ===== THEME ===== */
+    /* ===== THEME ===== (key: blocklearn-theme — same storage key as dashboard) */
     function applySavedTheme() {
-        if (localStorage.getItem('bl-theme') === 'dark') {
+        if (localStorage.getItem('blocklearn-theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
     }
@@ -1035,44 +892,34 @@
         var isDark = html.getAttribute('data-theme') === 'dark';
         if (isDark) {
             html.removeAttribute('data-theme');
-            localStorage.setItem('bl-theme', 'light');
+            localStorage.setItem('blocklearn-theme', 'light');
             showToast('fa-sun', 'Switched to light mode');
         } else {
             html.setAttribute('data-theme', 'dark');
-            localStorage.setItem('bl-theme', 'dark');
+            localStorage.setItem('blocklearn-theme', 'dark');
             showToast('fa-moon', 'Switched to dark mode');
         }
     };
 
-    /* ===== SIDEBAR ===== */
-    window.collapseSidebar = function() {
-        sidebar.classList.add('collapsed');
-        mainContent.classList.add('shifted');
-        localStorage.setItem('bl-sidebar', 'collapsed');
-    };
-    window.expandSidebar = function() {
-        sidebar.classList.remove('collapsed');
-        mainContent.classList.remove('shifted');
-        localStorage.setItem('bl-sidebar', 'expanded');
-    };
-    function restoreSidebarState() {
-        if (localStorage.getItem('bl-sidebar') === 'collapsed' || window.innerWidth <= 768) {
+    /* ===== SIDEBAR ===== (same behavior as dashboard) */
+    var isExpanded = window.innerWidth > 768;
+    function applyState() {
+        if (isExpanded) {
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('shifted');
+        } else {
             sidebar.classList.add('collapsed');
             mainContent.classList.add('shifted');
         }
     }
-    function handleResize() {
-        if (window.innerWidth <= 768) {
-            sidebar.classList.add('collapsed');
-            mainContent.classList.add('shifted');
-        }
-    }
-    window.toggleSidebar = function() {
-        if (sidebar.classList.contains('collapsed')) expandSidebar();
-        else collapseSidebar();
-    };
+    window.collapseSidebar = function() { isExpanded = false; applyState(); };
+    window.expandSidebar = function() { isExpanded = true; applyState(); };
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768 && isExpanded) { isExpanded = false; applyState(); }
+    });
+    applyState();
 
-    /* ===== PROFILE DROPDOWN (same as dashboard) ===== */
+    /* ===== PROFILE DROPDOWN ===== */
     window.toggleProfile = function() {
         profileOpen = !profileOpen;
         profileDropdown.classList.toggle('open', profileOpen);
@@ -1086,17 +933,26 @@
         profileTrigger.setAttribute('aria-expanded', 'false');
     }
 
-    // Click outside to close
     document.addEventListener('click', function(e) {
-        if (profileOpen && !profileWrap.contains(e.target)) {
-            closeProfile();
+        if (profileOpen && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) closeProfile();
+        if (notifOpen) {
+            var notifBtn = document.getElementById('notifBtn');
+            var notifDropdown = document.getElementById('notifDropdown');
+            if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                notifOpen = false;
+                notifDropdown.classList.remove('open');
+            }
         }
     });
-    // Escape to close
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && profileOpen) closeProfile();
+        if (e.key === 'Escape') {
+            if (profileOpen) closeProfile();
+            if (notifOpen) {
+                notifOpen = false;
+                document.getElementById('notifDropdown').classList.remove('open');
+            }
+        }
     });
-    // Enter/Space on profile trigger
     profileTrigger.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -1104,11 +960,150 @@
         }
     });
 
-    window.handleLogout = function() {
-        if (confirm('Are you sure you want to log out?')) {
-            window.location.href = '/logout';
+    /* ===== NOTIFICATIONS ===== (same as dashboard) */
+    window.toggleNotifications = function() {
+        notifOpen = !notifOpen;
+        var dropdown = document.getElementById('notifDropdown');
+        if (notifOpen) {
+            dropdown.classList.add('open');
+            loadNotifications();
+        } else {
+            dropdown.classList.remove('open');
         }
     };
+
+    function loadNotifications() {
+        var list = document.getElementById('notifList');
+        list.innerHTML = '<div class="notif-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading notifications...</p></div>';
+        fetch('/get_notifications')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    renderNotifications(data.notifications);
+                } else {
+                    list.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i><p>Failed to load notifications</p></div>';
+                }
+            })
+            .catch(() => {
+                list.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i><p>Error loading notifications</p></div>';
+            });
+    }
+
+    function renderNotifications(notifications) {
+        var list = document.getElementById('notifList');
+        if (!notifications || notifications.length === 0) {
+            list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>';
+            return;
+        }
+        var html = '';
+        notifications.forEach(function(notif) {
+            var unreadClass = notif.is_read ? '' : 'unread';
+            var timeAgo = getTimeAgo(notif.created_at);
+            var readBtn = notif.is_read ? '' :
+                '<button class="notif-read-btn" onclick="markRead(' + notif.id + ')"><i class="fas fa-check"></i> Mark as read</button>';
+            var scoreMatch = notif.message.match(/score of (\d+)\/(\d+)/);
+            var scoreHtml = scoreMatch ? '<span class="score-badge">' + scoreMatch[1] + '/' + scoreMatch[2] + ' pts</span>' : '';
+            html += '<div class="notif-item ' + unreadClass + '" id="notif-' + notif.id + '">' +
+                    '<div class="notif-title">' + esc(notif.title) + '</div>' +
+                    '<div class="notif-message">' + esc(notif.message) + '</div>' +
+                    scoreHtml +
+                    '<span class="notif-time">' + timeAgo + '</span>' +
+                    readBtn + '</div>';
+        });
+        list.innerHTML = html;
+    }
+
+    function setBadge(count) {
+        var badge = document.getElementById('notifBadge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+        notificationCount = count;
+    }
+
+    window.markRead = function(notificationId) {
+        fetch('/mark_notification_read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notification_id: notificationId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                var item = document.getElementById('notif-' + notificationId);
+                if (item) {
+                    item.classList.remove('unread');
+                    var btn = item.querySelector('.notif-read-btn');
+                    if (btn) btn.remove();
+                }
+                setBadge(Math.max(0, notificationCount - 1));
+            }
+        })
+        .catch(err => console.error('Error marking read:', err));
+    };
+
+    window.markAllRead = function() {
+        fetch('/mark_all_notifications_read', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelectorAll('.notif-item.unread').forEach(function(item) {
+                    item.classList.remove('unread');
+                    var btn = item.querySelector('.notif-read-btn');
+                    if (btn) btn.remove();
+                });
+                setBadge(0);
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    };
+
+    function loadUnreadCount() {
+        fetch('/get_unread_count')
+            .then(r => r.json())
+            .then(data => { if (data.success) setBadge(data.count); })
+            .catch(() => {});
+    }
+
+    setInterval(loadUnreadCount, 10000);
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) loadUnreadCount();
+    });
+
+    /* ===== SEARCH ===== */
+    document.getElementById('topSearchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+            showToast('fa-magnifying-glass', 'Search: "' + this.value.trim() + '"');
+            this.value = '';
+            this.blur();
+        }
+    });
+
+    /* ===== HELPERS ===== */
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function getTimeAgo(dateStr) {
+        if (!dateStr) return 'Just now';
+        var diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+        return new Date(dateStr).toLocaleDateString();
+    }
+
+    function showToast(icon, msg) {
+        var box = document.getElementById('toastBox');
+        var t = document.createElement('div');
+        t.className = 'toast-msg';
+        t.innerHTML = '<i class="fas ' + (icon || 'fa-circle-info') + '"></i> ' + esc(msg);
+        box.appendChild(t);
+        setTimeout(function() { t.classList.add('out'); setTimeout(function() { t.remove(); }, 300); }, 2500);
+    }
 
     /* ===== SETTINGS ===== */
     function loadSettings() {
@@ -1121,152 +1116,121 @@
                 $('#settingsEmailDisplay').innerText = d.email || '-';
                 $('#editEmail').value = d.email || '';
 
-                // Update sidebar + profile dropdown
+                // Update profile trigger + dropdown
+                // NOTE: sidebar-user tinanggal na (dashboard UI version), kaya
+                // guarded na lang para hindi mag-error kung wala yung element
                 if (d.full_name || d.username) {
                     var name = d.full_name || d.username || 'Student';
-                    var initial = name.charAt(0).toUpperCase();
                     var gradeText = (d.grade_level || 'Grade 11') + ' - ICT';
 
-                    $('#sidebarAvatar').textContent = initial;
-                    $('#sidebarName').textContent = name;
-                    $('#sidebarGrade').textContent = gradeText;
-                    $('#profileAvatar').textContent = initial;
-                    $('#profileName').textContent = name;
-                    $('#profileRole').textContent = gradeText;
-                    $('#pdAvatar').textContent = initial;
-                    $('#pdName').textContent = name;
-                    $('#pdGrade').textContent = gradeText;
+                    var profileName = $('#profileName');
+                    var profileRole = $('#profileRole');
+                    var pdName = $('#pdName');
+                    var pdGrade = $('#pdGrade');
+                    if (profileName) profileName.textContent = name;
+                    if (profileRole) profileRole.textContent = gradeText;
+                    if (pdName) pdName.textContent = name;
+                    if (pdGrade) pdGrade.textContent = gradeText;
                 }
             })
             .catch(function() {});
     }
 
+    /* ===== ⚠️ REBUILT: updateProfile ===== */
+    /* Dito naputol yung paste mo. Binuo ko ulit based sa form fields mo.
+       Palitan ang endpoint ('/update_profile') kung iba ang route sa Flask mo. */
     window.updateProfile = function() {
         var email = $('#editEmail').value.trim();
         var currentPassword = $('#currentPassword').value;
         var newPassword = $('#newPassword').value;
         var confirmPassword = $('#confirmPassword').value;
 
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            showToast('fa-exclamation-circle', 'Please enter a valid email address', 'error');
-            return;
-        }
-        if ((currentPassword || newPassword || confirmPassword) && (!currentPassword || !newPassword || !confirmPassword)) {
-            showToast('fa-exclamation-circle', 'Fill all password fields to change your password', 'error');
-            return;
-        }
-        if (newPassword && newPassword.length < 6) {
-            showToast('fa-exclamation-circle', 'New password must be at least 6 characters', 'error');
-            return;
-        }
-        if (newPassword && newPassword !== confirmPassword) {
-            showToast('fa-exclamation-circle', 'New passwords do not match', 'error');
-            return;
+        if (newPassword || confirmPassword) {
+            if (newPassword.length < 6) {
+                showToast('fa-circle-exclamation', 'New password must be at least 6 characters');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showToast('fa-circle-exclamation', 'New passwords do not match');
+                return;
+            }
+            if (!currentPassword) {
+                showToast('fa-circle-exclamation', 'Please enter your current password');
+                return;
+            }
         }
 
-        var payload = { grade_level: 'Grade 11', email: email };
-        if (currentPassword && newPassword) {
-            payload.current_password = currentPassword;
-            payload.new_password = newPassword;
+        if (!email && !newPassword) {
+            showToast('fa-circle-info', 'Nothing to update');
+            return;
         }
 
         fetch('/update_profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                email: email || null,
+                current_password: currentPassword || null,
+                new_password: newPassword || null
+            })
         })
         .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) {
-                showToast('fa-check-circle', 'Settings updated successfully!');
-                loadSettings();
+        .then(function(data) {
+            if (data.success) {
+                showToast('fa-circle-check', 'Settings saved successfully!');
                 $('#currentPassword').value = '';
                 $('#newPassword').value = '';
                 $('#confirmPassword').value = '';
                 checkPwStrength('');
+                if (data.email) $('#settingsEmailDisplay').innerText = data.email;
+                loadSettings();
             } else {
-                showToast('fa-exclamation-circle', d.message || 'Update failed', 'error');
+                showToast('fa-circle-exclamation', data.error || 'Failed to update settings');
             }
         })
         .catch(function() {
-            showToast('fa-exclamation-circle', 'Update failed. Please try again.', 'error');
+            showToast('fa-circle-exclamation', 'Error connecting to server');
         });
     };
 
+    /* ===== ⚠️ REBUILT: resetForm, togglePw, checkPwStrength ===== */
+    /* Navalent din ito sa putol na parte. Simple implementations based sa HTML usage. */
     window.resetForm = function() {
-        $('#editEmail').value = $('#settingsEmailDisplay').textContent || '';
         $('#currentPassword').value = '';
         $('#newPassword').value = '';
         $('#confirmPassword').value = '';
         checkPwStrength('');
-        showToast('fa-rotate-left', 'Form reset to saved values');
+        loadSettings();
+        showToast('fa-rotate-left', 'Form reset');
     };
 
-    /* ===== PASSWORD UTILITIES ===== */
     window.togglePw = function(inputId, btn) {
         var input = document.getElementById(inputId);
+        if (!input) return;
+        var isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
         var icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
+        if (icon) icon.className = isPw ? 'fas fa-eye-slash' : 'fas fa-eye';
     };
 
-    window.checkPwStrength = function(pw) {
+    window.checkPwStrength = function(val) {
         var fill = $('#pwStrengthFill');
         var text = $('#pwStrengthText');
-        if (!pw) {
-            fill.style.width = '0%';
-            fill.style.background = 'transparent';
-            text.innerHTML = '&nbsp;';
-            text.style.color = 'transparent';
-            return;
-        }
+        if (!fill || !text) return;
         var score = 0;
-        if (pw.length >= 6) score++;
-        if (pw.length >= 10) score++;
-        if (/[A-Z]/.test(pw)) score++;
-        if (/[0-9]/.test(pw)) score++;
-        if (/[^A-Za-z0-9]/.test(pw)) score++;
-        var levels = [
-            { w: '20%', bg: '#dc2626', label: 'Very weak', color: '#dc2626' },
-            { w: '40%', bg: '#e06050', label: 'Weak', color: '#e06050' },
-            { w: '60%', bg: '#e8a838', label: 'Fair', color: '#b45309' },
-            { w: '80%', bg: '#4a90d9', label: 'Good', color: '#1d4ed8' },
-            { w: '100%', bg: '#1f8a64', label: 'Strong', color: '#065f46' }
-        ];
-        var lvl = levels[Math.min(score, 4)];
-        fill.style.width = lvl.w;
-        fill.style.background = lvl.bg;
-        text.textContent = lvl.label;
-        text.style.color = lvl.color;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+        if (/\d/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        var pct = Math.min(100, score * 20);
+        var label = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'][score] || '';
+        var color = ['#dde9e3', '#e06050', '#e8a838', '#e8a838', '#28a87a', '#145a42'][score];
+        fill.style.width = pct + '%';
+        fill.style.background = color;
+        text.textContent = val ? 'Strength: ' + label : '\u00a0';
+        text.style.color = color;
     };
-
-    /* ===== TOAST ===== */
-    window.showToast = function(icon, message, type) {
-        var existing = toastBox.querySelector('.toast-msg');
-        if (existing) existing.remove();
-        var toast = document.createElement('div');
-        toast.className = 'toast-msg' + (type === 'error' ? ' error' : '');
-        toast.innerHTML = '<i class="fas ' + icon + '"></i> ' + escapeHtml(message);
-        toastBox.appendChild(toast);
-        setTimeout(function() {
-            toast.classList.add('out');
-            toast.addEventListener('transitionend', function() { toast.remove(); });
-        }, 3000);
-    };
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
 })();
 </script>
 </body>

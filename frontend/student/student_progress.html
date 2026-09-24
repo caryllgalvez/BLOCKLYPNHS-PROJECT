@@ -6,8 +6,11 @@
     <title>Progress · BlockLearn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
+        /* ===== ALL EXISTING STYLES ===== */
+        /* (Keep the exact same styles as the original file) */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -168,9 +171,9 @@
         .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 1.1rem;
+            padding: 1rem 0.4rem 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
@@ -178,9 +181,12 @@
             display: flex; flex-direction: column; flex: 1; min-width: 0;
             transition: opacity 0.2s ease;
         }
+        .logo-image {
+            width: 70px; height: 70px; object-fit: contain; flex-shrink: 0;
+        }
         .logo-full h2 {
             font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
-            margin: 0; white-space: nowrap;
+            margin: 0; white-space: nowrap; color: #ffffff;
         }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
         .logo-full p {
@@ -188,7 +194,13 @@
             white-space: nowrap; text-transform: uppercase;
             letter-spacing: 1.2px; font-weight: 600;
         }
-        .logo-mono { display: none; width: 100%; text-align: center; flex-shrink: 0; }
+        .logo-mono {
+            display: none; width: 42px; min-width: 42px; text-align: center; flex-shrink: 0;
+            align-items: center; justify-content: center;
+        }
+        .logo-mono img {
+            display: block; width: 42px; height: 42px; object-fit: contain; margin: 0 auto;
+        }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
@@ -211,8 +223,9 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
+        .sidebar.collapsed .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
-        .sidebar.collapsed .logo-mono { display: block; }
+        .sidebar.collapsed .logo-mono { display: flex; }
         .sidebar.collapsed .toggle-btn { display: none; }
         .sidebar.collapsed .hamburger-wrap { display: flex; }
         .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.55rem 0; margin: 0 0.3rem; }
@@ -224,6 +237,7 @@
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
 
         .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
+        .sidebar:not(.collapsed) .logo-image { display: block; }
         .sidebar:not(.collapsed) .logo-full { display: flex; }
         .sidebar:not(.collapsed) .logo-mono { display: none; }
         .sidebar:not(.collapsed) .toggle-btn { display: flex; }
@@ -250,6 +264,9 @@
             white-space: nowrap;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
+        .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.12); }
         .nav-link-custom.active {
@@ -271,7 +288,8 @@
         }
 
         .sidebar-user {
-            display: flex; align-items: center; gap: 11px;
+            display: none !important;
+            align-items: center; gap: 11px;
             border-top: 1px solid rgba(255,255,255,0.07);
             transition: all 0.35s ease; overflow: hidden;
         }
@@ -370,8 +388,6 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px solid var(--card-white); transition: all 0.3s ease;
         }
-        .notif-btn .notif-badge.hidden { display: none; }
-
         /* Notification Dropdown */
         .notif-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
@@ -653,9 +669,12 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 0.9rem; flex-shrink: 0;
         }
-        .detail-icon.py { background: var(--blue-soft); color: var(--blue); }
+        .detail-icon.php { background: var(--blue-soft); color: var(--blue); }
         .detail-icon.js { background: var(--gold-light); color: #c48a20; }
-        .detail-icon.html { background: var(--coral-soft); color: var(--coral); }
+        .detail-icon.cpp { background: var(--coral-soft); color: var(--coral); }
+        .detail-icon iconify-icon { width: 1.1rem; height: 1.1rem; }
+        .detail-icon.py { background: var(--green-soft); color: var(--green-main); }
+        .detail-icon.java { background: var(--blue-soft); color: var(--blue); }
         .detail-label {
             font-size: 0.85rem; color: var(--text-secondary);
             transition: color 0.4s ease;
@@ -669,6 +688,10 @@
             font-size: 0.85rem; font-weight: 700; color: var(--text-primary);
             transition: color 0.4s ease; min-width: 60px; text-align: right;
         }
+        .detail-percent {
+            font-size: 0.72rem; font-weight: 700; color: var(--green-main);
+            min-width: 32px; text-align: right;
+        }
 
         /* Mini meter in detail row */
         .mini-meter {
@@ -680,9 +703,11 @@
             height: 100%; border-radius: 10px; width: 0%;
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .mini-meter-fill.py { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
+        .mini-meter-fill.php { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .mini-meter-fill.js { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
-        .mini-meter-fill.html { background: linear-gradient(90deg, var(--coral), #f08070); }
+        .mini-meter-fill.cpp { background: linear-gradient(90deg, var(--coral), #f08070); }
+        .mini-meter-fill.py { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
+        .mini-meter-fill.java { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
 
         /* ===== DETAILED PROGRESS GRID ===== */
         .progress-grid {
@@ -710,13 +735,16 @@
             transition: color 0.4s ease;
         }
         .progress-block-head h4 i { font-size: 0.8rem; }
+        .progress-block-head h4 iconify-icon { width: 0.9rem; height: 0.9rem; vertical-align: -0.12em; }
         .progress-block-head .pct-label {
             font-size: 0.72rem; font-weight: 750; padding: 2px 10px;
             border-radius: 20px;
         }
-        .pct-label.py { background: var(--blue-soft); color: var(--blue); }
+        .pct-label.php { background: var(--blue-soft); color: var(--blue); }
         .pct-label.js { background: var(--gold-light); color: #9a7020; }
-        .pct-label.html { background: var(--coral-soft); color: var(--coral); }
+        .pct-label.cpp { background: var(--coral-soft); color: var(--coral); }
+        .pct-label.py { background: var(--green-soft); color: var(--green-deep); }
+        .pct-label.java { background: var(--blue-soft); color: var(--blue); }
         .pct-label.overall { background: var(--green-soft); color: var(--green-deep); }
 
         .meter {
@@ -728,9 +756,11 @@
             height: 100%; border-radius: inherit; width: 0%;
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .meter-fill.py { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
+        .meter-fill.php { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .meter-fill.js { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
-        .meter-fill.html { background: linear-gradient(90deg, var(--coral), #f08070); }
+        .meter-fill.cpp { background: linear-gradient(90deg, var(--coral), #f08070); }
+        .meter-fill.py { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
+        .meter-fill.java { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .meter-fill.overall { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
 
         .progress-block-sub {
@@ -838,30 +868,36 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
             <div class="logo-full">
                 <h2>Block<em>Learn</em></h2>
                 <p>PNHS &middot; ICT Studio</p>
             </div>
-            <div class="logo-mono"><span>B<em>L</em></span></div>
+            <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo"></div>
             <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar">
-                <i class="fas fa-times"></i>
+                <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
             </button>
         </div>
         <div class="hamburger-wrap">
             <button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar">
-                <i class="fas fa-bars"></i>
+                <iconify-icon icon="lucide:menu"></iconify-icon>
             </button>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom active" aria-current="page"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Rewards</div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
+            <div class="nav-section-label">Languages</div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-section-label">Account</div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+            <div class="nav-section-label">Support</div>
+            <div class="nav-item"><a href="/student_help" class="nav-link-custom"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a></div>
+            <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a></div>
         </nav>
         <div class="sidebar-user">
             <div class="sidebar-avatar" id="sidebarAvatar">S</div>
@@ -943,7 +979,7 @@
             <div class="progress-banner-inner">
                 <div class="progress-banner-text">
                     <h1>Your <em>Learning</em> Journey</h1>
-                    <p>Track your progress across all programming activities</p>
+                    <p>Track your progress across all programming activities &amp; assessments</p>
                 </div>
                 <div class="circular-progress" id="circularProgress">
                     <svg width="100" height="100" viewBox="0 0 100 100">
@@ -966,40 +1002,40 @@
                     <div class="stat-icon"><i class="fas fa-trophy"></i></div>
                 </div>
                 <div class="stat-value" id="progressPercent">0<span class="stat-unit">%</span></div>
-                <div class="stat-label-bottom">Overall lesson progress</div>
+                <div class="stat-label-bottom">Overall progress</div>
                 <div class="stat-progress">
                     <div class="stat-progress-fill" id="progressBar" data-width="0"></div>
                 </div>
             </div>
             <div class="stat-card fu e4">
                 <div class="stat-header">
-                    <span>Lessons Done</span>
+                    <span>Activities Done</span>
                     <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
                 </div>
-                <div class="stat-value" id="completedLessons">0</div>
-                <div class="stat-label-bottom">Lessons completed</div>
+                <div class="stat-value" id="completedLessons">0<span class="stat-unit">/0</span></div>
+                <div class="stat-label-bottom">Activities completed</div>
                 <div class="stat-progress">
                     <div class="stat-progress-fill" id="lessonsBar" data-width="0"></div>
                 </div>
             </div>
             <div class="stat-card fu e5">
                 <div class="stat-header">
-                    <span>Avg. Score</span>
-                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                    <span>Assessments Done</span>
+                    <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
                 </div>
-                <div class="stat-value" id="averageScore">0<span class="stat-unit">%</span></div>
-                <div class="stat-label-bottom">Average activity score</div>
+                <div class="stat-value" id="completedAssessments">0<span class="stat-unit">/0</span></div>
+                <div class="stat-label-bottom">Assessments completed</div>
                 <div class="stat-progress">
-                    <div class="stat-progress-fill" id="scoreBar" data-width="0"></div>
+                    <div class="stat-progress-fill" id="assessmentsBar" data-width="0"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Progress by Activity Type -->
+        <!-- Progress by Assessment Type -->
         <section class="section-card fu e6">
             <div class="section-header">
-                <h3><i class="fas fa-code"></i> Progress by Activity Type</h3>
-                <span class="section-badge"><i class="fas fa-chart-bar me-1"></i> 3 Languages</span>
+                <h3><i class="fas fa-clipboard-check"></i> Assessment Progress</h3>
+                <span class="section-badge"><i class="fas fa-tasks me-1"></i> Python · Java</span>
             </div>
             <div class="section-content">
                 <ul class="detail-list">
@@ -1008,12 +1044,53 @@
                             <div class="detail-icon py"><i class="fab fa-python"></i></div>
                             <div class="detail-label">
                                 Python
-                                <small>Block-based programming</small>
+                                <small>Python assessments</small>
                             </div>
                         </div>
                         <div class="detail-right">
-                            <span class="detail-value" id="pythonCompleted">over 6</span>
+                            <span class="detail-value" id="pythonCompleted">0/0</span>
                             <div class="mini-meter"><div class="mini-meter-fill py" id="pythonMiniMeter"></div></div>
+                            <span class="detail-percent" id="pythonProgressPercent">0%</span>
+                        </div>
+                    </li>
+                    <li class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon java"><i class="fab fa-java"></i></div>
+                            <div class="detail-label">
+                                Java
+                                <small>Java assessments</small>
+                            </div>
+                        </div>
+                        <div class="detail-right">
+                            <span class="detail-value" id="javaCompleted">0/0</span>
+                            <div class="mini-meter"><div class="mini-meter-fill java" id="javaMiniMeter"></div></div>
+                            <span class="detail-percent" id="javaProgressPercent">0%</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Progress by Activity Type -->
+        <section class="section-card fu e7">
+            <div class="section-header">
+                <h3><i class="fas fa-code"></i> Activities Progress</h3>
+                <span class="section-badge" id="activitiesUnlockBadge"><i class="fas fa-lock me-1"></i> Locked until assessments are complete</span>
+            </div>
+            <div class="section-content">
+                <ul class="detail-list">
+                    <li class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon php"><i class="fab fa-php"></i></div>
+                            <div class="detail-label">
+                                PHP
+                                <small>Web scripting activities</small>
+                            </div>
+                        </div>
+                        <div class="detail-right">
+                            <span class="detail-value" id="phpCompleted">0/0</span>
+                            <div class="mini-meter"><div class="mini-meter-fill php" id="phpMiniMeter"></div></div>
+                            <span class="detail-percent" id="phpProgressPercent">0%</span>
                         </div>
                     </li>
                     <li class="detail-item">
@@ -1021,28 +1098,40 @@
                             <div class="detail-icon js"><i class="fab fa-js"></i></div>
                             <div class="detail-label">
                                 JavaScript
-                                <small>Interactive web scripting</small>
+                                <small>Interactive web activities</small>
                             </div>
                         </div>
                         <div class="detail-right">
-                            <span class="detail-value" id="jsCompleted">over 4</span>
+                            <span class="detail-value" id="jsCompleted">0/0</span>
                             <div class="mini-meter"><div class="mini-meter-fill js" id="jsMiniMeter"></div></div>
+                            <span class="detail-percent" id="jsProgressPercent">0%</span>
                         </div>
                     </li>
                     <li class="detail-item">
                         <div class="detail-left">
-                            <div class="detail-icon html"><i class="fab fa-html5"></i></div>
+                            <div class="detail-icon cpp"><iconify-icon icon="logos:cplusplus"></iconify-icon></div>
                             <div class="detail-label">
-                                HTML/CSS
-                                <small>Web structure and styling</small>
+                                C++
+                                <small>Systems programming activities</small>
                             </div>
                         </div>
                         <div class="detail-right">
-                            <span class="detail-value" id="htmlCompleted">over 4</span>
-                            <div class="mini-meter"><div class="mini-meter-fill html" id="htmlMiniMeter"></div></div>
+                            <span class="detail-value" id="cppCompleted">0/0</span>
+                            <div class="mini-meter"><div class="mini-meter-fill cpp" id="cppMiniMeter"></div></div>
+                            <span class="detail-percent" id="cppProgressPercent">0%</span>
                         </div>
                     </li>
                 </ul>
+            </div>
+        </section>
+
+        <section class="section-card fu e8">
+            <div class="section-header">
+                <h3><i class="fas fa-clipboard-check"></i> Auto-Grading Results</h3>
+                <span class="section-badge">Live</span>
+            </div>
+            <div class="section-content" id="autoGradingResults">
+                <p class="text-muted mb-0">Loading results...</p>
             </div>
         </section>
 
@@ -1053,30 +1142,52 @@
                 <span class="section-badge"><i class="fas fa-signal me-1"></i> Live</span>
             </div>
             <div class="progress-grid">
+                <!-- PHP -->
                 <div class="progress-block">
                     <div class="progress-block-head">
-                        <h4><i class="fab fa-python" style="color: var(--blue);"></i> Python</h4>
-                        <span class="pct-label py" id="pythonPctLabel">0%</span>
+                        <h4><i class="fab fa-php" style="color: var(--blue);"></i> PHP</h4>
+                        <span class="pct-label php" id="phpPctLabel">0%</span>
                     </div>
-                    <div class="meter"><div class="meter-fill py" id="pythonMeter"></div></div>
-                    <div class="progress-block-sub" id="pythonSub">0 of 6 activities completed</div>
+                    <div class="meter"><div class="meter-fill php" id="phpMeter"></div></div>
+                    <div class="progress-block-sub" id="phpSub">0 of 0 activities completed</div>
                 </div>
+                <!-- JavaScript -->
                 <div class="progress-block">
                     <div class="progress-block-head">
                         <h4><i class="fab fa-js" style="color: #c48a20;"></i> JavaScript</h4>
                         <span class="pct-label js" id="jsPctLabel">0%</span>
                     </div>
                     <div class="meter"><div class="meter-fill js" id="jsMeter"></div></div>
-                    <div class="progress-block-sub" id="jsSub">0 of 4 activities completed</div>
+                    <div class="progress-block-sub" id="jsSub">0 of 0 activities completed</div>
                 </div>
+                <!-- C++ -->
                 <div class="progress-block">
                     <div class="progress-block-head">
-                        <h4><i class="fab fa-html5" style="color: var(--coral);"></i> HTML/CSS</h4>
-                        <span class="pct-label html" id="htmlPctLabel">0%</span>
+                        <h4><iconify-icon icon="logos:cplusplus" style="color: var(--coral);"></iconify-icon> C++</h4>
+                        <span class="pct-label cpp" id="cppPctLabel">0%</span>
                     </div>
-                    <div class="meter"><div class="meter-fill html" id="htmlMeter"></div></div>
-                    <div class="progress-block-sub" id="htmlSub">0 of 4 activities completed</div>
+                    <div class="meter"><div class="meter-fill cpp" id="cppMeter"></div></div>
+                    <div class="progress-block-sub" id="cppSub">0 of 0 activities completed</div>
                 </div>
+                <!-- Python -->
+                <div class="progress-block">
+                    <div class="progress-block-head">
+                        <h4><i class="fab fa-python" style="color: var(--green-main);"></i> Python</h4>
+                        <span class="pct-label py" id="pythonPctLabel">0%</span>
+                    </div>
+                    <div class="meter"><div class="meter-fill py" id="pythonMeter"></div></div>
+                    <div class="progress-block-sub" id="pythonSub">0 of 0 assessments completed</div>
+                </div>
+                <!-- Java -->
+                <div class="progress-block">
+                    <div class="progress-block-head">
+                        <h4><i class="fab fa-java" style="color: var(--blue);"></i> Java</h4>
+                        <span class="pct-label java" id="javaPctLabel">0%</span>
+                    </div>
+                    <div class="meter"><div class="meter-fill java" id="javaMeter"></div></div>
+                    <div class="progress-block-sub" id="javaSub">0 of 0 assessments completed</div>
+                </div>
+                <!-- Overall -->
                 <div class="progress-block">
                     <div class="progress-block-head">
                         <h4><i class="fas fa-flag-checkered" style="color: var(--green-main);"></i> Overall</h4>
@@ -1095,38 +1206,51 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ===== SIDEBAR =====
-    function collapseSidebar() {
-        document.getElementById('sidebar').classList.add('collapsed');
-        document.getElementById('mainContent').classList.add('shifted');
-    }
-    function expandSidebar() {
-        document.getElementById('sidebar').classList.remove('collapsed');
-        document.getElementById('mainContent').classList.remove('shifted');
-    }
-    function checkSidebarState() {
-        if (window.innerWidth <= 768) {
-            document.getElementById('sidebar').classList.add('collapsed');
-            document.getElementById('mainContent').classList.add('shifted');
+    /* ===== SIDEBAR ===== */
+    var sidebar = document.getElementById('sidebar');
+    var mainContent = document.getElementById('mainContent');
+    var isExpanded = window.innerWidth > 768;
+
+    function applyState() {
+        if (isExpanded) {
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('shifted');
         } else {
-            document.getElementById('sidebar').classList.remove('collapsed');
-            document.getElementById('mainContent').classList.remove('shifted');
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('shifted');
         }
     }
+    function collapseSidebar() { isExpanded = false; applyState(); }
+    function expandSidebar() { isExpanded = true; applyState(); }
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            isExpanded = false;
+        }
+        applyState();
+    }
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768 && isExpanded) { isExpanded = false; applyState(); }
+    });
+    applyState();
 
-    // ===== THEME =====
+    /* ===== THEME TOGGLE ===== */
     function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.getAttribute('data-theme') === 'dark';
-        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        if (current === 'dark') {
+            html.removeAttribute('data-theme');
+            localStorage.setItem('blocklearn-theme', 'light');
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('blocklearn-theme', 'dark');
+        }
     }
     (function() {
-        const saved = localStorage.getItem('theme');
+        var saved = localStorage.getItem('blocklearn-theme');
         if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     })();
 
-    // ===== NOTIFICATIONS =====
+    /* ===== NOTIFICATIONS ===== */
     function toggleNotifications() {
         const dd = document.getElementById('notifDropdown');
         document.getElementById('profileDropdown').classList.remove('open');
@@ -1225,83 +1349,137 @@
     }
 
     // ===== LOAD PROGRESS DATA =====
+    let progressRequest;
     function loadProgress() {
-        // Overall progress
-        fetch('/get_progress')
-            .then(r => r.json())
+        if (progressRequest) progressRequest.abort();
+        progressRequest = new AbortController();
+        fetch('/get_activity_progress', { signal: progressRequest.signal })
+            .then(r => {
+                if (!r.ok) throw new Error(`Progress request failed (${r.status})`);
+                return r.json();
+            })
             .then(d => {
-                if (!d.success) return;
-                const percent = Math.round(d.progress || 0);
+                if (!d.success) throw new Error(d.message || 'Progress data was not returned');
+
+                const percent = d.overall_percentage || 0;
+                const activitiesCompleted = d.completed_activities || 0;
+                const assessmentsCompleted = d.completed_assessments || 0;
+                const totalActivities = d.total_activities || 0;
+                const totalAssessments = d.total_assessments || 0;
                 document.getElementById('progressPercent').innerHTML = percent + '<span class="stat-unit">%</span>';
-                document.getElementById('completedLessons').innerText = d.completed || 0;
+                document.getElementById('completedLessons').innerHTML = activitiesCompleted + '<span class="stat-unit">/' + totalActivities + '</span>';
+                document.getElementById('completedAssessments').innerHTML = assessmentsCompleted + '<span class="stat-unit">/' + totalAssessments + '</span>';
                 document.getElementById('progressBar').setAttribute('data-width', percent);
-                document.getElementById('lessonsBar').setAttribute('data-width', Math.min((d.completed || 0) * 15, 100));
+                document.getElementById('lessonsBar').setAttribute('data-width', totalActivities ? Math.round(activitiesCompleted / totalActivities * 100) : 0);
+                document.getElementById('assessmentsBar').setAttribute('data-width', totalAssessments ? Math.round(assessmentsCompleted / totalAssessments * 100) : 0);
                 setCircularProgress(percent);
                 setMeter('completionMeter', percent);
                 document.getElementById('overallPctLabel').textContent = percent + '%';
+                const unlockBadge = document.getElementById('activitiesUnlockBadge');
+                if (unlockBadge) {
+                    unlockBadge.innerHTML = d.activities_unlocked
+                        ? '<i class="fas fa-unlock me-1"></i> Unlocked'
+                        : '<i class="fas fa-lock me-1"></i> Locked until assessments are complete';
+                }
                 if (percent === 100) {
-                    document.getElementById('overallSub').textContent = ' All activities completed! Amazing!';
-                } else if (percent >= 50) {
-                    document.getElementById('overallSub').textContent = 'Great progress! Keep it up!';
+                    document.getElementById('overallSub').textContent = 'All activities and assessments completed! Amazing!';
+                } else if (assessmentsCompleted === totalAssessments) {
+                    document.getElementById('overallSub').textContent = 'Assessments complete! Activities are unlocked.';
                 } else if (percent > 0) {
                     document.getElementById('overallSub').textContent = 'Good start! Keep going!';
                 } else {
-                    document.getElementById('overallSub').textContent = 'Start an activity to see your progress here.';
+                    document.getElementById('overallSub').textContent = 'Start an assessment to see your progress here.';
                 }
-            })
-            .catch(err => console.error(err));
 
-        // Average score
-        fetch('/get_student_stats')
-            .then(r => r.json())
-            .then(d => {
-                if (!d.success) return;
-                const avg = d.average_score || 0;
-                document.getElementById('averageScore').innerHTML = avg + '<span class="stat-unit">%</span>';
-                document.getElementById('scoreBar').setAttribute('data-width', avg);
-            })
-            .catch(err => console.error(err));
-
-        // Activity progress by language
-        fetch('/get_activity_progress')
-            .then(r => r.json())
-            .then(d => {
-                if (!d.success) return;
-
-                // Python
-                const pyC = d.python.completed || 0;
-                const pyT = d.python.total || 6;
-                const pyPct = pyT ? Math.round(pyC / pyT * 100) : 0;
-                document.getElementById('pythonCompleted').innerText = `${pyC}/${pyT}`;
-                setMeter('pythonMeter', pyPct);
-                setMeter('pythonMiniMeter', pyPct);
-                document.getElementById('pythonPctLabel').textContent = pyPct + '%';
-                document.getElementById('pythonSub').textContent = pyC + ' of ' + pyT + ' activities completed';
+                // PHP
+                const phpC = d.php?.completed || 0;
+                const phpT = d.php?.total || 0;
+                const phpPct = phpT ? Math.round(phpC / phpT * 100) : 0;
+                document.getElementById('phpCompleted').innerText = `${phpC}/${phpT}`;
+                setMeter('phpMeter', phpPct);
+                setMeter('phpMiniMeter', phpPct);
+                document.getElementById('phpPctLabel').textContent = phpPct + '%';
+                document.getElementById('phpProgressPercent').textContent = phpPct + '%';
+                document.getElementById('phpSub').textContent = phpC + ' of ' + phpT + ' PHP activities completed';
 
                 // JavaScript
-                const jsC = d.javascript.completed || 0;
-                const jsT = d.javascript.total || 4;
+                const jsC = d.javascript?.completed || 0;
+                const jsT = d.javascript?.total || 0;
                 const jsPct = jsT ? Math.round(jsC / jsT * 100) : 0;
                 document.getElementById('jsCompleted').innerText = `${jsC}/${jsT}`;
                 setMeter('jsMeter', jsPct);
                 setMeter('jsMiniMeter', jsPct);
                 document.getElementById('jsPctLabel').textContent = jsPct + '%';
-                document.getElementById('jsSub').textContent = jsC + ' of ' + jsT + ' activities completed';
+                document.getElementById('jsProgressPercent').textContent = jsPct + '%';
+                document.getElementById('jsSub').textContent = jsC + ' of ' + jsT + ' JavaScript activities completed';
 
-                // HTML
-                const htC = d.html.completed || 0;
-                const htT = d.html.total || 4;
-                const htPct = htT ? Math.round(htC / htT * 100) : 0;
-                document.getElementById('htmlCompleted').innerText = `${htC}/${htT}`;
-                setMeter('htmlMeter', htPct);
-                setMeter('htmlMiniMeter', htPct);
-                document.getElementById('htmlPctLabel').textContent = htPct + '%';
-                document.getElementById('htmlSub').textContent = htC + ' of ' + htT + ' activities completed';
+                // C++
+                const cppC = d.cpp?.completed || 0;
+                const cppT = d.cpp?.total || 0;
+                const cppPct = cppT ? Math.round(cppC / cppT * 100) : 0;
+                document.getElementById('cppCompleted').innerText = `${cppC}/${cppT}`;
+                setMeter('cppMeter', cppPct);
+                setMeter('cppMiniMeter', cppPct);
+                document.getElementById('cppPctLabel').textContent = cppPct + '%';
+                document.getElementById('cppProgressPercent').textContent = cppPct + '%';
+                document.getElementById('cppSub').textContent = cppC + ' of ' + cppT + ' C++ activities completed';
+
+                // Python (Assessments)
+                const pyC = d.python?.completed || 0;
+                const pyT = d.python?.total || 0;
+                const pyPct = pyT ? Math.round(pyC / pyT * 100) : 0;
+                document.getElementById('pythonCompleted').innerText = `${pyC}/${pyT}`;
+                setMeter('pythonMeter', pyPct);
+                setMeter('pythonMiniMeter', pyPct);
+                document.getElementById('pythonPctLabel').textContent = pyPct + '%';
+                document.getElementById('pythonProgressPercent').textContent = pyPct + '%';
+                document.getElementById('pythonSub').textContent = pyC + ' of ' + pyT + ' Python assessments completed';
+
+                // Java (Assessments)
+                const javaC = d.java?.completed || 0;
+                const javaT = d.java?.total || 0;
+                const javaPct = javaT ? Math.round(javaC / javaT * 100) : 0;
+                document.getElementById('javaCompleted').innerText = `${javaC}/${javaT}`;
+                setMeter('javaMeter', javaPct);
+                setMeter('javaMiniMeter', javaPct);
+                document.getElementById('javaPctLabel').textContent = javaPct + '%';
+                document.getElementById('javaProgressPercent').textContent = javaPct + '%';
+                document.getElementById('javaSub').textContent = javaC + ' of ' + javaT + ' Java assessments completed';
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                if (err.name !== 'AbortError') console.error(err);
+            });
 
         // Animate stat bars after a short delay
         setTimeout(animateBars, 600);
+    }
+
+    function loadAutoGradingResults() {
+        fetch('/get_progress_results')
+            .then(r => {
+                if (!r.ok) throw new Error(`Progress results request failed (${r.status})`);
+                return r.json();
+            })
+            .then(data => {
+                const container = document.getElementById('autoGradingResults');
+                if (!data.success || !data.results) {
+                    throw new Error(data.message || 'Progress results were not returned');
+                }
+                if (!data.results.length) {
+                    container.innerHTML = '<p class="text-muted mb-0">No assessments or activities available.</p>';
+                    return;
+                }
+                container.innerHTML = `<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Item</th><th>Language</th><th>Type</th><th>Score</th><th>Status</th></tr></thead><tbody>${data.results.map(result => {
+                    const completed = result.status === 'COMPLETED';
+                    const score = completed ? `${result.score}/${result.max_score}` : '-';
+                    const badge = completed ? 'bg-success' : 'bg-secondary';
+                    return `<tr><td>${result.item_name}</td><td>${result.language}</td><td>${result.item_type}</td><td><strong>${score}</strong></td><td><span class="badge ${badge}">${result.status}</span></td></tr>`;
+                }).join('')}</tbody></table></div>`;
+            })
+            .catch(err => {
+                console.error('Error loading progress results:', err);
+                document.getElementById('autoGradingResults').innerHTML = '<p class="text-muted mb-0">Unable to load results.</p>';
+            });
     }
 
     // ===== LOAD USER INFO =====
@@ -1331,8 +1509,19 @@
         loadProgress();
         loadNotifications();
         loadUserInfo();
+        loadAutoGradingResults();
+        window.autoGradingTimer = window.setInterval(loadAutoGradingResults, 2000);
+        window.progressRefreshTimer = window.setInterval(loadProgress, 2000);
     });
     window.addEventListener('resize', checkSidebarState);
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) loadProgress();
+    });
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'progress_updated' || event.key === 'assessment_status_updated') {
+            loadProgress();
+        }
+    });
 </script>
 </body>
 </html>

@@ -16,14 +16,16 @@
         const subjectEl = document.getElementById('ticketSubject');
         const messageEl = document.getElementById('ticketMessage');
         const priorityEl = document.getElementById('ticketPriority');
+        const categoryEl = document.getElementById('ticketCategory');
 
-        if (!subjectEl || !messageEl || !priorityEl) return;
+        if (!subjectEl || !messageEl || !priorityEl || !categoryEl) return;
 
         const subject = subjectEl.value.trim();
         const message = messageEl.value.trim();
         const priority = priorityEl.value;
+        const category = categoryEl.value;
 
-        if (!subject || !message) {
+        if (!subject || !message || !category) {
             if (window.showToast) showToast('Please fill in all fields.', 'error');
             return;
         }
@@ -38,7 +40,7 @@
         fetch('/submit_ticket', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subject, message, priority })
+            body: JSON.stringify({ subject, message, priority, category })
         })
         .then(r => r.json())
         .then(d => {
@@ -46,6 +48,7 @@
                 if (window.showToast) showToast('Ticket submitted successfully!', 'success');
                 subjectEl.value = '';
                 messageEl.value = '';
+                categoryEl.value = '';
                 if (window.loadTickets) window.loadTickets();
             } else {
                 if (window.showToast) showToast(d.message || 'Failed to submit ticket.', 'error');
@@ -82,6 +85,7 @@
                                     <span style="font-weight:600;font-size:0.85rem;color:#1a463a;">${escapeHtml(t.subject)}</span>
                                     <div style="display:flex;gap:4px;flex-wrap:wrap;">
                                         <span class="ticket-status ${statusClass}">${statusLabel}</span>
+                                        <span class="ticket-priority">${escapeHtml((t.category || 'other').replace('_', ' '))}</span>
                                         <span class="ticket-priority ${priorityClass}">${t.priority || 'medium'}</span>
                                     </div>
                                 </div>

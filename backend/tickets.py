@@ -2,12 +2,19 @@
 
 from backend.db_config import get_db_connection
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+PHILIPPINES_TIMEZONE = ZoneInfo('Asia/Manila')
+
+def ticket_now():
+    """Return the current Philippines time for MySQL DATETIME fields."""
+    return datetime.now(PHILIPPINES_TIMEZONE).replace(tzinfo=None)
 
 class TicketManager:
     """Handles all ticket-related database operations"""
     
     @staticmethod
-    def create_ticket(student_id, student_name, subject, message, priority='medium'):
+    def create_ticket(student_id, student_name, subject, message, priority='medium', category='other', student_lrn=None):
         """Create a new support ticket"""
         conn = None
         cursor = None
@@ -15,15 +22,20 @@ class TicketManager:
             conn = get_db_connection()
             cursor = conn.cursor()
             
+            created_at = ticket_now()
+            temporary_number = f"TMP-{created_at.strftime('%y%m%d%H%M%S%f')[-16:]}"
             cursor.execute("""
-                INSERT INTO tickets (student_id, student_name, subject, message, priority, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (student_id, student_name, subject, message, priority, datetime.now()))
+                INSERT INTO ict_tickets
+                    (ticket_number, student_id, student_name, student_lrn, subject, description, priority, category, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (temporary_number, student_id, student_name, student_lrn, subject, message, priority, category, created_at))
             
             ticket_id = cursor.lastrowid
+            ticket_number = f"TKT-{ticket_id:03d}"
+            cursor.execute("UPDATE ict_tickets SET ticket_number = %s WHERE id = %s", (ticket_number, ticket_id))
             conn.commit()
             
-            return {'success': True, 'ticket_id': ticket_id, 'message': 'Ticket created successfully'}
+            return {'success': True, 'ticket_id': ticket_id, 'ticket_number': ticket_number, 'message': 'Ticket created successfully'}
             
         except Exception as e:
             print(f"Error creating ticket: {e}")
@@ -44,11 +56,12 @@ class TicketManager:
             cursor = conn.cursor(dictionary=True)
             
             cursor.execute("""
-                SELECT id, subject, message, status, priority, 
-                      teacher_approval,
+                SELECT id, subject, category, status, priority,
+                    NULL as teacher_approval,
+                    description as message,
                        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as created_at,
                         DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i') as updated_at
-                FROM tickets 
+                FROM ict_tickets 
                 WHERE student_id = %s 
                 ORDER BY 
                     CASE status 
@@ -83,12 +96,14 @@ class TicketManager:
             
             if status_filter:
                 cursor.execute("""
-                    SELECT t.id, t.student_id, t.student_name, t.subject, t.message, t.status, t.priority, t.teacher_approval,
+                        SELECT t.id, t.ticket_number, t.student_id,
+                              COALESCE(NULLIF(CONCAT_WS(' ', NULLIF(s.first_name, ''), NULLIF(s.middle_initial, ''), NULLIF(s.last_name, '')), ''), NULLIF(t.student_name, t.student_lrn), s.username) as student_name,
+                              t.subject, t.description as message, t.category, t.status, t.priority, NULL as teacher_approval,
                            DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i') as created_at,
                            DATE_FORMAT(t.updated_at, '%Y-%m-%d %H:%i') as updated_at,
                            s.lrn as student_lrn,
                            s.grade_level as student_grade
-                    FROM tickets t
+                    FROM ict_tickets t
                     LEFT JOIN students s ON t.student_id = s.id
                     WHERE t.status = %s
                     ORDER BY 
@@ -101,12 +116,14 @@ class TicketManager:
                 """, (status_filter,))
             else:
                 cursor.execute("""
-                    SELECT t.id, t.student_id, t.student_name, t.subject, t.message, t.status, t.priority, t.teacher_approval,
+                        SELECT t.id, t.ticket_number, t.student_id,
+                              COALESCE(NULLIF(CONCAT_WS(' ', NULLIF(s.first_name, ''), NULLIF(s.middle_initial, ''), NULLIF(s.last_name, '')), ''), NULLIF(t.student_name, t.student_lrn), s.username) as student_name,
+                              t.subject, t.description as message, t.category, t.status, t.priority, NULL as teacher_approval,
                            DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i') as created_at,
                            DATE_FORMAT(t.updated_at, '%Y-%m-%d %H:%i') as updated_at,
                            s.lrn as student_lrn,
                            s.grade_level as student_grade
-                    FROM tickets t
+                    FROM ict_tickets t
                     LEFT JOIN students s ON t.student_id = s.id
                     ORDER BY 
                         CASE t.status 
@@ -145,14 +162,14 @@ class TicketManager:
             cursor = conn.cursor(dictionary=True)
             
             cursor.execute("""
-                SELECT t.id, t.student_id, t.student_name, t.subject, t.message, t.status, t.priority, t.teacher_approval,
+                SELECT t.id, t.ticket_number, t.student_id, t.student_name, t.subject, t.description as message, t.category, t.status, t.priority, NULL as teacher_approval,
                        DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i') as created_at,
                        DATE_FORMAT(t.updated_at, '%Y-%m-%d %H:%i') as updated_at,
                        s.lrn as student_lrn,
                        s.grade_level as student_grade,
                        s.email as student_email,
                        s.username as student_username
-                FROM tickets t
+                FROM ict_tickets t
                 LEFT JOIN students s ON t.student_id = s.id
                 WHERE t.id = %s
             """, (ticket_id,))
@@ -186,21 +203,17 @@ class TicketManager:
                 params.append(status)
                 if status in ['resolved', 'closed']:
                     update_fields.append("resolved_at = %s")
-                    params.append(datetime.now())
-            
-            if teacher_approval is not None:
-                update_fields.append("teacher_approval = %s")
-                params.append(teacher_approval)
+                    params.append(ticket_now())
             
             if not update_fields:
                 return {'success': False, 'message': 'No updates provided'}
             
             # Add updated_at
             update_fields.append("updated_at = %s")
-            params.append(datetime.now())
+            params.append(ticket_now())
             
             params.append(ticket_id)
-            query = f"UPDATE tickets SET {', '.join(update_fields)} WHERE id = %s"
+            query = f"UPDATE ict_tickets SET {', '.join(update_fields)} WHERE id = %s"
             cursor.execute(query, params)
             conn.commit()
             
@@ -232,7 +245,7 @@ class TicketManager:
                     SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) as resolved,
                     SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed,
                     SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as high_priority
-                FROM tickets
+                FROM ict_tickets
             """)
             
             counts = cursor.fetchone()
@@ -257,8 +270,8 @@ class TicketManager:
 
 
 # Simple function-based interface (easier to use in app.py)
-def create_ticket(student_id, student_name, subject, message, priority='medium'):
-    return TicketManager.create_ticket(student_id, student_name, subject, message, priority)
+def create_ticket(student_id, student_name, subject, message, priority='medium', category='other'):
+    return TicketManager.create_ticket(student_id, student_name, subject, message, priority, category)
 
 def get_student_tickets(student_id):
     return TicketManager.get_student_tickets(student_id)

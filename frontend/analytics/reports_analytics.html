@@ -184,7 +184,7 @@
             overflow: hidden; min-height: 64px;
         }
         .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
-        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; }
+        .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; color: #2e6f40; }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
         .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 2px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
         .logo-mono { display: none; width: 100%; text-align: center; flex-shrink: 0; }
@@ -720,12 +720,11 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="/teacher_scores" class="nav-link-custom">
-                    <i class="fas fa-tasks"></i>
-                    <span class="nav-text">Scores</span>
+                <a href="/teacher_score_results" class="nav-link-custom">
+                    <i class="fas fa-star"></i>
+                    <span class="nav-text">Student Scores</span>
                 </a>
             </div>
-
             <div class="nav-section-label">Insights</div>
             <div class="nav-item">
                 <a href="/teacher_reports_analytics" class="nav-link-custom active" aria-current="page">
@@ -734,13 +733,6 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="/teacher_tickets" class="nav-link-custom">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span class="nav-text">Tickets</span>
-                    <span class="nav-badge" id="ticketNavBadge" style="display:none;" title="Unresolved tickets"></span>
-                </a>
-            </div>
-
             <div class="nav-section-label">Account</div>
             <div class="nav-item">
                 <a href="/teacher_profile" class="nav-link-custom">
@@ -803,7 +795,7 @@
                         </div>
                         <div id="notifList"></div>
                         <div class="nd-footer">
-                            <a href="/teacher_tickets">View all tickets</a>
+                            <a href="/ict_support_dashboard">View all tickets</a>
                         </div>
                     </div>
                 </div>

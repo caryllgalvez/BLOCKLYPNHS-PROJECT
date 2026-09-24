@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports · ICT Tech Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+        --green-deep:#145a42; --green-main:#1f8a64; --green-light:#28a87a; --green-soft:#e2f3ed;
+        --gold-warm:#e8a838; --gold-light:#fce9c5; --coral:#e06050; --coral-soft:#fce8e5;
+        --blue:#4a90d9; --blue-soft:#e4eefb;
+        --stone:#7f9e92; --stone-light:#a8bfb4;
+        --border-fresh:#dde9e3; --card-white:#fff; --bg-main:#f0f6f3;
+        --text-primary:#1a463a; --text-secondary:#4a6b5e;
+        --nested:rgba(255,255,255,.55); --chart-grid:#e8f0ec;
+        --grid-line:rgba(170,210,195,.3); --blob-opacity:.3;
+        --glass-bg:rgba(255,255,255,.75); --glass-border:rgba(255,255,255,.6);
+        --sh-xs:0 2px 8px rgba(20,90,66,.04); --sh-sm:0 4px 16px rgba(20,90,66,.06);
+        --sh-md:0 8px 28px rgba(20,90,66,.08); --sh-lg:0 16px 48px rgba(20,90,66,.12);
+        --sidebar-w:256px; --sidebar-collapsed-w:72px;
+        --sidebar-text:#b5d9cb; --sidebar-hover-bg:rgba(255,255,255,.08);
+        --sidebar-icon-toggle:rgba(255,255,255,.08);
+    }
+    [data-theme="dark"] {
+        --bg-main:#0f1f19; --text-primary:#d8ede5; --text-secondary:#a8c4b8;
+        --border-fresh:#1e3a2e; --card-white:#162b22;
+        --nested:rgba(255,255,255,.045); --chart-grid:#1e3a2e;
+        --green-soft:#163328; --gold-light:#2e2510; --coral-soft:#2e1a16; --blue-soft:#152535;
+        --stone-light:#5a7a6d; --grid-line:rgba(40,80,60,.25); --blob-opacity:.15;
+        --glass-bg:rgba(22,43,34,.8); --glass-border:rgba(40,70,55,.6);
+        --sh-xs:0 2px 8px rgba(0,0,0,.15); --sh-sm:0 4px 16px rgba(0,0,0,.2);
+        --sh-md:0 8px 28px rgba(0,0,0,.25); --sh-lg:0 16px 48px rgba(0,0,0,.3);
+    }
+
+    body {
+        font-family:'Inter', system-ui, sans-serif; background:var(--bg-main);
+        color:var(--text-primary); line-height:1.6; overflow-x:hidden;
+        transition:background .4s, color .4s;
+    }
+    ::selection { background:var(--green-main); color:#fff; }
+    ::-webkit-scrollbar { width:9px; }
+    ::-webkit-scrollbar-thumb { background:var(--stone-light); border-radius:10px; border:2px solid var(--bg-main); }
+    ::-webkit-scrollbar-thumb:hover { background:var(--green-main); }
+    a:focus-visible, button:focus-visible { outline:2px solid var(--green-main); outline-offset:2px; }
+
+    /* Background */
+    .bg-layer { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .bg-layer::before {
+        content:''; position:absolute; inset:0;
+        background-image:linear-gradient(var(--grid-line) 1px, transparent 1px),
+                         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size:48px 48px;
+    }
+    .bg-blob { position:absolute; border-radius:50%; filter:blur(90px); opacity:var(--blob-opacity); animation:drift 22s ease-in-out infinite alternate; }
+    .bg-blob--1 { width:440px; height:440px; top:-12%; right:-6%; background:radial-gradient(circle, rgba(40,168,122,.4), transparent 70%); }
+    .bg-blob--2 { width:340px; height:340px; bottom:-10%; left:6%; background:radial-gradient(circle, rgba(232,168,56,.25), transparent 70%); animation-duration:28s; animation-delay:-6s; }
+    @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(25px,-30px) scale(1.04)} }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+        width:var(--sidebar-w); background:linear-gradient(175deg,#14423a 0%, #185a48 40%, #1a6850 100%);
+        color:#d8efe5; display:flex; flex-direction:column;
+        position:fixed; top:0; left:0; bottom:0;
+        overflow-y:auto; overflow-x:hidden;
+        border-right:1px solid rgba(255,255,255,.06);
+        box-shadow:4px 0 32px rgba(0,0,0,.08); z-index:1000;
+        transition:width .35s cubic-bezier(.4,0,.2,1);
+        scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.1) transparent;
+    }
+    .sidebar::-webkit-scrollbar { width:3px; }
+    .sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:10px; }
+
+    .sidebar-logo {
+        display:flex; align-items:center; gap:12px;
+        border-bottom:1px solid rgba(255,255,255,.07);
+        padding:1rem 1.1rem; min-height:64px; overflow:hidden;
+        justify-content:space-between; transition:all .35s ease;
+    }
+    .logo-box {
+        width:40px; height:40px; border-radius:12px; flex-shrink:0;
+        background:linear-gradient(135deg, var(--green-main), var(--green-deep));
+        display:flex; align-items:center; justify-content:center;
+        box-shadow:0 4px 14px rgba(0,0,0,.2);
+    }
+    .logo-box iconify-icon { font-size:20px; color:#fff; }
+    .logo-full { display:flex; flex-direction:column; flex:1; min-width:0; }
+    .logo-full h2 { font-size:1.05rem; font-weight:800; letter-spacing:-.5px; white-space:nowrap; color:#2e6f40; }
+    .logo-full h2 em { font-style:normal; color:var(--gold-warm); }
+    .logo-full p { font-size:.55rem; opacity:.45; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
+    .toggle-btn, .hamburger-btn {
+        background:var(--sidebar-icon-toggle); border:1px solid rgba(255,255,255,.06);
+        color:#d8efe5; width:28px; height:28px; border-radius:8px; cursor:pointer;
+        display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s;
+    }
+    .toggle-btn iconify-icon, .hamburger-btn iconify-icon { font-size:14px; }
+    .toggle-btn:hover, .hamburger-btn:hover { background:rgba(255,255,255,.18); }
+    .toggle-btn:hover { transform:rotate(90deg); }
+    .hamburger-wrap { display:none; padding:.4rem 0 .2rem; justify-content:center; }
+
+    .sidebar.collapsed { width:var(--sidebar-collapsed-w); }
+    .sidebar.collapsed .sidebar-logo { justify-content:center; padding:1rem .5rem; }
+    .sidebar.collapsed .logo-full, .sidebar.collapsed .toggle-btn { display:none; }
+    .sidebar.collapsed .hamburger-wrap { display:flex; }
+    .sidebar.collapsed .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
+    .sidebar.collapsed .nav-text { display:none !important; }
+    .sidebar.collapsed .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:.7rem .5rem; }
+    .sidebar.collapsed .sidebar-user-info { display:none !important; }
+    .sidebar.collapsed .nav-badge { left:auto; right:8px; top:4px; }
+
+    .nav-section-label {
+        font-size:.55rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700;
+        color:rgba(216,239,229,.35); white-space:nowrap;
+        padding:1.1rem 1.1rem .35rem; transition:all .3s;
+    }
+    .sidebar-nav { flex:1; padding:.4rem 0 1rem; }
+    .nav-link-custom {
+        display:flex; align-items:center; gap:13px;
+        color:var(--sidebar-text); text-decoration:none;
+        border-radius:12px; font-size:.84rem; font-weight:500;
+        padding:.55rem .9rem; margin:0 .4rem 2px; position:relative;
+        white-space:nowrap; transition:all .25s;
+    }
+    .nav-link-custom iconify-icon { font-size:17px; width:22px; flex-shrink:0; transition:transform .25s; }
+    .nav-link-custom:hover { background:var(--sidebar-hover-bg); color:#fff; }
+    .nav-link-custom:hover iconify-icon { transform:scale(1.12); }
+    .nav-link-custom::after {
+        content:''; position:absolute; left:0; top:50%;
+        width:3px; height:55%; border-radius:0 4px 4px 0; background:var(--gold-warm);
+        transform:translateY(-50%) scaleY(0); transition:transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    .nav-link-custom.active::after { transform:translateY(-50%) scaleY(1); }
+    .sidebar.collapsed .nav-link-custom::after { display:none; }
+    .nav-link-custom.active {
+        background:var(--card-white); color:var(--green-deep);
+        font-weight:650; box-shadow:0 4px 16px rgba(0,0,0,.12);
+    }
+    [data-theme="dark"] .nav-link-custom.active { color:#4ad9a0; }
+    .nav-badge {
+        position:absolute; top:6px; left:24px; width:7px; height:7px;
+        background:var(--coral); border-radius:50%;
+        border:2px solid #185a48; animation:pulse 2s ease-in-out infinite;
+    }
+    .nav-link-custom.active .nav-badge { border-color:var(--card-white); }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5); opacity:.6} }
+    .nav-link-custom.logout { color:rgba(224,96,80,.75); margin-top:.6rem; }
+    .nav-link-custom.logout:hover { background:rgba(224,96,80,.12); color:#f08070; }
+
+    .sidebar-user {
+        display:flex; align-items:center; gap:11px;
+        border-top:1px solid rgba(255,255,255,.07);
+        padding:.9rem 1.1rem; overflow:hidden; transition:all .35s;
+    }
+    .sidebar-avatar {
+        width:34px; height:34px; border-radius:11px; flex-shrink:0;
+        background:linear-gradient(135deg, var(--gold-warm), #d4922a);
+        display:flex; align-items:center; justify-content:center;
+        color:#fff; font-size:.75rem; font-weight:700;
+        box-shadow:0 2px 8px rgba(232,168,56,.3);
+    }
+    .sidebar-user-info h4 { font-size:.78rem; font-weight:650; color:#d8efe5; }
+    .sidebar-user-info p { font-size:.6rem; opacity:.45; }
+
+    /* ═══ MAIN ═══ */
+    .main-content {
+        margin-left:var(--sidebar-w); padding:26px 32px 44px;
+        min-height:100vh; position:relative; z-index:1;
+        transition:margin-left .35s cubic-bezier(.4,0,.2,1);
+    }
+    .main-content.shifted { margin-left:var(--sidebar-collapsed-w); }
+
+    .top-bar {
+        background:var(--glass-bg); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+        border:1px solid var(--glass-border); border-radius:24px;
+        padding:.5rem 1rem .5rem 1.4rem; margin-bottom:1.1rem;
+        display:flex; justify-content:space-between; align-items:center;
+        box-shadow:var(--sh-sm); transition:background .4s, border-color .4s;
+    }
+    .page-title { font-size:1.05rem; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:9px; }
+    .page-title iconify-icon { color:var(--gold-warm); font-size:17px; }
+    .top-bar-right { display:flex; align-items:center; gap:10px; }
+    .icon-btn {
+        width:36px; height:36px; border-radius:11px; border:1.5px solid var(--border-fresh);
+        background:var(--card-white); color:var(--stone); cursor:pointer;
+        display:flex; align-items:center; justify-content:center; transition:all .25s;
+    }
+    .icon-btn iconify-icon { font-size:17px; }
+    .icon-btn:hover { border-color:var(--green-main); color:var(--green-main); transform:translateY(-1px); }
+    .icon-btn:active { transform:scale(.92); }
+    .icon-btn.spinning iconify-icon { animation:spin .8s linear infinite; }
+    .theme-btn .icon-sun { display:none !important; }
+    [data-theme="dark"] .theme-btn .icon-sun { display:flex !important; }
+    [data-theme="dark"] .theme-btn .icon-moon { display:none !important; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ═══ STATS ═══ */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.2rem; }
+    .stat-card {
+        background:var(--glass-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border:1px solid var(--glass-border); border-radius:22px;
+        padding:1.05rem 1.25rem; position:relative; overflow:hidden;
+        box-shadow:var(--sh-sm); transition:all .35s cubic-bezier(.4,0,.2,1), background .4s, border-color .4s;
+    }
+    .stat-card::before {
+        content:''; position:absolute; top:0; left:0; right:0; height:3px;
+        border-radius:3px 3px 0 0; opacity:0; transition:opacity .35s;
+    }
+    .sc-neutral::before { background:linear-gradient(90deg, var(--stone), var(--stone-light)); }
+    .sc-gold::before     { background:linear-gradient(90deg, var(--gold-warm), #f0c060); }
+    .sc-blue::before     { background:linear-gradient(90deg, var(--blue), #6ba8e8); }
+    .sc-green::before    { background:linear-gradient(90deg, var(--green-main), var(--green-light)); }
+    .stat-card:hover { transform:translateY(-4px); border-color:var(--green-main); box-shadow:var(--sh-lg); }
+    .stat-card:hover::before { opacity:1; }
+    .stat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.65rem; }
+    .stat-header span { font-size:.6rem; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--stone); }
+    .stat-icon { width:36px; height:36px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:transform .35s; }
+    .stat-icon iconify-icon { font-size:18px; }
+    .sc-neutral .stat-icon { background:var(--nested); color:var(--stone); border:1px solid var(--border-fresh); }
+    .sc-gold .stat-icon  { background:var(--gold-light); color:#c48a20; }
+    .sc-blue .stat-icon  { background:var(--blue-soft); color:var(--blue); }
+    .sc-green .stat-icon { background:var(--green-soft); color:var(--green-main); }
+    .stat-card:hover .stat-icon { transform:scale(1.08) rotate(-3deg); }
+    .stat-value { font-size:1.8rem; font-weight:900; letter-spacing:-1px; line-height:1.1; font-variant-numeric:tabular-nums; }
+    .stat-sub { color:var(--stone-light); font-size:.66rem; font-weight:500; }
+
+    /* ═══ REPORTS PANEL ═══ */
+    .panel {
+        background:var(--glass-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border:1px solid var(--glass-border); border-radius:22px;
+        padding:1.25rem 1.35rem; box-shadow:var(--sh-sm);
+        transition:background .4s, border-color .4s;
+    }
+    .panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; gap:10px; flex-wrap:wrap; }
+    .panel-head h3 { font-size:.92rem; font-weight:800; }
+    .panel-head h3 iconify-icon { color:var(--gold-warm); font-size:15px; margin-right:7px; }
+    .panel-head .sub { font-size:.66rem; color:var(--stone-light); margin-top:.15rem; }
+    .panel-note {
+        display:flex; align-items:center; gap:8px;
+        font-size:.64rem; color:var(--stone-light);
+        background:var(--nested); border:1px solid var(--border-fresh);
+        border-radius:10px; padding:.5rem .7rem; margin-top:1rem;
+    }
+    .panel-note iconify-icon { font-size:13px; color:var(--gold-warm); flex-shrink:0; }
+
+    .report-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+    .report-card {
+        display:flex; align-items:center; gap:14px;
+        background:var(--nested); border:1px solid var(--border-fresh);
+        border-radius:16px; padding:1rem 1.1rem; cursor:pointer;
+        text-align:left; font:inherit; color:inherit; width:100%;
+        transition:all .25s; position:relative; overflow:hidden;
+    }
+    .report-card::before {
+        content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+        background:var(--accent); opacity:0; transition:opacity .25s;
+    }
+    .rc-green { --accent:var(--green-main); }
+    .rc-blue  { --accent:var(--blue); }
+    .rc-gold  { --accent:var(--gold-warm); }
+    .rc-coral { --accent:var(--coral); }
+    .report-card:hover { transform:translateX(4px); border-color:var(--accent); box-shadow:var(--sh-md); }
+    .report-card:active { transform:translateX(2px) scale(.99); }
+    .report-card:hover::before { opacity:1; }
+    .rc-icon {
+        width:46px; height:46px; border-radius:14px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; transition:all .35s;
+    }
+    .rc-icon iconify-icon { font-size:21px; }
+    .rc-green .rc-icon { background:var(--green-soft); color:var(--green-main); }
+    .rc-blue  .rc-icon { background:var(--blue-soft); color:var(--blue); }
+    .rc-gold  .rc-icon { background:var(--gold-light); color:#c48a20; }
+    .rc-coral .rc-icon { background:var(--coral-soft); color:var(--coral); }
+    .report-card:hover .rc-icon { transform:scale(1.08) rotate(-4deg); }
+    .rc-info { flex:1; min-width:0; }
+    .rc-info p { font-size:.82rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .rc-info span { font-size:.64rem; color:var(--stone-light); display:block; margin-top:1px; }
+    .rc-badge {
+        font-size:.54rem; font-weight:800; letter-spacing:.5px;
+        padding:2px 7px; border-radius:6px; flex-shrink:0;
+        background:var(--nested); color:var(--stone); border:1px solid var(--border-fresh);
+    }
+    .rc-arrow {
+        color:var(--accent); font-size:16px; flex-shrink:0;
+        opacity:0; transform:translateX(-5px); transition:all .3s;
+    }
+    .report-card:hover .rc-arrow { opacity:1; transform:translateX(0); }
+
+    /* ═══ MODAL ═══ */
+    .modal-overlay {
+        display:none; position:fixed; inset:0; z-index:5000;
+        background:rgba(10,26,20,.6); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);
+        align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.active { display:flex; animation:fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .modal-content {
+        background:var(--glass-bg); border:1px solid var(--glass-border);
+        border-radius:24px; max-width:860px; width:100%;
+        max-height:calc(100vh - 40px); display:flex; flex-direction:column;
+        box-shadow:0 24px 64px rgba(0,0,0,.4);
+        animation:dlgIn .3s cubic-bezier(.4,0,.2,1);
+        transition:background .4s, border-color .4s;
+    }
+    @keyframes dlgIn { from { opacity:0; transform:translateY(16px) scale(.97); } to { opacity:1; transform:none; } }
+    .modal-head {
+        display:flex; justify-content:space-between; align-items:center; gap:14px;
+        padding:1rem 1.3rem; border-bottom:1px solid var(--border-fresh);
+        transition:border-color .4s; flex-shrink:0;
+    }
+    .modal-head .mh-left { display:flex; flex-direction:column; min-width:0; }
+    .modal-head .mh-kicker {
+        font-size:.56rem; text-transform:uppercase; letter-spacing:1.2px; font-weight:700;
+        color:var(--gold-warm); display:flex; align-items:center; gap:6px;
+    }
+    .modal-head .mh-kicker iconify-icon { font-size:12px; }
+    .modal-head h3 { font-size:1rem; font-weight:800; letter-spacing:-.3px; margin-top:.1rem; }
+    .modal-head .mh-count { font-size:.62rem; color:var(--stone-light); }
+    .dlg-close {
+        width:34px; height:34px; border-radius:11px; border:1.5px solid var(--border-fresh);
+        background:var(--card-white); color:var(--stone); cursor:pointer; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; transition:all .2s;
+    }
+    .dlg-close:hover { border-color:var(--coral); color:var(--coral); }
+    .dlg-close iconify-icon { font-size:16px; }
+
+    .modal-scroll { overflow-y:auto; padding:1.2rem; flex:1; }
+    .modal-scroll::-webkit-scrollbar { width:6px; }
+    .modal-scroll::-webkit-scrollbar-thumb { background:var(--border-fresh); border-radius:10px; }
+
+    /* "Paper" — palaging light kahit dark mode, para exact ang PDF output */
+    .paper {
+        background:#fff; border-radius:14px; padding:26px 28px;
+        box-shadow:0 4px 20px rgba(0,0,0,.12);
+        max-width:760px; margin:0 auto;
+    }
+
+    .modal-foot {
+        display:flex; justify-content:flex-end; gap:9px; flex-shrink:0;
+        padding:.9rem 1.3rem; border-top:1px solid var(--border-fresh);
+        transition:border-color .4s;
+    }
+    .btn-ghost, .btn-pdf {
+        border-radius:12px; padding:.6rem 1.1rem; font:inherit;
+        font-size:.76rem; font-weight:700; cursor:pointer;
+        display:inline-flex; align-items:center; gap:8px; transition:all .25s;
+    }
+    .btn-ghost { border:1.5px solid var(--border-fresh); background:var(--card-white); color:var(--stone); }
+    .btn-ghost:hover { border-color:var(--stone-light); color:var(--text-primary); }
+    .btn-pdf {
+        border:0; background:linear-gradient(135deg, var(--green-main), var(--green-light)); color:#fff;
+        box-shadow:0 6px 20px rgba(31,138,100,.25);
+    }
+    .btn-pdf:hover { transform:translateY(-1px); filter:brightness(1.04); }
+    .btn-pdf:active { transform:translateY(0) scale(.97); }
+    .btn-pdf:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .btn-pdf .spinner {
+        display:none; width:14px; height:14px; border:2px solid rgba(255,255,255,.35);
+        border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite;
+    }
+    .btn-pdf.loading .spinner { display:block; }
+    .btn-pdf.loading .btn-icon, .btn-pdf.loading .btn-label { display:none; }
+
+    /* Modal loading / error states (theme-aware — hindi ito papasok sa PDF) */
+    .modal-state { padding:3rem 1rem; text-align:center; }
+    .modal-state .big-spinner {
+        width:34px; height:34px; margin:0 auto 1rem;
+        border:3px solid var(--border-fresh); border-top-color:var(--green-main);
+        border-radius:50%; animation:spin .7s linear infinite;
+    }
+    .modal-state iconify-icon { font-size:2.2rem; color:var(--border-fresh); margin-bottom:.6rem; display:block; }
+    .modal-state p { font-size:.8rem; color:var(--stone-light); }
+    .retry-btn {
+        margin-top:1rem; border:1.5px solid var(--border-fresh); background:var(--card-white);
+        color:var(--green-main); border-radius:12px; padding:.5rem 1rem;
+        font:inherit; font-size:.74rem; font-weight:700; cursor:pointer;
+        display:inline-flex; align-items:center; gap:7px; transition:all .2s;
+    }
+    .retry-btn:hover { border-color:var(--green-main); background:var(--green-soft); }
+
+    /* ═══ PDF CONTENT — hard-coded light colors (html2canvas-safe) ═══ */
+    .pdf-content { font-family:'Inter', Arial, sans-serif; color:#1a463a; background:#fff; }
+    .pdf-content .pdf-header {
+        display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+        border-bottom:3px solid #1f8a64; padding-bottom:14px; margin-bottom:18px;
+    }
+    .pdf-content .pdf-header h2 { font-size:21px; font-weight:800; color:#145a42; letter-spacing:-.5px; }
+    .pdf-content .pdf-header .sub { color:#7f9e92; font-size:12px; margin-top:2px; }
+    .pdf-content .pdf-brand {
+        display:flex; align-items:center; gap:8px; flex-shrink:0;
+        background:#e2f3ed; border-radius:10px; padding:8px 12px;
+    }
+    .pdf-content .pdf-brand span { font-size:11px; font-weight:800; color:#145a42; letter-spacing:.5px; }
+    .pdf-content .stats-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:20px; }
+    .pdf-content .stat-box {
+        background:#f0f6f3; border-radius:10px; padding:12px 10px;
+        text-align:center; border:1px solid #dde9e3;
+    }
+    .pdf-content .stat-box .number { font-size:24px; font-weight:800; color:#1f8a64; font-variant-numeric:tabular-nums; }
+    .pdf-content .stat-box .label {
+        font-size:10px; color:#7f9e92; font-weight:700;
+        text-transform:uppercase; letter-spacing:.5px; margin-top:2px;
+    }
+    .pdf-content .table-title {
+        font-weight:800; font-size:13px; margin-bottom:8px; color:#145a42;
+        display:flex; align-items:center; gap:7px;
+    }
+    .pdf-content table { width:100%; border-collapse:collapse; font-size:11.5px; }
+    .pdf-content table th {
+        background:#145a42; color:#fff; padding:9px 12px; text-align:left; font-weight:600;
+    }
+    .pdf-content table th:first-child { border-radius:8px 0 0 0; }
+    .pdf-content table th:last-child { border-radius:0 8px 0 0; }
+    .pdf-content table td { padding:8px 12px; border-bottom:1px solid #e2ece7; color:#4a6b5e; }
+    .pdf-content table tr:nth-child(even) td { background:#f6faf8; }
+    .pdf-content .no-data { text-align:center; padding:24px; color:#a8bfb4; font-size:12px; }
+    .pdf-content .pdf-footer {
+        margin-top:22px; padding-top:14px; border-top:1px solid #dde9e3;
+        font-size:10.5px; color:#a8bfb4; text-align:center; line-height:1.6;
+    }
+
+    /* Toast */
+    .toast-box { position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:8px; }
+    .toast-msg {
+        background:#1a463a; color:#fff; padding:11px 16px; border-radius:13px;
+        font-size:.78rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,.2);
+        display:flex; align-items:center; gap:10px; position:relative; overflow:hidden;
+        animation:tIn .4s cubic-bezier(.4,0,.2,1); transition:all .3s; max-width:360px;
+    }
+    .toast-msg iconify-icon { font-size:16px; color:var(--gold-warm); flex-shrink:0; }
+    .toast-msg.error iconify-icon { color:var(--coral); }
+    .toast-msg.out { opacity:0; transform:translateX(40px); }
+    .toast-msg::after {
+        content:''; position:absolute; left:0; bottom:0; height:2.5px;
+        background:var(--gold-warm); width:100%; animation:ttimer 3.2s linear forwards;
+    }
+    @keyframes tIn { from { opacity:0; transform:translateX(40px) scale(.95); } to { opacity:1; transform:none; } }
+    @keyframes ttimer { to { width:0; } }
+
+    footer {
+        margin-top:2rem; text-align:center; font-size:.66rem;
+        color:var(--stone-light); border-top:1px solid var(--border-fresh); padding-top:1.4rem;
+    }
+
+    .nav-tip {
+        position:fixed; z-index:99999; pointer-events:none;
+        background:#0d2b22; color:#eafff5; padding:5px 12px; border-radius:9px;
+        font-size:.68rem; font-weight:600; white-space:nowrap;
+        transform:translateY(-50%) translateX(-6px); opacity:0; transition:all .18s;
+        box-shadow:0 8px 24px rgba(0,0,0,.3);
+    }
+    .nav-tip.show { opacity:1; transform:translateY(-50%) translateX(0); }
+
+    .fu { opacity:0; transform:translateY(16px); animation:fuA .5s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes fuA { to { opacity:1; transform:none; } }
+    .e1{animation-delay:.05s} .e2{animation-delay:.12s} .e3{animation-delay:.2s}
+
+    @media (max-width:860px) { .report-grid { grid-template-columns:1fr; } }
+    @media (max-width:768px) {
+        .sidebar { width:var(--sidebar-collapsed-w); }
+        .sidebar .logo-full, .sidebar .toggle-btn { display:none !important; }
+        .sidebar .hamburger-wrap { display:flex !important; }
+        .sidebar .sidebar-logo { justify-content:center; padding:1rem .5rem; }
+        .sidebar .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
+        .sidebar .nav-text { display:none !important; }
+        .sidebar .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
+        .sidebar .sidebar-user { justify-content:center; padding:.7rem .5rem; }
+        .sidebar .sidebar-user-info { display:none !important; }
+        .sidebar .nav-badge { left:auto; right:8px; top:4px; }
+        .main-content, .main-content.shifted { margin-left:var(--sidebar-collapsed-w); padding:16px 14px 32px; }
+        .pdf-content .stats-grid { grid-template-columns:repeat(2, 1fr); }
+        .paper { padding:18px 16px; }
+        .toast-box { left:12px; right:12px; bottom:12px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+        *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+    <div class="bg-blob bg-blob--1"></div>
+    <div class="bg-blob bg-blob--2"></div>
+</div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-box"><iconify-icon icon="lucide:monitor-cog"></iconify-icon></div>
+        <div class="logo-full">
+            <h2>ICT <em>Tech</em> Support</h2>
+            <p>PNHS-Main</p>
+        </div>
+        <button class="toggle-btn" id="toggleSidebar" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
+        </button>
+    </div>
+    <div class="hamburger-wrap">
+        <button class="hamburger-btn" id="hamburgerBtn" title="Expand sidebar" aria-label="Expand sidebar">
+            <iconify-icon icon="lucide:panel-left-open"></iconify-icon>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <p class="nav-section-label">Main</p>
+        <a href="/ict_support_dashboard" class="nav-link-custom" data-tip="Dashboard">
+            <iconify-icon icon="lucide:layout-dashboard"></iconify-icon><span class="nav-text">Dashboard</span>
+        </a>
+
+        <p class="nav-section-label">Operations</p>
+        <a href="/ict_support_tickets" class="nav-link-custom" data-tip="Tickets">
+            <iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Tickets</span>
+        </a>
+        <a href="/ict_support_students" class="nav-link-custom" data-tip="Users">
+            <iconify-icon icon="lucide:users"></iconify-icon><span class="nav-text">Users</span>
+        </a>
+        <p class="nav-section-label">Insights</p>
+        <a href="/ict_support_reports" class="nav-link-custom active" data-tip="Reports">
+            <iconify-icon icon="lucide:file-text"></iconify-icon><span class="nav-text">Reports</span>
+        </a>
+
+        <p class="nav-section-label">System</p>
+        <a href="/ict_support_settings" class="nav-link-custom" data-tip="Settings">
+            <iconify-icon icon="lucide:settings"></iconify-icon><span class="nav-text">Settings</span>
+        </a>
+        <a href="/logout" class="nav-link-custom logout" data-tip="Logout">
+            <iconify-icon icon="lucide:log-out"></iconify-icon><span class="nav-text">Logout</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-user">
+        <div class="sidebar-avatar">T</div>
+        <div class="sidebar-user-info">
+            <h4>ICT-Tech</h4>
+            <p>Tech Support</p>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main-content" id="mainContent">
+
+    <div class="top-bar fu e1">
+        <h2 class="page-title"><iconify-icon icon="lucide:file-text"></iconify-icon>Reports &amp; Analytics</h2>
+        <div class="top-bar-right">
+            <button class="icon-btn" id="statsRefreshBtn" onclick="loadQuickStats()" title="Refresh stats" aria-label="Refresh stats">
+                <iconify-icon icon="lucide:rotate-cw"></iconify-icon>
+            </button>
+            <button class="icon-btn theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+                <iconify-icon icon="lucide:moon" class="icon-moon"></iconify-icon>
+                <iconify-icon icon="lucide:sun" class="icon-sun"></iconify-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="stats-grid fu e2">
+        <div class="stat-card sc-neutral">
+            <div class="stat-header">
+                <span>Total Tickets</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:ticket"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="statTotal">—</p>
+            <p class="stat-sub">All time</p>
+        </div>
+        <div class="stat-card sc-gold">
+            <div class="stat-header">
+                <span>Open Tickets</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:hourglass"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="statOpen">—</p>
+            <p class="stat-sub">Awaiting response</p>
+        </div>
+        <div class="stat-card sc-blue">
+            <div class="stat-header">
+                <span>In Progress</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:loader"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="statProgress">—</p>
+            <p class="stat-sub">Being worked on</p>
+        </div>
+        <div class="stat-card sc-green">
+            <div class="stat-header">
+                <span>Resolved</span>
+                <div class="stat-icon"><iconify-icon icon="lucide:circle-check"></iconify-icon></div>
+            </div>
+            <p class="stat-value" id="statResolved">—</p>
+            <p class="stat-sub" id="statsSub">Loading stats…</p>
+        </div>
+    </div>
+
+    <!-- Reports -->
+    <section class="panel fu e3">
+        <div class="panel-head">
+            <div>
+                <h3><iconify-icon icon="lucide:file-bar-chart"></iconify-icon>Available Reports</h3>
+                <p class="sub">Generate a report, preview it, then export as PDF</p>
+            </div>
+        </div>
+
+        <div class="report-grid">
+            <button class="report-card rc-green" onclick="generateReport('ticket')">
+                <div class="rc-icon"><iconify-icon icon="lucide:file-bar-chart"></iconify-icon></div>
+                <div class="rc-info">
+                    <p>Ticket Report <span class="rc-badge">PDF</span></p>
+                    <span>All tickets with status, priority &amp; dates</span>
+                </div>
+                <iconify-icon icon="lucide:arrow-right" class="rc-arrow"></iconify-icon>
+            </button>
+
+            <button class="report-card rc-blue" onclick="generateReport('user')">
+                <div class="rc-icon"><iconify-icon icon="lucide:users"></iconify-icon></div>
+                <div class="rc-info">
+                    <p>User Report <span class="rc-badge">PDF</span></p>
+                    <span>Student accounts, activity &amp; ticket counts</span>
+                </div>
+                <iconify-icon icon="lucide:arrow-right" class="rc-arrow"></iconify-icon>
+            </button>
+
+            <button class="report-card rc-coral" onclick="generateReport('performance')">
+                <div class="rc-icon"><iconify-icon icon="lucide:activity"></iconify-icon></div>
+                <div class="rc-info">
+                    <p>Performance Report <span class="rc-badge">PDF</span></p>
+                    <span>Response times, resolution rate &amp; trends</span>
+                </div>
+                <iconify-icon icon="lucide:arrow-right" class="rc-arrow"></iconify-icon>
+            </button>
+        </div>
+
+        <p class="panel-note">
+            <iconify-icon icon="lucide:info"></iconify-icon>
+            Reports are generated in real time from the database. For internal use only.
+        </p>
+    </section>
+
+    <footer>PNHS-Main · ICT Tech Support Portal v2.0</footer>
+</div>
+
+<!-- ═══ PDF PREVIEW MODAL ═══ -->
+<div class="modal-overlay" id="pdfModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+        <div class="modal-head">
+            <div class="mh-left">
+                <span class="mh-kicker"><iconify-icon icon="lucide:file-text"></iconify-icon>PDF PREVIEW</span>
+                <h3 id="modalTitle">Report</h3>
+            </div>
+            <button class="dlg-close" onclick="closeModal()" aria-label="Close preview">
+                <iconify-icon icon="lucide:x"></iconify-icon>
+            </button>
+        </div>
+
+        <div class="modal-scroll" id="pdfScroll">
+            <div id="pdfContent"><!-- Report preview rendered here --></div>
+        </div>
+
+        <div class="modal-foot">
+            <button class="btn-ghost" onclick="closeModal()">
+                <iconify-icon icon="lucide:x"></iconify-icon>Close
+            </button>
+            <button class="btn-pdf" id="downloadBtn" onclick="downloadPDF()">
+                <span class="spinner"></span>
+                <iconify-icon icon="lucide:download" class="btn-icon"></iconify-icon>
+                <span class="btn-label">Download PDF</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-box" id="toastBox"></div>
+
+<script>
+let currentReportData = null;
+let currentReportType = '';
+const $ = id => document.getElementById(id);
+
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+/* Safe date parser — "YYYY-MM-DD HH:MM:SS" galing MySQL ay sira sa Safari kapag
+   new Date() lang; i-fix muna natin yung format bago i-parse. */
+const parseDate = s => { if (!s) return null; const d = new Date(String(s).replace(' ', 'T')); return isNaN(d) ? null : d; };
+const fmtDate = s => { const d = parseDate(s); return d ? d.toLocaleDateString() : (s || '—'); };
+const pretty = s => String(s || 'pending').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+/* ── Theme (synced sa lahat ng pages — same 'bl-theme' key) ── */
+const applyTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('bl-theme', t); };
+applyTheme(localStorage.getItem('bl-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+ $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+/* ── Sidebar collapse (synced) ── */
+const applySidebar = collapsed => {
+    $('sidebar').classList.toggle('collapsed', collapsed);
+    $('mainContent').classList.toggle('shifted', collapsed);
+    localStorage.setItem('bl-ict-sidebar', collapsed ? '1' : '0');
+};
+applySidebar(localStorage.getItem('bl-ict-sidebar') === '1');
+ $('toggleSidebar').addEventListener('click', () => applySidebar(true));
+ $('hamburgerBtn').addEventListener('click', () => applySidebar(false));
+
+/* ── Collapsed tooltips ── */
+const tip = document.createElement('div');
+tip.className = 'nav-tip';
+document.body.appendChild(tip);
+document.addEventListener('mouseover', e => {
+    const link = e.target.closest('.sidebar.collapsed .nav-link-custom[data-tip]');
+    if (!link) { tip.classList.remove('show'); return; }
+    const r = link.getBoundingClientRect();
+    tip.textContent = link.dataset.tip;
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.left = (r.right + 12) + 'px';
+    tip.classList.add('show');
+});
+
+/* ── Toast ── */
+function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = 'toast-msg' + (type === 'error' ? ' error' : '');
+    el.innerHTML = `<iconify-icon icon="${type === 'error' ? 'lucide:circle-alert' : 'lucide:circle-check'}"></iconify-icon><span>${escapeHtml(msg)}</span>`;
+    $('toastBox').appendChild(el);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 350); }, 3200);
+}
+
+function countUp(el, target) {
+    target = Number(target) || 0;
+    let t0 = null;
+    const step = now => {
+        if (!t0) t0 = now;
+        const p = Math.min((now - t0) / 900, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+/* ═══ 1. QUICK STATS ═══ */
+async function loadQuickStats() {
+    const btn = $('statsRefreshBtn');
+    btn.classList.add('spinning');
+    try {
+        const res = await fetch('/get_tickets', { headers: { 'Accept': 'application/json' } });
+        const data = await res.json();
+        if (data.success) {
+            const tickets = data.tickets || [];
+            countUp($('statTotal'), tickets.length);
+            countUp($('statOpen'), tickets.filter(ticket => ticket.status === 'pending').length);
+            countUp($('statProgress'), tickets.filter(ticket => ticket.status === 'in_progress').length);
+            countUp($('statResolved'), tickets.filter(ticket => ['resolved', 'closed'].includes(ticket.status)).length);
+            $('statsSub').textContent = 'Synced ' + new Date().toLocaleTimeString();
+        } else {
+            throw 0;
+        }
+    } catch (e) {
+        ['statTotal', 'statOpen', 'statProgress', 'statResolved'].forEach(id => $(id).textContent = '—');
+        $('statsSub').textContent = 'Stats unavailable';
+        console.error('Error loading stats:', e);
+    } finally {
+        btn.classList.remove('spinning');
+    }
+}
+
+/* ═══ 2. GENERATE REPORT ═══ */
+async function generateReport(type) {
+    const modal = $('pdfModal');
+    const content = $('pdfContent');
+
+    currentReportType = type;
+    currentReportData = null;
+    $('modalTitle').textContent = ({
+        ticket: 'Ticket Report',
+        user: 'User Report',
+        performance: 'Performance Report'
+    })[type] || 'Report';
+    $('downloadBtn').disabled = true;
+
+    content.innerHTML = `
+        <div class="modal-state">
+            <div class="big-spinner"></div>
+            <p>Generating report…</p>
+        </div>
+    `;
+    modal.classList.add('active');
+
+    try {
+        let data;
+        if (type === 'ticket') {
+            const res = await fetch('/get_tickets', { headers: { 'Accept': 'application/json' } });
+            const ticketData = await res.json();
+            if (!ticketData.success) throw new Error(ticketData.message || 'Failed to load ticket data');
+            const tickets = ticketData.tickets || [];
+            data = {
+                success: true,
+                total: tickets.length,
+                open: tickets.filter(ticket => ticket.status === 'pending').length,
+                in_progress: tickets.filter(ticket => ticket.status === 'in_progress').length,
+                resolved: tickets.filter(ticket => ['resolved', 'closed'].includes(ticket.status)).length,
+                tickets
+            };
+        } else {
+            const res = await fetch(`/generate_report?type=${encodeURIComponent(type)}`, { headers: { 'Accept': 'application/json' } });
+            data = await res.json();
+        }
+
+        if (!data.success) {
+            content.innerHTML = `
+                <div class="modal-state">
+                    <iconify-icon icon="lucide:triangle-alert"></iconify-icon>
+                    <p>${escapeHtml(data.message || 'Failed to generate report.')}</p>
+                    <button class="retry-btn" onclick="generateReport('${type}')"><iconify-icon icon="lucide:rotate-cw"></iconify-icon>Try Again</button>
+                </div>
+            `;
+            return;
+        }
+
+        currentReportData = data;
+        renderReportPreview(data, type);
+    } catch (e) {
+        console.error('Report generation error:', e);
+        content.innerHTML = `
+            <div class="modal-state">
+                <iconify-icon icon="lucide:wifi"></iconify-icon>
+                <p>Error loading report data. Check your connection.</p>
+                <button class="retry-btn" onclick="generateReport('${type}')"><iconify-icon icon="lucide:rotate-cw"></iconify-icon>Try Again</button>
+            </div>
+        `;
+    }
+}
+
+/* ═══ 3. RENDER REPORT PREVIEW ═══ */
+function renderReportPreview(data, type) {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    let title = 'Report';
+    let stats = '';
+    let thead = '';
+    let tableRows = '';
+
+    switch (type) {
+        case 'ticket':
+            title = 'Ticket Report';
+            stats = statBoxes([
+                [data.total || 0, 'Total Tickets', '#1f8a64'],
+                [data.open || 0, 'Open', '#e8a838'],
+                [data.in_progress || 0, 'In Progress', '#4a90d9'],
+                [data.resolved || 0, 'Resolved', '#28a87a']
+            ]);
+            thead = '<th>Ticket</th><th>Subject</th><th>Status</th><th>Priority</th><th>Date</th>';
+            if (data.tickets?.length) {
+                tableRows = data.tickets.map(t => `
+                    <tr>
+                        <td>#${escapeHtml(String(t.ticket_number ?? t.id ?? ''))}</td>
+                        <td>${escapeHtml(t.subject || 'No subject')}</td>
+                        <td>${escapeHtml(pretty(t.status))}</td>
+                        <td>${escapeHtml(pretty(t.priority))}</td>
+                        <td>${escapeHtml(fmtDate(t.created_at))}</td>
+                    </tr>`).join('');
+            }
+            break;
+
+        case 'user':
+            title = 'User Report';
+            stats = statBoxes([
+                [data.total_users || 0, 'Total Users', '#1f8a64'],
+                [data.active_users || 0, 'Active', '#28a87a'],
+                [data.inactive_users || 0, 'Inactive', '#e8a838'],
+                [data.total_tickets || 0, 'Total Tickets', '#4a90d9']
+            ]);
+            thead = '<th>Name</th><th>LRN</th><th>Grade</th><th>Tickets</th><th>Last Active</th>';
+            if (data.users?.length) {
+                tableRows = data.users.map(u => `
+                    <tr>
+                        <td>${escapeHtml(u.name || u.full_name || 'N/A')}</td>
+                        <td>${escapeHtml(u.lrn || '—')}</td>
+                        <td>${escapeHtml(u.grade_level || '—')}</td>
+                        <td>${escapeHtml(String(u.ticket_count ?? 0))}</td>
+                        <td>${escapeHtml(u.last_active ? fmtDate(u.last_active) : 'N/A')}</td>
+                    </tr>`).join('');
+            }
+            break;
+
+        case 'performance':
+            title = 'Performance Report';
+            stats = statBoxes([
+                [`${data.avg_resolution_time || 0}min`, 'Avg Resolution', '#1f8a64'],
+                [`${data.resolution_rate || 0}%`, 'Resolution Rate', '#28a87a'],
+                [data.total_tickets || 0, 'Total Tickets', '#4a90d9'],
+                [data.avg_rating || 0, 'Avg Rating', '#e8a838']
+            ]);
+            thead = '<th>Date</th><th>Created</th><th>Resolved</th><th>Resolution</th>';
+            if (data.performance_data?.length) {
+                tableRows = data.performance_data.map(p => `
+                    <tr>
+                        <td>${escapeHtml(p.date || '')}</td>
+                        <td>${escapeHtml(String(p.tickets_created ?? 0))}</td>
+                        <td>${escapeHtml(String(p.tickets_resolved ?? 0))}</td>
+                        <td>${escapeHtml(String(p.avg_resolution_time ?? 0))}min</td>
+                    </tr>`).join('');
+            }
+            break;
+    }
+
+    $('modalTitle').textContent = title;
+    $('pdfContent').innerHTML = `
+        <div class="pdf-content" id="pdfContentInner">
+            <div class="pdf-header">
+                <div>
+                    <h2>${title}</h2>
+                    <p class="sub">PNHS-Main · ICT Tech Support Portal</p>
+                    <p class="sub" style="color:#a8bfb4">Generated on ${dateStr} at ${timeStr}</p>
+                </div>
+                <div class="pdf-brand">
+                    <iconify-icon icon="lucide:monitor-cog" width="18" height="18" style="color:#145a42"></iconify-icon>
+                    <span>PNHS-ICT</span>
+                </div>
+            </div>
+
+            ${stats}
+
+            ${tableRows ? `
+                <p class="table-title">Detailed Data</p>
+                <table>
+                    <thead><tr>${thead}</tr></thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            ` : `
+                <div class="no-data">No detailed data available for this report.</div>
+            `}
+
+            <div class="pdf-footer">
+                <p>PNHS-Main · ICT Tech Support · This report is for internal use only</p>
+                <p>Report generated on ${dateStr} at ${timeStr}</p>
+            </div>
+        </div>
+    `;
+
+    $('downloadBtn').disabled = false;
+    $('pdfScroll').scrollTop = 0;
+}
+
+/* Helper para sa stat boxes — solid colors lang, html2canvas-safe */
+function statBoxes(items) {
+    return `<div class="stats-grid">${items.map(([num, label, color]) =>
+        `<div class="stat-box"><div class="number" style="color:${color}">${escapeHtml(String(num))}</div><div class="label">${escapeHtml(label)}</div></div>`
+    ).join('')}</div>`;
+}
+
+/* ═══ 4. DOWNLOAD PDF ═══ */
+function downloadPDF() {
+    const element = document.getElementById('pdfContentInner');
+    if (!element) { toast('No report data to download.', 'error'); return; }
+
+    const btn = $('downloadBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `${currentReportType}_report_${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save()
+        .then(() => toast(`PDF downloaded — ${currentReportType}_report`))
+        .catch(() => toast('Failed to generate PDF. Please try again.', 'error'))
+        .finally(() => {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        });
+}
+
+/* ═══ 5. MODAL CONTROLS ═══ */
+function closeModal() {
+    document.getElementById('pdfModal').classList.remove('active');
+}
+
+document.getElementById('pdfModal').addEventListener('click', function (e) {
+    if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('pdfModal').classList.contains('active')) closeModal();
+});
+
+/* ═══ 6. INIT ═══ */
+document.addEventListener('DOMContentLoaded', loadQuickStats);
+</script>
+</body>
+</html>

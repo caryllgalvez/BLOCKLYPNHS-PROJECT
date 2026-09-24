@@ -27,6 +27,30 @@
       font-weight: 700;
       letter-spacing: -0.5px;
     }
+    .pup-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+      margin: 0;
+    }
+    .pnhs-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+      margin: 0;
+    }
+    .header-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      margin-bottom: 14px;
+    }
+    .header-content {
+      text-align: center;
+    }
     .header p {
       margin-top: 8px;
       font-size: 0.98rem;
@@ -75,11 +99,16 @@
       color: #1f4f2e;
       margin-bottom: 14px;
     }
+    .team-section {
+      text-align: center;
+    }
     .team-sub {
       color: #536356;
       font-size: 1rem;
       margin-bottom: 24px;
       max-width: 740px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .mv-grid {
@@ -170,6 +199,8 @@
       .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 620px) {
+      .header-logos { gap: 18px; margin-bottom: 12px; }
+      .pup-logo, .pnhs-logo { width: 72px; height: 72px; }
       .about-hero,
       .mv-section,
       .team-section { padding: 32px 24px; }
@@ -181,16 +212,17 @@
 <body>
   <div class="page-shell">
     <header class="header">
-      <h1>About BlockLearn</h1>
-      <p>BlockLearn is a learner-first coding platform designed to make programming intuitive, engaging, and accessible through visual block-based activities.</p>
+      <div class="header-logos">
+        <img class="pup-logo" src="/static/pup_logo.png" alt="PUP logo">
+        <img class="pnhs-logo" src="/static/pnhs-logo.png" alt="PNHS logo">
+      </div>
+      <div class="header-content">
+        <h1>About BlockLearn</h1>
+        <p>BlockLearn is a learner-first coding platform designed to make programming intuitive, engaging, and accessible through visual block-based activities.</p>
+      </div>
     </header>
 
     <main class="container">
-      <section class="about-hero">
-        <h2>About BlockLearn</h2>
-        <p>Empowering learners and educators through accessible, block-based programming tools that bridge the gap between curiosity and code.</p>
-      </section>
-
       <section class="mv-section">
         <h3>Mission &amp; Vision</h3>
         <div class="mv-grid">
@@ -214,28 +246,28 @@
               <img src="/static/image_1.jpg" alt="Franceska Yumi F. Felonia">
             </div>
             <div class="team-name">Franceska Yumi F. Felonia</div>
-            <div class="team-role">Lead Developer</div>
+            <div class="team-role"></div>
           </div>
           <div class="team-card">
             <div class="team-frame">
               <img src="/static/image_2.jpg" alt="Nathaniel N. Geralao">
             </div>
-            <div class="team-name">Nathaniel N. Geralao </div>
-            <div class="team-role">Frontend Engineer</div>
+            <div class="team-name">Nathaniel N. Generalao </div>
+            <div class="team-role"></div>
           </div>
           <div class="team-card">
             <div class="team-frame">
               <img src="/static/image_3.jpg" alt="Roxanne O. Magtabog">
             </div>
             <div class="team-name">Roxanne O. Magtabog</div>
-            <div class="team-role">Backend Engineer</div>
+            <div class="team-role"></div>
           </div>
           <div class="team-card">
             <div class="team-frame">
               <img src="/static/image_4.jpg" alt="Caryll G. Ybañez">
             </div>
             <div class="team-name">Caryll G. Ybañez</div>
-            <div class="team-role">UI/UX &amp; QA</div>
+            <div class="team-role"></div>
           </div>
         </div>
       </section>

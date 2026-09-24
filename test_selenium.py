@@ -1,6 +1,5 @@
 from selenium import webdriver
 
-
 def test_pytest_placeholder():
     assert True
 

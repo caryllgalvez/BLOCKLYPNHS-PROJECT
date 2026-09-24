@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Activities · BlockLearn</title>
+    <title>Java Assessments · BlockLearn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,12 +62,11 @@
             --greeting-overlay: rgba(255,255,255,0.1);
             --search-bg: var(--card-white);
             --dropdown-z-index: 99999;
-            --js-color: #f0c040;
-            --js-light: #fef9e7;
-            --js-dark: #9a7020;
+            --java-color: #007396;
+            --java-light: #e8f4f8;
+            --java-dark: #005a7a;
         }
 
-        /* ===== DARK MODE ===== */
         [data-theme="dark"] {
             --bg-main: #0f1f19;
             --text-primary: #d8ede5;
@@ -104,7 +104,8 @@
             --chart-tick: #5a7a6d;
             --greeting-overlay: rgba(255,255,255,0.06);
             --search-bg: #1a3329;
-            --js-light: #2e2810;
+            --java-light: #1a3040;
+            --java-dark: #60b0d0;
         }
 
         body {
@@ -116,7 +117,6 @@
             transition: background 0.4s ease, color 0.4s ease;
         }
 
-        /* ===== BACKGROUND ===== */
         .bg-layer {
             position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
         }
@@ -137,11 +137,11 @@
         }
         .bg-blob--1 {
             width: 480px; height: 480px; top: -12%; right: -6%;
-            background: radial-gradient(circle, rgba(240,192,64,0.35), transparent 70%);
+            background: radial-gradient(circle, rgba(0,115,150,0.3), transparent 70%);
         }
         .bg-blob--2 {
             width: 380px; height: 380px; bottom: -10%; left: 8%;
-            background: radial-gradient(circle, rgba(40,168,122,0.25), transparent 70%);
+            background: radial-gradient(circle, rgba(232,168,56,0.25), transparent 70%);
             animation-duration: 28s; animation-delay: -6s;
         }
         @keyframes blobDrift {
@@ -172,19 +172,20 @@
         .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 1.1rem;
+            padding: 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
+        .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
         .logo-full {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
             transition: opacity 0.2s ease;
         }
         .logo-full h2 {
             font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
-            margin: 0; white-space: nowrap;
+            margin: 0; white-space: nowrap; color: #ffffff;
         }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
         .logo-full p {
@@ -200,7 +201,7 @@
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
             color: #d8efe5; font-size: 0.9rem; width: 28px; height: 28px;
             border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 8px;
         }
         .toggle-btn:hover { background: var(--sidebar-icon-toggle-hover); transform: rotate(90deg); }
 
@@ -215,7 +216,7 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
-        .sidebar.collapsed .logo-full { display: none; }
+        .sidebar.collapsed .logo-full, .sidebar.collapsed .logo-image { display: none; }
         .sidebar.collapsed .logo-mono { display: block; }
         .sidebar.collapsed .toggle-btn { display: none; }
         .sidebar.collapsed .hamburger-wrap { display: flex; }
@@ -254,6 +255,9 @@
             white-space: nowrap;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
+        .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom:hover i { transform: scale(1.12); }
         .nav-link-custom.active {
@@ -261,7 +265,7 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             border-radius: var(--radius-sm);
         }
-        .nav-link-custom.active i { color: var(--js-color); }
+        .nav-link-custom.active i { color: var(--java-color); }
         .nav-badge {
             position: absolute; top: 5px; left: 24px;
             width: 7px; height: 7px; background: var(--coral);
@@ -275,7 +279,8 @@
         }
 
         .sidebar-user {
-            display: flex; align-items: center; gap: 11px;
+            display: none !important;
+            align-items: center; gap: 11px;
             border-top: 1px solid rgba(255,255,255,0.07);
             transition: all 0.35s ease; overflow: hidden;
         }
@@ -314,7 +319,7 @@
             font-size: 1.1rem; font-weight: 800; color: var(--text-primary);
             letter-spacing: -0.4px; margin: 0; transition: color 0.4s ease;
         }
-        .page-title i { color: var(--js-color); margin-right: 8px; font-size: 0.9rem; }
+        .page-title i { color: var(--java-color); margin-right: 8px; font-size: 0.9rem; }
         .top-bar-right {
             display: flex; align-items: center; gap: 10px;
             position: relative; z-index: 200;
@@ -371,8 +376,6 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px solid var(--card-white); transition: all 0.3s ease;
         }
-        .notif-btn .notif-badge.hidden { display: none; }
-
         .notif-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
             width: 380px; max-height: 420px;
@@ -437,7 +440,10 @@
             line-height: 1.2; white-space: nowrap; transition: color 0.4s ease;
         }
         .profile-trigger-role { font-size: 0.6rem; color: var(--stone-light); line-height: 1.2; white-space: nowrap; }
-        .profile-trigger-chevron { color: var(--stone-light); font-size: 0.6rem; margin-left: 2px; transition: transform 0.25s ease; }
+        .profile-trigger-chevron {
+            color: var(--stone-light); font-size: 0.6rem;
+            margin-left: 2px; transition: transform 0.25s ease;
+        }
         .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
 
         .profile-dropdown {
@@ -480,294 +486,267 @@
         .pd-link.logout i { color: var(--coral); }
         .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
 
-        /* ===== LANGUAGE TABS ===== */
-        .language-tabs {
-            display: flex; gap: 0.6rem; margin-bottom: 1.6rem; flex-wrap: wrap;
+        /* ===== TABS WRAPPER ===== */
+        .tabs-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1.6rem;
         }
+
+        .language-tabs {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
         .lang-tab {
-            padding: 0.5rem 1.4rem; border-radius: 40px;
+            padding: 0.5rem 1.4rem;
+            border-radius: 40px;
             background: var(--card-glass);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
             border: 1.5px solid var(--glass-border);
-            color: var(--stone); font-weight: 600; font-size: 0.78rem;
-            cursor: pointer; transition: all 0.3s ease;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            color: var(--stone);
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             box-shadow: var(--shadow-xs);
+            font-family: inherit;
         }
         .lang-tab:hover {
-            border-color: var(--green-main); color: var(--green-main);
-            transform: translateY(-2px); box-shadow: var(--shadow-sm);
+            border-color: var(--green-main);
+            color: var(--green-main);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
         .lang-tab.active {
-            background: var(--js-color); border-color: var(--js-color); color: #1a1a1a;
-            box-shadow: 0 4px 16px rgba(240,192,64,0.35);
+            background: var(--java-color);
+            border-color: var(--java-color);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,115,150,0.3);
         }
-        .lang-tab.active:hover { color: #1a1a1a; transform: translateY(-2px); }
+        .lang-tab.active:hover { color: white; transform: translateY(-2px); }
 
-        /* ===== LEVEL SECTIONS ===== */
-        .level-section { margin-bottom: 2rem; }
-        .level-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;
+        .activities-btn {
+            padding: 0.5rem 1.6rem;
+            border-radius: 40px;
+            background: var(--gold-warm);
+            border: none;
+            color: #1a4235;
+            font-weight: 700;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(232,168,56,0.25);
+            font-family: inherit;
         }
-        .level-icon {
-            width: 42px; height: 42px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; flex-shrink: 0;
+        .activities-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(232,168,56,0.35);
+            background: #d49a2a;
         }
-        .level-icon.easy-icon { background: var(--green-soft); color: var(--green-main); }
-        .level-icon.medium-icon { background: var(--gold-light); color: #c48a20; }
-        .level-icon.hard-icon { background: var(--coral-soft); color: var(--coral); }
-        .level-header h5 {
-            font-size: 0.95rem; font-weight: 750; margin: 0;
-            transition: color 0.4s ease;
-        }
-        .level-count {
-            font-size: 0.6rem; font-weight: 650; padding: 3px 10px;
-            border-radius: 20px; background: var(--card-glass);
-            border: 1px solid var(--glass-border);
-            color: var(--stone); transition: all 0.4s ease;
+        .activities-btn i { font-size: 0.85rem; }
+        .activities-btn .badge-count {
+            background: #1a4235;
+            color: white;
+            font-size: 0.55rem;
+            padding: 1px 8px;
+            border-radius: 20px;
+            margin-left: 2px;
         }
 
-        /* ===== ACTIVITY CARDS ===== */
-        .activity-card {
+        /* ===== ASSESSMENT GRID ===== */
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .assessment-card {
             background: var(--card-glass);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: var(--radius-lg); padding: 1.3rem 1.4rem;
-            cursor: pointer; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
             border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-sm); height: 100%;
-            position: relative; overflow: hidden; text-decoration: none;
-            color: inherit; display: flex; flex-direction: column;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: all 0.35s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
         }
-        .card-accent-bar {
-            position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            border-radius: 3px 3px 0 0; opacity: 0; transition: opacity 0.35s;
+        .assessment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--java-color);
         }
-        .activity-card:hover {
-            transform: translateY(-5px); border-color: var(--js-color);
-            box-shadow: var(--shadow-xl);
-        }
-        .activity-card:hover .card-accent-bar { opacity: 1; }
-        .activity-card:hover .card-arrow { opacity: 1; transform: translateY(0); }
 
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+        .assessment-card .card-top {
+            padding: 1.2rem 1.3rem 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .assessment-card .card-top .number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--stone-light);
+        }
+        .assessment-card .card-top .status-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+        }
+        .status-passed { background: var(--green-soft); color: var(--green-deep); }
+        .status-done { background: var(--green-soft); color: var(--green-deep); }
+        .status-failed { background: var(--coral-soft); color: var(--coral); }
+        .status-in-progress { background: var(--gold-light); color: #9a7020; }
+        .status-not-started { background: #e5e7eb; color: #6b7280; }
 
-        /* ===== REMOVED DIFFICULTY BADGE - NOW USING LEVEL SECTION ===== */
+        .assessment-card .card-body {
+            padding: 0.2rem 1.3rem 0.6rem;
+        }
+        .assessment-card .card-body h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .assessment-card .card-body .desc {
+            font-size: 0.78rem;
+            color: var(--stone-light);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .assessment-card .card-body .meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .assessment-card .card-body .meta span {
+            font-size: 0.7rem;
+            color: var(--stone);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .assessment-card .card-body .meta span i {
+            color: var(--java-color);
+            font-size: 0.65rem;
+        }
+        .assessment-card .card-body .meta span .gold { color: var(--gold-warm); }
 
-        .status-badge {
-            font-size: 0.6rem; padding: 3px 11px; border-radius: 20px; font-weight: 650;
+        .progress-mini {
+            height: 4px;
+            background: var(--chart-grid);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
         }
-        .status-completed { background: var(--green-soft); color: var(--green-deep); }
-        .status-pending { background: var(--gold-light); color: #9a7020; }
+        .progress-mini .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.6s ease;
+            background: linear-gradient(90deg, var(--java-color), var(--java-dark));
+        }
 
-        .activity-card h6 {
-            font-size: 0.95rem; font-weight: 750; margin: 0 0 4px;
-            color: var(--text-primary); transition: color 0.4s ease;
+        .assessment-card .card-footer {
+            padding: 0.8rem 1.3rem;
+            background: var(--bg-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-fresh);
         }
-        .step-badge {
-            display: inline-block; background: var(--js-color); color: #1a1a1a;
-            padding: 2px 10px; border-radius: 20px; font-size: 0.56rem;
-            font-weight: 700; margin-left: 6px;
-        }
-        .activity-card .card-desc {
-            font-size: 0.78rem; color: var(--stone-light); margin-bottom: 10px;
-            line-height: 1.5; transition: color 0.4s ease;
-        }
-        .blocks-available { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
-        .block-pill {
-            background: var(--js-light); padding: 2px 10px; border-radius: 20px;
-            font-size: 0.58rem; font-weight: 700; color: var(--js-dark);
-            letter-spacing: 0.3px; transition: background 0.4s ease, color 0.4s ease;
-        }
-        .card-meta {
-            display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto;
-        }
-        .card-meta-badge {
-            font-size: 0.62rem; padding: 3px 10px; border-radius: 20px;
-            font-weight: 600; background: var(--card-glass);
-            border: 1px solid var(--glass-border);
-            color: var(--stone); display: inline-flex; align-items: center; gap: 4px;
-            transition: all 0.4s ease;
-        }
-        .card-meta-badge i { font-size: 0.6rem; }
-        .card-meta-badge .gold { color: var(--gold-warm); }
 
-        .card-arrow {
-            display: inline-flex; align-items: center; gap: 5px;
-            margin-top: 10px; color: var(--js-color); font-size: 0.75rem; font-weight: 650;
-            opacity: 0; transform: translateY(5px); transition: all 0.35s ease;
+        .btn-assessment {
+            background: var(--java-color);
+            color: white;
+            border: none;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .card-arrow i { transition: transform 0.3s; }
-        .activity-card:hover .card-arrow i { transform: translateX(3px); }
-
-        /* ===== FREE PLAY CARD ===== */
-        .free-play-card {
-            border: 2px dashed var(--js-color); background: var(--js-light);
-            text-decoration: none; color: inherit; transition: all 0.35s ease;
-        }
-        .free-play-card::before { display: none; }
-        .free-play-card:hover {
-            transform: translateY(-5px); box-shadow: var(--shadow-xl);
-            border-color: var(--green-main); background: var(--card-glass);
-        }
-        .free-play-icon {
-            font-size: 2.5rem; margin-bottom: 0.5rem;
-            transition: transform 0.4s ease;
-        }
-        .free-play-card:hover .free-play-icon { transform: scale(1.15) rotate(-5deg); }
-        .free-play-card h6 {
-            font-weight: 750; color: var(--green-deep);
-            transition: color 0.4s ease;
-        }
-        .free-play-launch {
-            display: inline-flex; align-items: center; gap: 6px;
-            margin-top: 10px; font-size: 0.78rem; font-weight: 650;
-            color: var(--js-color); transition: all 0.3s;
-        }
-        .free-play-card:hover .free-play-launch { gap: 10px; }
-
-        /* ===== INSTRUCTION PANEL ===== */
-        .instruction-panel {
-            position: fixed; top: 0; right: -520px; width: 500px; height: 100vh;
-            background: var(--card-white);
-            box-shadow: -8px 0 40px rgba(0,0,0,0.15);
-            border-left: 1px solid var(--border-fresh);
-            transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease, border-color 0.4s ease;
-            z-index: 2000; padding: 1.8rem 2rem 1.5rem;
-            overflow-y: auto; display: flex; flex-direction: column;
-        }
-        .instruction-panel.open { right: 0; }
-        .instruction-panel .close-btn {
-            background: none; border: 1.5px solid var(--border-fresh);
-            font-size: 1rem; color: var(--stone); padding: 6px 12px;
-            border-radius: 10px; transition: all 0.25s; align-self: flex-end;
-            margin-bottom: 0.8rem; cursor: pointer;
-        }
-        .instruction-panel .close-btn:hover {
-            background: var(--coral-soft); border-color: var(--coral); color: var(--coral);
-        }
-        .instruction-panel h4 {
-            font-weight: 800; color: var(--text-primary);
-            margin-bottom: 0.3rem; font-size: 1.25rem; letter-spacing: -0.4px;
-            transition: color 0.4s ease;
-        }
-        .instruction-panel .step-number {
-            display: inline-block; background: var(--js-color); color: #1a1a1a;
-            padding: 3px 13px; border-radius: 20px; font-size: 0.65rem;
-            font-weight: 700; margin-bottom: 0.8rem;
-        }
-        .instruction-panel .meta-row {
-            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.2rem;
-        }
-        .instruction-panel .meta-row span {
-            background: var(--js-light); padding: 3px 14px; border-radius: 40px;
-            font-size: 0.68rem; font-weight: 650; color: var(--js-dark);
-            display: inline-flex; align-items: center; gap: 4px;
-            transition: background 0.4s ease, color 0.4s ease;
-        }
-        .instruction-panel .instruction-text {
-            background: var(--js-light); padding: 1.2rem 1.4rem; border-radius: var(--radius-md);
-            border-left: 4px solid var(--js-color); font-size: 0.9rem;
-            color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem;
-            flex: 1; transition: background 0.4s ease, color 0.4s ease;
-        }
-        .instruction-panel .instruction-text .step-item {
-            display: flex; gap: 12px; padding: 6px 0;
-            border-bottom: 1px solid var(--border-fresh);
-            transition: border-color 0.4s ease;
-        }
-        .instruction-panel .instruction-text .step-item:last-child { border-bottom: none; }
-        .instruction-panel .instruction-text .step-num {
-            font-weight: 800; color: var(--js-color); min-width: 28px; font-size: 0.82rem;
-        }
-        .instruction-panel .instruction-text .step-desc { flex: 1; font-size: 0.85rem; }
-        .instruction-panel .instruction-text .step-desc code {
-            background: var(--card-white); padding: 1px 7px; border-radius: 6px;
-            font-size: 0.78rem; color: var(--js-dark); border: 1px solid var(--border-fresh);
-            transition: all 0.4s ease;
-        }
-        .instruction-panel .instruction-text .step-desc strong { color: var(--text-primary); transition: color 0.4s ease; }
-        .instruction-panel .block-list {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem;
-        }
-        .instruction-panel .block-list .block-pill { font-size: 0.7rem; padding: 4px 13px; }
-        .instruction-panel .btn-start {
-            background: var(--js-color); border: none; color: #1a1a1a;
-            font-weight: 700; padding: 12px 20px; border-radius: 40px;
-            width: 100%; transition: all 0.3s; margin-top: auto;
-            font-family: inherit; font-size: 0.85rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .instruction-panel .btn-start:hover {
-            background: #d4a830; transform: translateY(-2px);
+        .btn-assessment:hover {
+            background: var(--java-dark);
+            transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
-        .instruction-panel .hint-box {
-            background: var(--gold-light); border-radius: var(--radius-sm);
-            padding: 0.8rem 1.1rem; margin-bottom: 1rem;
-            border-left: 4px solid var(--gold-warm);
-            font-size: 0.82rem; color: #7d6b2d; transition: all 0.4s ease;
-        }
-        .instruction-panel .hint-box i { margin-right: 6px; color: var(--gold-warm); }
-        .instruction-panel .expected-output {
-            background: #1e1e1e; color: #d4d4d4;
-            padding: 10px 16px; border-radius: var(--radius-sm);
-            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem;
-            margin-bottom: 1rem; border: 1px solid #333;
-        }
-        .instruction-panel .expected-output label {
-            font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1px;
-            color: #888; display: block; margin-bottom: 4px;
-        }
-        .instruction-panel .expected-output .highlight {
-            color: #4ade80;
-            font-weight: 700;
-        }
 
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.25); backdrop-filter: blur(3px);
-            z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
-        .overlay.show { opacity: 1; pointer-events: auto; }
-
-        .toast-box {
-            position: fixed; bottom: 24px; right: 24px; z-index: 99999;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .toast-msg {
-            background: #1a463a; color: white; padding: 10px 16px;
-            border-radius: 12px; font-size: 0.78rem; font-weight: 500;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            display: flex; align-items: center; gap: 8px;
-            animation: tIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .btn-review-assessment {
+            background: var(--gold-light);
+            color: #9a7020;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
             transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .toast-msg.out { opacity: 0; transform: translateX(40px); }
-        .toast-msg.success i { color: #4ade80; }
-        .toast-msg.error i { color: var(--coral); }
-        @keyframes tIn {
-            from { opacity: 0; transform: translateX(40px) scale(0.95); }
-            to { opacity: 1; transform: translateX(0) scale(1); }
+        .btn-review-assessment:hover {
+            background: var(--gold-warm);
+            color: white;
         }
 
+        .score-display {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--green-deep);
+        }
+        .score-display i { color: var(--gold-warm); }
+
+        .status-text {
+            font-size: 0.7rem;
+            color: var(--stone);
+        }
+
+        /* ===== ENTRANCE ===== */
         .fu {
-            opacity: 0; transform: translateY(16px);
+            opacity: 0;
+            transform: translateY(16px);
             animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
-        .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.1s; }
-        .e3 { animation-delay: 0.15s; } .e4 { animation-delay: 0.2s; }
-        .e5 { animation-delay: 0.25s; } .e6 { animation-delay: 0.3s; }
-        .e7 { animation-delay: 0.35s; }
+        .e1 { animation-delay: 0.05s; }
+        .e2 { animation-delay: 0.1s; }
+        .e3 { animation-delay: 0.15s; }
+        .e4 { animation-delay: 0.2s; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
-            .activity-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            .assessment-grid { grid-template-columns: repeat(2, 1fr); }
+            .tabs-wrapper { flex-direction: column; align-items: stretch; }
+            .activities-btn { justify-content: center; width: 100%; }
+            .language-tabs { justify-content: center; }
         }
         @media (max-width: 768px) {
             .sidebar { width: var(--sidebar-collapsed-w); }
-            .sidebar .logo-full { display: none !important; }
+            .sidebar .logo-full, .sidebar .logo-image { display: none !important; }
             .sidebar .logo-mono { display: block !important; }
             .sidebar .toggle-btn { display: none !important; }
             .sidebar .hamburger-wrap { display: flex !important; }
@@ -789,17 +768,19 @@
             .notif-dropdown { width: 320px; right: 0; left: auto; }
             .language-tabs { gap: 0.4rem; }
             .lang-tab { font-size: 0.7rem; padding: 0.4rem 1rem; }
-            .instruction-panel { width: 100%; right: -100%; padding: 1.5rem; }
+            .assessment-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 576px) {
             .main-content { padding: 12px; }
-            .activity-grid-2 { grid-template-columns: 1fr !important; }
             .top-bar { flex-wrap: wrap; gap: 8px; }
             .top-bar-right { margin-left: auto; flex-wrap: wrap; }
             .top-search { order: 10; width: 100%; }
             .top-search input { width: 100% !important; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
             .notif-dropdown { width: 290px; right: 0; left: auto; }
+            .language-tabs { flex-direction: column; width: 100%; }
+            .lang-tab { justify-content: center; width: 100%; }
+            .assessment-grid { grid-template-columns: 1fr; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -807,6 +788,37 @@
                 animation-duration: 0.01ms !important;
                 transition-duration: 0.01ms !important;
             }
+        }
+
+        .toast-box {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast-msg {
+            background: #1a463a;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: tIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+        }
+        .toast-msg.out { opacity: 0; transform: translateX(40px); }
+        .toast-msg.success i { color: #4ade80; }
+        .toast-msg.error i { color: var(--coral); }
+        @keyframes tIn {
+            from { opacity: 0; transform: translateX(40px) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
         }
     </style>
 </head>
@@ -821,13 +833,13 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
-            <div class="logo-full">
+            <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image"><div class="logo-full">
                 <h2>Block<em>Learn</em></h2>
-                <p>PNHS &middot; ICT Studio</p>
+                <p>PNHS &middot; ICT Students</p>
             </div>
             <div class="logo-mono"><span>B<em>L</em></span></div>
             <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar">
-                <i class="fas fa-times"></i>
+                <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
             </button>
         </div>
         <div class="hamburger-wrap">
@@ -837,17 +849,16 @@
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fas fa-puzzle-piece"></i><span class="nav-text">Activities</span><span class="nav-badge" title="New activities"></span></a></div>
-            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessment</span></a></div>
+            <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
             <div class="nav-section-label">Languages</div>
-            <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><i class="fab fa-python"></i><span class="nav-text">Python</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom active" aria-current="page"><i class="fab fa-js"></i><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_html" class="nav-link-custom"><i class="fab fa-html5"></i><span class="nav-text">HTML/CSS</span></a></div>
+            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-section-label">Account</div>
-            <div class="nav-item"><a href="/student_achievements" class="nav-link-custom"><i class="fas fa-medal"></i><span class="nav-text">Achievements</span></a></div>
-            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><i class="fas fa-circle-user"></i><span class="nav-text">Profile</span></a></div>
-            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><i class="fas fa-sliders"></i><span class="nav-text">Settings</span></a></div>
+            <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
+            <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
         </nav>
         <div class="sidebar-user">
             <div class="sidebar-avatar" id="sidebarAvatar">S</div>
@@ -860,16 +871,17 @@
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content" id="mainContent">
-        <header class="top-bar fu">
+        <!-- Top Bar -->
+        <header class="top-bar fu e1">
             <div>
-                <h1 class="page-title"><i class="fab fa-js"></i>JavaScript Activities</h1>
+                <h1 class="page-title"><i class="fab fa-java"></i>Java Assessments</h1>
             </div>
             <div class="top-bar-right">
                 <div class="top-search">
-                    <input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search">
+                    <input type="text" placeholder="Search assessments..." id="topSearchInput" aria-label="Search assessments">
                     <i class="fas fa-search"></i>
                 </div>
-                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
+                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <i class="fas fa-moon icon-moon"></i>
                     <i class="fas fa-sun icon-sun"></i>
                 </button>
@@ -920,155 +932,145 @@
             </div>
         </header>
 
-        <nav class="language-tabs fu e2" aria-label="Programming language">
-            <a href="/student_activities" class="lang-tab"><i class="fab fa-python"></i> Python</a>
-            <a href="/student_activities_javascript" class="lang-tab active"><i class="fab fa-js"></i> JavaScript</a>
-            <a href="/student_activities_html" class="lang-tab"><i class="fab fa-html5"></i> HTML/CSS</a>
-        </nav>
-
-        <!-- ===== EASY LEVEL ===== -->
-        <section class="level-section fu e3">
-            <div class="level-header">
-                <div class="level-icon easy-icon"><i class="fas fa-seedling"></i></div>
-                <h5>Easy Level</h5>
-                <span class="level-count">2 activities</span>
+        <!-- ===== TABS WRAPPER ===== -->
+        <div class="tabs-wrapper fu e2">
+            <div class="language-tabs">
+                <a href="/assessments_python" class="lang-tab"><i class="fab fa-python"></i> Python</a>
+                <a href="/assessments_java" class="lang-tab active"><i class="fab fa-java"></i> Java</a>
             </div>
-            <div class="row g-3 activity-grid-2" style="display:grid; grid-template-columns: repeat(2, 1fr);">
-                <div>
-                    <div class="activity-card" data-activity="hello-world">
-                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--js-color), #f0d060);"></div>
-                        <div class="card-top">
-                            <span class="status-badge status-pending" id="status-helloworld">Not Started</span>
-                        </div>
-                        <h6>Hello World <span class="step-badge">Step 1</span></h6>
-                        <p class="card-desc">Print "Hello, World!" to the console</p>
-                        <div class="blocks-available"><span class="block-pill">CONSOLE.LOG</span><span class="block-pill">TEXT</span></div>
-                        <div class="card-meta">
-                            <span class="card-meta-badge"><i class="far fa-clock"></i> 5 min</span>
-                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
-                        </div>
-                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+
+            <button class="activities-btn" onclick="window.location.href='/student_modules/java/1'">
+                <i class="fas fa-puzzle-piece"></i>
+                Modules
+                <span class="badge-count">6</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid fu e3" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.6rem;">
+            <div class="stat-card" style="background:var(--card-glass); backdrop-filter:blur(12px); border-radius:var(--radius-md); padding:1rem 1.2rem; border:1px solid var(--glass-border); box-shadow:var(--shadow-sm);">
+                <div class="label" style="font-size:0.65rem; font-weight:600; color:var(--stone-light); text-transform:uppercase; letter-spacing:0.5px;">Total Assessments</div>
+                <div class="value" style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-top:2px;"><span id="totalAssessments" style="color:var(--blue);">0</span></div>
+            </div>
+            <div class="stat-card" style="background:var(--card-glass); backdrop-filter:blur(12px); border-radius:var(--radius-md); padding:1rem 1.2rem; border:1px solid var(--glass-border); box-shadow:var(--shadow-sm);">
+                <div class="label" style="font-size:0.65rem; font-weight:600; color:var(--stone-light); text-transform:uppercase; letter-spacing:0.5px;">Completed</div>
+                <div class="value" style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-top:2px;"><span style="color:var(--green-main);"><i class="fas fa-check-circle"></i> <span id="completedAssessments">0</span></span></div>
+                <div id="completedPercent" class="sub" style="font-size:0.6rem; color:var(--stone-light);">0% done</div>
+            </div>
+            <div class="stat-card" style="background:var(--card-glass); backdrop-filter:blur(12px); border-radius:var(--radius-md); padding:1rem 1.2rem; border:1px solid var(--glass-border); box-shadow:var(--shadow-sm);">
+                <div class="label" style="font-size:0.65rem; font-weight:600; color:var(--stone-light); text-transform:uppercase; letter-spacing:0.5px;">In Progress</div>
+                <div class="value" style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-top:2px;"><span style="color:var(--gold-warm);"><i class="fas fa-spinner"></i> <span id="inProgressAssessments">0</span></span></div>
+            </div>
+        </div>
+
+        <!-- ===== ASSESSMENT CARDS ===== -->
+        <div class="assessment-grid fu e4">
+            <!-- Card 1 -->
+            <div class="assessment-card" data-assessment-number="1" onclick="window.location.href='/assessment_java_activity?id=1'">
+                <div class="card-top">
+                    <span class="number"><i class="fas fa-hashtag"></i>1</span>
+                    <span class="status-badge status-not-started">Not Started</span>
+                </div>
+                <div class="card-body">
+                    <h4>Hello, Java!</h4>
+                    <div class="desc">Print "Hello, Java!" using System.out.println and a text block.</div>
+                    <div class="meta">
+                        <span><i class="fas fa-clock"></i> 5 mins</span>
+                        <span><i class="fas fa-star gold"></i> 10 pts</span>
                     </div>
+                    <div class="progress-mini"><div class="fill" data-progress-fill style="width:0%"></div></div>
                 </div>
+                <div class="card-footer">
+                    <span class="status-text">Ready to start</span>
+                    <button class="btn-assessment" onclick="event.stopPropagation(); window.location.href='/assessment_java_activity?id=1'"><i class="fas fa-play me-1"></i> Start</button>
+                </div>
+            </div>
 
-                <div>
-                    <div class="activity-card" data-activity="variable-greeting">
-                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--js-color), #f0d060);"></div>
-                        <div class="card-top">
-                            <span class="status-badge status-pending" id="status-variablegreeting">Not Started</span>
-                        </div>
-                        <h6>Variable Greeting <span class="step-badge">Step 2</span></h6>
-                        <p class="card-desc">Create a variable with your name and print it</p>
-                        <div class="blocks-available"><span class="block-pill">VAR</span><span class="block-pill">TEXT</span><span class="block-pill">CONSOLE.LOG</span></div>
-                        <div class="card-meta">
-                            <span class="card-meta-badge"><i class="far fa-clock"></i> 5 min</span>
-                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 10 pts</span>
-                        </div>
-                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+            <!-- Card 2: Not Started -->
+            <div class="assessment-card" data-assessment-number="2" onclick="window.location.href='/assessment_java_activity?id=2'">
+                <div class="card-top">
+                    <span class="number"><i class="fas fa-hashtag"></i>2</span>
+                    <span class="status-badge status-not-started">Not Started</span>
+                </div>
+                <div class="card-body">
+                    <h4>Variables &amp; Output</h4>
+                    <div class="desc">Create an int variable and print its value using Java blocks.</div>
+                    <div class="meta">
+                        <span><i class="fas fa-clock"></i> 6 mins</span>
+                        <span><i class="fas fa-star gold"></i> 10 pts</span>
                     </div>
+                    <div class="progress-mini"><div class="fill" data-progress-fill style="width:0%"></div></div>
+                </div>
+                <div class="card-footer">
+                    <span class="status-text">Ready to start</span>
+                    <button class="btn-assessment" onclick="event.stopPropagation(); window.location.href='/assessment_java_activity?id=2'"><i class="fas fa-play me-1"></i> Start</button>
                 </div>
             </div>
-        </section>
 
-        <!-- ===== MEDIUM LEVEL ===== -->
-        <section class="level-section fu e5">
-            <div class="level-header">
-                <div class="level-icon medium-icon"><i class="fas fa-chart-line"></i></div>
-                <h5>Medium Level</h5>
-                <span class="level-count">1 activity</span>
-            </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="activity-card" data-activity="add-numbers">
-                        <div class="card-accent-bar" style="background: linear-gradient(90deg, #f0c060, #f0d060);"></div>
-                        <div class="card-top">
-                            <span class="status-badge status-pending" id="status-addnumbers">Not Started</span>
-                        </div>
-                        <h6>Add Numbers <span class="step-badge">Step 3</span></h6>
-                        <p class="card-desc">Calculate 5 + 10 and show the result</p>
-                        <div class="blocks-available"><span class="block-pill">CONSOLE.LOG</span><span class="block-pill">MATH</span><span class="block-pill">NUMBER</span></div>
-                        <div class="card-meta">
-                            <span class="card-meta-badge"><i class="far fa-clock"></i> 8 min</span>
-                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 15 pts</span>
-                        </div>
-                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+            <!-- Card 3: In Progress -->
+            <div class="assessment-card" data-assessment-number="3" onclick="window.location.href='/assessment_java_activity?id=3'">
+                <div class="card-top">
+                    <span class="number"><i class="fas fa-hashtag"></i>3</span>
+                    <span class="status-badge status-not-started">Not Started</span>
+                </div>
+                <div class="card-body">
+                    <h4>Add Two Numbers</h4>
+                    <div class="desc">Use variables and arithmetic to add two Java integers.</div>
+                    <div class="meta">
+                        <span><i class="fas fa-clock"></i> 8 mins</span>
+                        <span><i class="fas fa-star gold"></i> 15 pts</span>
                     </div>
+                    <div class="progress-mini"><div class="fill" data-progress-fill style="width:0%"></div></div>
+                </div>
+                <div class="card-footer">
+                    <span class="status-text">Ready to start</span>
+                    <button class="btn-assessment" onclick="event.stopPropagation(); window.location.href='/assessment_java_activity?id=3'"><i class="fas fa-play me-1"></i> Start</button>
                 </div>
             </div>
-        </section>
 
-        <!-- ===== HARD LEVEL ===== -->
-        <section class="level-section fu e7">
-            <div class="level-header">
-                <div class="level-icon hard-icon"><i class="fas fa-trophy"></i></div>
-                <h5>Hard Level</h5>
-                <span class="level-count">1 activity</span>
-            </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="activity-card" data-activity="temperature">
-                        <div class="card-accent-bar" style="background: linear-gradient(90deg, var(--coral), #f08070);"></div>
-                        <div class="card-top">
-                            <span class="status-badge status-pending" id="status-temperature">Not Started</span>
-                        </div>
-                        <h6>Temperature Converter <span class="step-badge">Step 4</span></h6>
-                        <p class="card-desc">Convert 32°C to Fahrenheit using (32 × 9) + 160</p>
-                        <div class="blocks-available"><span class="block-pill">CONSOLE.LOG</span><span class="block-pill">MATH</span><span class="block-pill">NUMBER</span></div>
-                        <div class="card-meta">
-                            <span class="card-meta-badge"><i class="far fa-clock"></i> 10 min</span>
-                            <span class="card-meta-badge"><i class="fas fa-star gold"></i> 20 pts</span>
-                        </div>
-                        <div class="card-arrow">Start <i class="fas fa-arrow-right"></i></div>
+            <!-- Card 4: Not Started -->
+            <div class="assessment-card" data-assessment-number="4" onclick="window.location.href='/assessment_java_activity?id=4'">
+                <div class="card-top">
+                    <span class="number"><i class="fas fa-hashtag"></i>4</span>
+                    <span class="status-badge status-not-started">Not Started</span>
+                </div>
+                <div class="card-body">
+                    <h4>If-Else Statement</h4>
+                    <div class="desc">Build a condition and print different results for positive and negative values.</div>
+                    <div class="meta">
+                        <span><i class="fas fa-clock"></i> 10 mins</span>
+                        <span><i class="fas fa-star gold"></i> 20 pts</span>
                     </div>
+                    <div class="progress-mini"><div class="fill" data-progress-fill style="width:0%"></div></div>
+                </div>
+                <div class="card-footer">
+                    <span class="status-text">Ready to start</span>
+                    <button class="btn-assessment" onclick="event.stopPropagation(); window.location.href='/assessment_java_activity?id=4'"><i class="fas fa-play me-1"></i> Start</button>
                 </div>
             </div>
-        </section>
 
-        <!-- ===== FREE PLAY ===== -->
-        <section class="fu e7" style="margin-top: 0.5rem;">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <a href="/student_playground_javascript?activity=free-play" class="activity-card free-play-card">
-                        <div style="text-align: center; padding: 0.5rem 0;">
-                            <div class="free-play-icon"></div>
-                            <h6>Free Play</h6>
-                            <p class="card-desc" style="margin-bottom: 8px;">Build anything you want with JavaScript blocks</p>
-                            <span class="block-pill" style="background: var(--js-color); color: #1a1a1a; padding: 4px 14px; font-size: 0.65rem;"><i class="fas fa-play" style="margin-right: 4px;"></i>Free Play</span>
-                            <div class="free-play-launch">Launch <i class="fas fa-arrow-right"></i></div>
-                        </div>
-                    </a>
+            <!-- Card 5: Not Started -->
+            <div class="assessment-card" data-assessment-number="5" onclick="window.location.href='/assessment_java_activity?id=5'">
+                <div class="card-top">
+                    <span class="number"><i class="fas fa-hashtag"></i>5</span>
+                    <span class="status-badge status-not-started">Not Started</span>
+                </div>
+                <div class="card-body">
+                    <h4>For Loop</h4>
+                    <div class="desc">Repeat a block of code to print values from 1 to 5 using a loop.</div>
+                    <div class="meta">
+                        <span><i class="fas fa-clock"></i> 12 mins</span>
+                        <span><i class="fas fa-star gold"></i> 20 pts</span>
+                    </div>
+                    <div class="progress-mini"><div class="fill" data-progress-fill style="width:0%"></div></div>
+                </div>
+                <div class="card-footer">
+                    <span class="status-text">Ready to start</span>
+                    <button class="btn-assessment" onclick="event.stopPropagation(); window.location.href='/assessment_java_activity?id=5'"><i class="fas fa-play me-1"></i> Start</button>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
-</div>
-
-<div class="overlay" id="overlay"></div>
-
-<!-- ===== INSTRUCTION PANEL ===== -->
-<div class="instruction-panel" id="instructionPanel">
-    <button class="close-btn" id="closePanelBtn"><i class="fas fa-times"></i></button>
-    <h4 id="panelTitle">Hello World</h4>
-    <span class="step-number" id="panelStep">Step 1</span>
-    <div class="meta-row" id="panelMeta">
-        <span><i class="far fa-clock me-1"></i><span id="panelTime">5 min</span></span>
-        <span><i class="fas fa-star me-1" style="color:var(--gold-warm)"></i><span id="panelPoints">10 pts</span></span>
-    </div>
-
-    <div class="instruction-text" id="panelInstructions"></div>
-
-    <div class="expected-output" id="panelOutput">
-        <label><i class="fas fa-eye me-1"></i> Expected Output</label>
-        <span id="outputText">Hello, World!</span>
-    </div>
-
-    <div class="hint-box" id="panelHint">
-        <i class="fas fa-lightbulb"></i> <strong>Hint:</strong> <span id="hintText"></span>
-    </div>
-
-    <div class="block-list" id="panelBlocks"></div>
-
-    <button class="btn-start" id="panelStartBtn"><i class="fas fa-play"></i> Start Activity</button>
 </div>
 
 <div class="toast-box" id="toastBox"></div>
@@ -1132,7 +1134,7 @@
                 if (d.success && d.notifications && d.notifications.length > 0) {
                     list.innerHTML = d.notifications.map(n => {
                         const cls = n.is_read ? '' : ' unread';
-                        const scoreHtml = n.score != null ? `<span class="score-badge">${n.score}%</span>` : '';
+                        const scoreHtml = '';
                         return `<div class="notif-item${cls}" data-id="${n.id}">
                             <div class="notif-title">${n.title}</div>
                             <div class="notif-message">${n.message}</div>
@@ -1150,7 +1152,7 @@
             });
     }
 
-    // ===== PROFILE DROPDOWN =====
+    // ===== PROFILE =====
     function toggleProfile() {
         const dd = document.getElementById('profileDropdown');
         document.getElementById('notifDropdown').classList.remove('open');
@@ -1178,173 +1180,6 @@
         setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 3000);
     }
 
-    // ===== CARD HOVER ACCENT BAR =====
-    document.querySelectorAll('.activity-card:not(.free-play-card)').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            const bar = this.querySelector('.card-accent-bar');
-            if (bar) bar.style.opacity = '1';
-        });
-        card.addEventListener('mouseleave', function() {
-            const bar = this.querySelector('.card-accent-bar');
-            if (bar) bar.style.opacity = '0';
-        });
-    });
-
-    // ===== INSTRUCTION DATA =====
-    const activityData = {
-        'hello-world': {
-            title: 'Hello World',
-            step: 'Step 1',
-            difficulty: 'Easy',
-            time: '5 min',
-            points: '10 pts',
-            steps: [
-                'Find the <strong>console.log</strong> block in the BASIC category.',
-                'Drag the <strong>console.log</strong> block to the workspace.',
-                'Find the <strong>TEXT</strong> block in the VARIABLES category.',
-                'Drag the <strong>TEXT</strong> block and attach it inside the console.log block.',
-                'Click on the TEXT block and type: <code>"Hello, World!"</code>',
-                'Click the <strong>RUN CODE</strong> button to see the output!'
-            ],
-            output: 'Hello, World!',
-            hint: 'Use <code>console.log("Hello, World!")</code> — don\'t forget the parentheses and quotes.',
-            blocks: ['console.log', 'TEXT']
-        },
-        'variable-greeting': {
-            title: 'Variable Greeting',
-            step: 'Step 2',
-            difficulty: 'Easy',
-            time: '5 min',
-            points: '10 pts',
-            steps: [
-                'Drag <strong>var myVar =</strong> from VARIABLES category.',
-                'Rename <strong>myVar</strong> to <strong>name</strong>.',
-                'Drag a <strong>TEXT</strong> block from BASIC and type your name.',
-                'Drag <strong>console.log</strong> from BASIC.',
-                'Drag the <strong>myVar</strong> block into console.log.',
-                'Change <strong>myVar</strong> to <strong>name</strong>.',
-                'Click <strong>RUN CODE</strong> to see your name printed!'
-            ],
-            output: 'Your Name',
-            hint: 'Example: <code>var name = "Ana";</code> then <code>console.log(name);</code>',
-            blocks: ['var', 'TEXT', 'console.log', 'myVar']
-        },
-        'add-numbers': {
-            title: 'Add Numbers',
-            step: 'Step 3',
-            difficulty: 'Medium',
-            time: '8 min',
-            points: '15 pts',
-            steps: [
-                'Find the <strong>console.log</strong> block in the BASIC category.',
-                'Drag it to the workspace.',
-                'Find the <strong>math_operation</strong> block in the MATH category.',
-                'Drag it INSIDE the console.log block.',
-                'Change the dropdown to <strong>+</strong> (ADD).',
-                'Find the <strong>math_number</strong> block in the MATH category.',
-                'Drag two math_number blocks into the math_operation block.',
-                'Set the numbers to <strong>5</strong> and <strong>10</strong>.',
-                'Click <strong>RUN CODE</strong> to see the result!'
-            ],
-            output: '15',
-            hint: 'Use <code>math_operation</code> with <strong>+</strong> and two <code>math_number</code> blocks.',
-            blocks: ['console.log', 'math_operation', 'math_number']
-        },
-        'temperature': {
-            title: 'Temperature Converter',
-            step: 'Step 4',
-            difficulty: 'Hard',
-            time: '10 min',
-            points: '20 pts',
-            steps: [
-                'Find the <strong>console.log</strong> block in the BASIC category.',
-                'Drag it to the workspace.',
-                'Build the formula: <strong>(32 × 9) + 160</strong>',
-                'Use <strong>math_operation</strong> (MULTIPLY) for 32 × 9',
-                'Use <strong>math_operation</strong> (ADD) for + 160',
-                'Add <strong>math_number</strong> blocks for 32, 9, and 160.',
-                'Click <strong>RUN CODE</strong> to see the result!'
-            ],
-            output: '448',
-            hint: 'Formula: (32 × 9) + 160 = 448°F',
-            blocks: ['console.log', 'math_operation', 'math_number']
-        }
-    };
-
-    // ===== PANEL LOGIC =====
-    const panel = document.getElementById('instructionPanel');
-    const overlay = document.getElementById('overlay');
-    const closeBtn = document.getElementById('closePanelBtn');
-
-    function openPanel(activityKey) {
-        const data = activityData[activityKey];
-        if (!data) return;
-
-        document.getElementById('panelTitle').textContent = data.title;
-        document.getElementById('panelStep').textContent = data.step;
-
-        document.getElementById('panelTime').textContent = data.time;
-        document.getElementById('panelPoints').textContent = data.points;
-
-        const instContainer = document.getElementById('panelInstructions');
-        instContainer.innerHTML = data.steps.map((step, i) =>
-            `<div class="step-item"><span class="step-num">${i + 1}.</span><span class="step-desc">${step}</span></div>`
-        ).join('');
-
-        document.getElementById('outputText').textContent = data.output;
-        document.getElementById('hintText').textContent = data.hint;
-        document.getElementById('panelBlocks').innerHTML = data.blocks.map(b => `<span class="block-pill">${b}</span>`).join('');
-
-        document.getElementById('panelStartBtn').onclick = function() {
-            window.location.href = `/student_playground_javascript?activity=${activityKey}`;
-        };
-
-        panel.classList.add('open');
-        overlay.classList.add('show');
-    }
-
-    function closePanel() {
-        panel.classList.remove('open');
-        overlay.classList.remove('show');
-    }
-    closeBtn.addEventListener('click', closePanel);
-    overlay.addEventListener('click', closePanel);
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePanel(); });
-
-    document.querySelectorAll('.activity-card[data-activity]').forEach(card => {
-        card.addEventListener('click', function(e) {
-            e.preventDefault();
-            openPanel(this.dataset.activity);
-        });
-    });
-
-    // ===== LOAD ACTIVITY STATUSES =====
-    function loadActivityStatuses() {
-        fetch('/get_activities')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.activities) {
-                    const statusMap = {
-                        'Hello World': 'status-helloworld',
-                        'Variable Greeting': 'status-variablegreeting',
-                        'Add Numbers': 'status-addnumbers',
-                        'Temperature': 'status-temperature'
-                    };
-                    data.activities.forEach(act => {
-                        const statusId = statusMap[act.name];
-                        if (statusId) {
-                            const el = document.getElementById(statusId);
-                            if (el && act.completed) {
-                                el.textContent = ' Completed';
-                                el.className = 'status-badge status-completed';
-                            }
-                        }
-                    });
-                }
-            })
-            .catch(e => console.error('Error loading statuses:', e));
-    }
-
     // ===== LOAD USER INFO =====
     function loadUserInfo() {
         fetch('/student_profile_data')
@@ -1366,12 +1201,63 @@
             .catch(err => console.error('Error loading user info:', err));
     }
 
+    function loadAssessmentSummary() {
+        fetch('/get_assessment_statuses?language=java', { headers: { 'Accept': 'application/json' } })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) return;
+                const total = Number(data.total) || 0;
+                const completed = Number(data.completed) || 0;
+                const inProgress = Number(data.in_progress) || 0;
+                const percent = total ? Math.round(completed / total * 100) : 0;
+
+                document.getElementById('totalAssessments').textContent = total;
+                document.getElementById('completedAssessments').textContent = completed;
+                document.getElementById('completedPercent').textContent = percent + '% done';
+                document.getElementById('inProgressAssessments').textContent = inProgress;
+                renderAssessmentStatuses(data.statuses || []);
+            })
+            .catch(error => console.error('Error loading assessment summary:', error));
+    }
+
+    function renderAssessmentStatuses(statuses) {
+        const statusLabels = { passed: 'Passed', done: 'Passed', in_progress: 'In Progress', not_started: 'Not Started' };
+        const statusIcons = { passed: 'fa-check-circle', done: 'fa-check-circle', in_progress: 'fa-spinner' };
+
+        statuses.forEach(item => {
+            const card = document.querySelector(`[data-assessment-number="${item.assessment_number}"]`);
+            if (!card) return;
+            const status = item.status || 'not_started';
+            const badge = card.querySelector('.status-badge');
+            const fill = card.querySelector('[data-progress-fill]');
+            const footerText = card.querySelector('.status-text, .score-display');
+            const button = card.querySelector('.btn-assessment, .btn-review-assessment');
+
+            badge.className = `status-badge status-${status.replace('_', '-')}`;
+            badge.innerHTML = statusIcons[status]
+                ? `<i class="fas ${statusIcons[status]} me-1"></i> ${statusLabels[status]}`
+                : statusLabels[status];
+            if (fill) fill.style.width = status === 'passed' || status === 'done' ? '100%' : '0%';
+            if (footerText) footerText.innerHTML = status === 'passed' || status === 'done'
+                ? 'Passed'
+                : status === 'in_progress' ? 'In progress' : 'Ready to start';
+            if (button) {
+                button.className = 'btn-assessment';
+                button.innerHTML = '<i class="fas fa-play me-1"></i> Start';
+            }
+        });
+    }
+
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', function() {
         checkSidebarState();
-        loadActivityStatuses();
         loadNotifications();
         loadUserInfo();
+        loadAssessmentSummary();
+        window.assessmentSummaryTimer = window.setInterval(loadAssessmentSummary, 2000);
+    });
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'assessment_status_updated') loadAssessmentSummary();
     });
     window.addEventListener('resize', checkSidebarState);
 </script>

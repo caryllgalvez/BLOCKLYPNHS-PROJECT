@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Score Dashboard · BlockLearn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --green-deep: #145a42;
+            --green-main: #1f8a64;
+            --green-light: #28a87a;
+            --green-soft: #e2f3ed;
+            --gold-warm: #e8a838;
+            --gold-light: #fce9c5;
+            --coral: #e06050;
+            --coral-soft: #fce8e5;
+            --blue: #4a90d9;
+            --blue-soft: #e4eefb;
+            --stone: #7f9e92;
+            --stone-light: #a8bfb4;
+            --border-fresh: #dde9e3;
+            --card-white: #ffffff;
+            --bg-main: #f0f6f3;
+            --text-primary: #1a463a;
+            --text-secondary: #4a6b5e;
+            --shadow-sm: 0 4px 16px rgba(20, 90, 66, 0.06);
+            --shadow-md: 0 8px 28px rgba(20, 90, 66, 0.08);
+            --shadow-lg: 0 16px 48px rgba(20, 90, 66, 0.12);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --js-color: #f7df1e;
+            --php-color: #777bb4;
+            --cpp-color: #00599c;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        [data-theme="dark"] {
+            --bg-main: #0f1f19;
+            --text-primary: #d8ede5;
+            --text-secondary: #a8c4b8;
+            --border-fresh: #1e3a2e;
+            --card-white: #162b22;
+            --green-soft: #163328;
+            --gold-light: #2e2510;
+            --coral-soft: #2e1a16;
+            --blue-soft: #152535;
+            --stone-light: #5a7a6d;
+            --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.3);
+        }
+        body {
+            font-family: var(--font);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .app {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: var(--card-white);
+            border-radius: var(--radius-lg);
+            padding: 12px 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-fresh);
+            margin-bottom: 24px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .topbar h1 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .topbar h1 i {
+            color: var(--gold-warm);
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: var(--bg-main);
+            border: 1.5px solid var(--border-fresh);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font);
+            text-decoration: none;
+        }
+        .btn:hover {
+            border-color: var(--green-main);
+            color: var(--green-main);
+            transform: translateY(-1px);
+        }
+        .btn-primary {
+            background: var(--green-main);
+            border-color: var(--green-main);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--green-deep);
+            border-color: var(--green-deep);
+            color: #fff;
+        }
+        .btn-danger {
+            background: var(--coral);
+            border-color: var(--coral);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b33a2a;
+            border-color: #b33a2a;
+            color: #fff;
+        }
+        .btn-outline {
+            background: transparent;
+        }
+        .theme-toggle {
+            background: transparent;
+            border: 1.5px solid var(--border-fresh);
+            border-radius: 40px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: 0.25s;
+        }
+        .theme-toggle:hover {
+            border-color: var(--gold-warm);
+            color: var(--gold-warm);
+        }
+        .theme-toggle .icon-sun {
+            display: none;
+        }
+        .theme-toggle .icon-moon {
+            display: inline;
+        }
+        [data-theme="dark"] .theme-toggle .icon-sun {
+            display: inline;
+        }
+        [data-theme="dark"] .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            border: 1px solid var(--border-fresh);
+            box-shadow: var(--shadow-sm);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .stat-card .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--stone);
+        }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+        .stat-card .value .sub {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--stone);
+        }
+        .stat-card .trend {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .trend.up {
+            color: var(--green-main);
+        }
+        .trend.down {
+            color: var(--coral);
+        }
+
+        /* Filters */
+        .filters-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--card-white);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            border: 1px solid var(--border-fresh);
+            align-items: center;
+        }
+        .filters-bar .filter-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filters-bar label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--stone);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .filters-bar select,
+        .filters-bar input {
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border-fresh);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            font-family: var(--font);
+            outline: none;
+            transition: 0.25s;
+        }
+        .filters-bar select:focus,
+        .filters-bar input:focus {
+            border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(31, 138, 100, 0.1);
+        }
+        .filters-bar .search-input {
+            flex: 1;
+            min-width: 160px;
+        }
+        .filters-bar .search-input input {
+            width: 100%;
+        }
+
+        /* Language Badge */
+        .lang-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .lang-php {
+            background: #eef0fa;
+            color: #4d5b96;
+        }
+        .lang-javascript {
+            background: #fef9e7;
+            color: #9a7020;
+        }
+        .lang-cpp {
+            background: #e3edf5;
+            color: #00599c;
+        }
+        [data-theme="dark"] .lang-php {
+            background: #1a1a2e;
+            color: #aab0d4;
+        }
+        [data-theme="dark"] .lang-javascript {
+            background: #2e2810;
+            color: #f0d060;
+        }
+        [data-theme="dark"] .lang-cpp {
+            background: #0a1a2a;
+            color: #6aaddb;
+        }
+
+        /* Main Layout: submissions list + detail */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 960px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Submissions List */
+        .submissions-list {
+            background: var(--card-white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-fresh);
+            overflow: hidden;
+            max-height: 700px;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .submissions-list .list-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-fresh);
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--stone);
+            display: flex;
+            justify-content: space-between;
+            background: var(--bg-main);
+            flex-shrink: 0;
+        }
+        .submissions-list .list-body {
+            overflow-y: auto;
+            flex: 1;
+            padding: 4px 0;
+        }
+        .submission-item {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-fresh);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .submission-item:hover {
+            background: var(--green-soft);
+        }
+        .submission-item.active {
+            background: var(--blue-soft);
+            border-left: 3px solid var(--blue);
+        }
+        .submission-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .submission-item .info .name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+        .submission-item .info .meta {
+            font-size: 0.7rem;
+            color: var(--stone-light);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .submission-item .score-badge {
+            font-weight: 700;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .score-badge.pass {
+            color: var(--green-main);
+        }
+        .score-badge.fail {
+            color: var(--coral);
+        }
+        .score-badge.pending {
+            color: var(--gold-warm);
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            background: var(--card-white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-fresh);
+            padding: 20px;
+            max-height: 700px;
+            overflow-y: auto;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .detail-panel .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--stone);
+        }
+        .detail-panel .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            color: var(--border-fresh);
+        }
+        .detail-panel .empty-state h5 {
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-fresh);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+        .detail-header .student-info h3 {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        .detail-header .student-info .sub {
+            font-size: 0.78rem;
+            color: var(--stone-light);
+        }
+        .detail-header .detail-score {
+            text-align: right;
+        }
+        .detail-header .detail-score .score-number {
+            font-size: 2rem;
+            font-weight: 900;
+        }
+        .detail-header .detail-score .max {
+            font-size: 0.9rem;
+            color: var(--stone);
+        }
+        .detail-header .detail-score .status-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .status-passed {
+            background: var(--green-soft);
+            color: var(--green-deep);
+        }
+        .status-failed {
+            background: var(--coral-soft);
+            color: var(--coral);
+        }
+        .status-pending {
+            background: var(--gold-light);
+            color: #9a7020;
+        }
+
+        .detail-section {
+            margin-top: 16px;
+        }
+        .detail-section label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--stone);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .detail-section .code-box {
+            background: #1e2f2a;
+            color: #bbf0e0;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.75rem;
+            white-space: pre-wrap;
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid #3a6f5b;
+        }
+        .detail-section .output-box {
+            background: #1a2a24;
+            color: #d4ede5;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.75rem;
+            white-space: pre-wrap;
+            min-height: 50px;
+            border: 1px solid #3a6f5b;
+        }
+        .detail-section .feedback-box {
+            background: var(--bg-main);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--gold-warm);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+        .detail-section .feedback-box .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: var(--stone);
+            letter-spacing: 0.5px;
+        }
+
+        /* Teacher actions */
+        .teacher-actions {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-fresh);
+        }
+        .teacher-actions .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .teacher-actions .row .field {
+            flex: 1;
+            min-width: 140px;
+        }
+        .teacher-actions .row .field label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--stone);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .teacher-actions .row .field input,
+        .teacher-actions .row .field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-fresh);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-family: var(--font);
+            outline: none;
+            transition: 0.25s;
+        }
+        .teacher-actions .row .field input:focus,
+        .teacher-actions .row .field textarea:focus {
+            border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(31, 138, 100, 0.1);
+        }
+        .teacher-actions .row .field textarea {
+            resize: vertical;
+            min-height: 56px;
+        }
+        .teacher-actions .row .field .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast-msg {
+            background: #1a463a;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.35s ease;
+            transition: all 0.3s;
+        }
+        .toast-msg.out {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+        .toast-msg.success i {
+            color: #4ade80;
+        }
+        .toast-msg.error i {
+            color: var(--coral);
+        }
+        .toast-msg.info i {
+            color: var(--blue);
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-fresh);
+            border-top-color: var(--green-main);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--stone-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--stone);
+        }
+
+        @media (max-width: 600px) {
+            .topbar h1 {
+                font-size: 1rem;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stat-card .value {
+                font-size: 1.4rem;
+            }
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filters-bar .filter-group {
+                width: 100%;
+            }
+            .filters-bar select,
+            .filters-bar input {
+                width: 100%;
+            }
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+            .detail-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .detail-header .detail-score {
+                text-align: left;
+            }
+            .teacher-actions .row {
+                flex-direction: column;
+            }
+            .teacher-actions .row .field {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher Dashboard</h1>
+            <div class="topbar-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon icon-moon"></i>
+                    <i class="fas fa-sun icon-sun"></i>
+                </button>
+                <button class="btn btn-outline" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <a href="/student_activities" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Activities
+                </a>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="label"><i class="fas fa-users me-1"></i> Total Students</div>
+                <div class="value" id="statStudents">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="label"><i class="fas fa-file-code me-1"></i> Total Submissions</div>
+                <div class="value" id="statSubmissions">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="label"><i class="fas fa-check-circle me-1"></i> Passed</div>
+                <div class="value" id="statPassed">— <span class="sub"></span></div>
+                <div class="trend up" id="statPassRate"></div>
+            </div>
+            <div class="stat-card">
+                <div class="label"><i class="fas fa-star me-1"></i> Average Score</div>
+                <div class="value" id="statAvgScore">— <span class="sub"></span></div>
+            </div>
+            <div class="stat-card">
+                <div class="label"><i class="fas fa-clock me-1"></i> Pending Review</div>
+                <div class="value" id="statPending">—</div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label><i class="fas fa-filter me-1"></i> Language</label>
+                <select id="filterLanguage">
+                    <option value="all">All Languages</option>
+                    <option value="php">PHP</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="cpp">C++</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filterStatus">
+                    <option value="all">All Status</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+            <div class="filter-group search-input">
+                <input type="text" id="filterSearch" placeholder="Search student or activity..." />
+            </div>
+            <button class="btn btn-outline" onclick="applyFilters()"><i class="fas fa-search"></i> Apply</button>
+            <button class="btn btn-outline" onclick="resetFilters()"><i class="fas fa-times"></i> Reset</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard-layout">
+            <!-- Submission List -->
+            <div class="submissions-list">
+                <div class="list-header">
+                    <span>Student / Activity</span>
+                    <span>Score</span>
+                </div>
+                <div class="list-body" id="submissionList">
+                    <div class="text-center p-4 text-muted">
+                        <div class="spinner"></div>
+                        <p class="mt-2">Loading submissions...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="detail-panel" id="detailPanel">
+                <div class="empty-state">
+                    <i class="fas fa-user-graduate"></i>
+                    <h5>Select a submission</h5>
+                    <p class="text-muted">Click on any student submission from the list to view details and grade.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ============================================================
+        // STATE
+        // ============================================================
+        let submissions = [];
+        let filteredSubmissions = [];
+        let selectedSubmission = null;
+
+        // ============================================================
+        // THEME
+        // ============================================================
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                const html = document.documentElement;
+                const isDark = html.getAttribute('data-theme') === 'dark';
+                html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            });
+        })();
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-msg ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' :
+                type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('out');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ============================================================
+        // API HELPERS
+        // ============================================================
+        async function apiFetch(endpoint, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            const merged = { ...defaultOptions, ...options };
+            try {
+                const res = await fetch(endpoint, merged);
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || `HTTP ${res.status}`);
+                }
+                return await res.json();
+            } catch (e) {
+                console.error('API Error:', e);
+                throw e;
+            }
+        }
+
+        // ============================================================
+        // FETCH DATA
+        // ============================================================
+        async function fetchSubmissions() {
+            try {
+                const data = await apiFetch('/teacher/get_submissions');
+                if (data.success) {
+                    submissions = data.submissions || [];
+                    return submissions;
+                } else {
+                    throw new Error(data.message || 'Failed to load submissions');
+                }
+            } catch (e) {
+                console.error('Fetch submissions error:', e);
+                showToast('Failed to load submissions: ' + e.message, 'error');
+                return [];
+            }
+        }
+
+        // ============================================================
+        // RENDER
+        // ============================================================
+        function renderStats(data) {
+            const total = data.length;
+            const students = new Set(data.map(s => s.student_name));
+            const passed = data.filter(s => s.status === 'passed').length;
+            const failed = data.filter(s => s.status === 'failed').length;
+            const pending = data.filter(s => s.status === 'pending').length;
+            const scores = data
+                .filter(s => s.teacher_score !== null && s.teacher_score !== undefined)
+                .map(s => s.teacher_score);
+            const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+            const passRate = total ? Math.round((passed / total) * 100) : 0;
+
+            document.getElementById('statStudents').textContent = students.size;
+            document.getElementById('statSubmissions').textContent = total;
+            document.getElementById('statPassed').innerHTML = `${passed} <span class="sub">/ ${total}</span>`;
+            document.getElementById('statPassRate').textContent = `${passRate}% pass rate`;
+            document.getElementById('statAvgScore').innerHTML =
+                `${avg.toFixed(1)} <span class="sub">/ 20</span>`;
+            document.getElementById('statPending').textContent = pending;
+        }
+
+        function renderList(data) {
+            const container = document.getElementById('submissionList');
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-4 text-muted">
+                        <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                        <p>No submissions found</p>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = data.map((sub, idx) => {
+                const isActive = selectedSubmission && selectedSubmission.student_name === sub.student_name &&
+                    selectedSubmission.activity_title === sub.activity_title;
+                const score = sub.teacher_score !== null && sub.teacher_score !== undefined ?
+                    sub.teacher_score :
+                    sub.auto_score !== null && sub.auto_score !== undefined ?
+                    sub.auto_score :
+                    '—';
+                const maxScore = sub.max_score ?? '—';
+                const statusClass = sub.status === 'passed' ? 'pass' :
+                    sub.status === 'failed' ? 'fail' : 'pending';
+                const langClass = `lang-${sub.language}`;
+                const langLabel = sub.language.toUpperCase();
+                return `
+                    <div class="submission-item ${isActive ? 'active' : ''}" data-index="${idx}">
+                        <div class="info">
+                            <div class="name">${sub.student_name}</div>
+                            <div class="meta">
+                                <span class="lang-badge ${langClass}">${langLabel}</span>
+                                <span>${sub.activity_title}</span>
+                                <span>${new Date(sub.submitted_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <div class="score-badge ${statusClass}">
+                            ${score}${maxScore !== '—' ? '/'+maxScore : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Click handlers
+            container.querySelectorAll('.submission-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.index);
+                    if (!isNaN(idx) && idx >= 0 && idx < data.length) {
+                        selectSubmission(data[idx]);
+                    }
+                });
+            });
+        }
+
+        function renderDetail(sub) {
+            const panel = document.getElementById('detailPanel');
+            if (!sub) {
+                panel.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-graduate"></i>
+                        <h5>Select a submission</h5>
+                        <p class="text-muted">Click on any student submission from the list to view details and grade.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const score = sub.teacher_score !== null && sub.teacher_score !== undefined ?
+                sub.teacher_score :
+                sub.auto_score !== null && sub.auto_score !== undefined ?
+                sub.auto_score :
+                '—';
+            const maxScore = sub.max_score ?? '—';
+            const statusClass = `status-${sub.status}`;
+            const statusLabel = sub.status.charAt(0).toUpperCase() + sub.status.slice(1);
+            const langClass = `lang-${sub.language}`;
+            const langLabel = sub.language.toUpperCase();
+
+            panel.innerHTML = `
+                <div class="detail-header">
+                    <div class="student-info">
+                        <h3>${sub.student_name}</h3>
+                        <div class="sub">
+                            <span class="lang-badge ${langClass}">${langLabel}</span>
+                            ${sub.student_lrn ? ' · LRN: '+sub.student_lrn : ''}
+                            · ${sub.activity_title}
+                        </div>
+                    </div>
+                    <div class="detail-score">
+                        <div>
+                            <span class="score-number">${score}</span>
+                            <span class="max">/ ${maxScore}</span>
+                        </div>
+                        <span class="status-tag ${statusClass}">${statusLabel}</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <label><i class="fas fa-code me-1"></i> Code</label>
+                    <div class="code-box">${escapeHtml(sub.code || '—')}</div>
+                </div>
+
+                <div class="detail-section">
+                    <label><i class="fas fa-terminal me-1"></i> Output</label>
+                    <div class="output-box">${escapeHtml(sub.output || 'No output')}</div>
+                </div>
+
+                ${sub.teacher_feedback ? `
+                <div class="detail-section">
+                    <label><i class="fas fa-comment me-1"></i> Teacher Feedback</label>
+                    <div class="feedback-box">
+                        <div class="label">${new Date(sub.submitted_at).toLocaleString()}</div>
+                        ${escapeHtml(sub.teacher_feedback)}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="teacher-actions">
+                    <div class="row">
+                        <div class="field">
+                            <label><i class="fas fa-pen me-1"></i> Override Score</label>
+                            <input type="number" id="overrideScoreInput" min="0" max="${maxScore}" 
+                                   value="${score !== '—' ? score : ''}" placeholder="0-${maxScore}" />
+                        </div>
+                        <div class="field" style="flex:2;">
+                            <label><i class="fas fa-comment me-1"></i> Teacher Feedback</label>
+                            <textarea id="teacherFeedbackInput" placeholder="Add your feedback...">${escapeHtml(sub.teacher_feedback || '')}</textarea>
+                        </div>
+                        <div class="field" style="flex:0.5;">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary" onclick="saveTeacherUpdate()">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                        <div class="field" style="flex:0.3;">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-outline" onclick="resetToAuto()">
+                                <i class="fas fa-undo"></i> Revert
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Store reference for actions
+            panel.dataset.student = sub.student_name;
+            panel.dataset.activityId = sub.activity_id;
+            panel.dataset.autoScore = sub.auto_score;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // SELECTION & FILTERS
+        // ============================================================
+        function selectSubmission(sub) {
+            selectedSubmission = sub;
+            renderDetail(sub);
+            // Highlight in list
+            const items = document.querySelectorAll('.submission-item');
+            items.forEach(el => el.classList.remove('active'));
+            const idx = filteredSubmissions.indexOf(sub);
+            if (idx !== -1) {
+                const items2 = document.querySelectorAll('.submission-item');
+                if (items2[idx]) items2[idx].classList.add('active');
+            }
+        }
+
+        function applyFilters() {
+            const lang = document.getElementById('filterLanguage').value;
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+
+            filteredSubmissions = submissions.filter(sub => {
+                if (lang !== 'all' && sub.language !== lang) return false;
+                if (status !== 'all' && sub.status !== status) return false;
+                if (search) {
+                    const name = (sub.student_name || '').toLowerCase();
+                    const title = (sub.activity_title || '').toLowerCase();
+                    if (!name.includes(search) && !title.includes(search)) return false;
+                }
+                return true;
+            });
+
+            renderList(filteredSubmissions);
+            // If there's a selected submission, try to keep it
+            if (selectedSubmission) {
+                const stillExists = filteredSubmissions.some(s =>
+                    s.student_name === selectedSubmission.student_name &&
+                    s.activity_title === selectedSubmission.activity_title
+                );
+                if (!stillExists) {
+                    selectedSubmission = null;
+                    renderDetail(null);
+                } else {
+                    // re-select to refresh detail
+                    const found = filteredSubmissions.find(s =>
+                        s.student_name === selectedSubmission.student_name &&
+                        s.activity_title === selectedSubmission.activity_title
+                    );
+                    if (found) selectSubmission(found);
+                }
+            } else if (filteredSubmissions.length > 0) {
+                selectSubmission(filteredSubmissions[0]);
+            }
+            renderStats(filteredSubmissions);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterLanguage').value = 'all';
+            document.getElementById('filterStatus').value = 'all';
+            document.getElementById('filterSearch').value = '';
+            applyFilters();
+        }
+
+        // ============================================================
+        // TEACHER ACTIONS
+        // ============================================================
+        async function saveTeacherUpdate() {
+            const panel = document.getElementById('detailPanel');
+            const student = panel.dataset.student;
+            const activityId = parseInt(panel.dataset.activityId);
+            const scoreInput = document.getElementById('overrideScoreInput');
+            const feedbackInput = document.getElementById('teacherFeedbackInput');
+
+            if (!student || !activityId) {
+                showToast('No submission selected', 'error');
+                return;
+            }
+
+            const newScore = parseInt(scoreInput.value);
+            if (isNaN(newScore) || newScore < 0) {
+                showToast('Please enter a valid score (0 or higher)', 'error');
+                return;
+            }
+
+            const feedback = feedbackInput.value.trim();
+
+            try {
+                const result = await apiFetch('/teacher/update_score', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        student_name: student,
+                        activity_id: activityId,
+                        score: newScore,
+                        feedback: feedback
+                    })
+                });
+
+                if (result.success) {
+                    showToast('Score and feedback saved successfully!', 'success');
+                    // Refresh data
+                    await refreshData();
+                    // Re-select the same student
+                    const found = filteredSubmissions.find(s =>
+                        s.student_name === student &&
+                        s.activity_id === activityId
+                    );
+                    if (found) selectSubmission(found);
+                } else {
+                    showToast(result.message || 'Failed to update', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+                console.error(e);
+            }
+        }
+
+        async function resetToAuto() {
+            const panel = document.getElementById('detailPanel');
+            const student = panel.dataset.student;
+            const activityId = parseInt(panel.dataset.activityId);
+            const autoScore = parseInt(panel.dataset.autoScore);
+
+            if (!student || !activityId) {
+                showToast('No submission selected', 'error');
+                return;
+            }
+
+            try {
+                const result = await apiFetch('/teacher/update_score', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        student_name: student,
+                        activity_id: activityId,
+                        score: autoScore,
+                        feedback: '' // clear feedback on revert
+                    })
+                });
+
+                if (result.success) {
+                    showToast('Reverted to auto-grade score', 'success');
+                    await refreshData();
+                    const found = filteredSubmissions.find(s =>
+                        s.student_name === student &&
+                        s.activity_id === activityId
+                    );
+                    if (found) selectSubmission(found);
+                } else {
+                    showToast(result.message || 'Failed to revert', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+                console.error(e);
+            }
+        }
+
+        // ============================================================
+        // REFRESH
+        // ============================================================
+        async function refreshData() {
+            document.getElementById('submissionList').innerHTML = `
+                <div class="text-center p-4 text-muted">
+                    <div class="spinner"></div>
+                    <p class="mt-2">Loading submissions...</p>
+                </div>
+            `;
+            document.getElementById('detailPanel').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <h5>Loading...</h5>
+                </div>
+            `;
+
+            try {
+                submissions = await fetchSubmissions();
+                // Ensure each submission has a status
+                submissions.forEach(s => {
+                    if (!s.status) {
+                        s.status = s.teacher_score !== null && s.teacher_score !== undefined ?
+                            (s.teacher_score >= 10 ? 'passed' : 'failed') :
+                            'pending';
+                    }
+                });
+                applyFilters();
+            } catch (e) {
+                showToast('Error loading data: ' + e.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                refreshData();
+            }, 30000);
+        });
+    </script>
+
+</body>
+</html>

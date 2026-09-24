@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Notifications · BlockLearn</title>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+        :root { --sidebar-w: 256px; --sidebar-collapsed-w: 72px; --green-deep: #145a42; --green-main: #1f8a64; --gold: #e8a838; --sidebar-text: #b5d9cb; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; font-family: Inter, Arial, sans-serif; background: #f0f6f3; color: #1a463a; }
+        .app { min-height: 100vh; }
+        .sidebar { width: var(--sidebar-w); background: linear-gradient(175deg, #14423a 0%, #185a48 40%, #1a6850 100%); color: #d8efe5; display: flex; flex-direction: column; position: fixed; inset: 0 auto 0 0; overflow-y: auto; z-index: 10; transition: width .35s ease; }
+        .sidebar-logo { display: flex; align-items: center; gap: 0; padding: 1rem .4rem; min-height: 90px; border-bottom: 1px solid rgba(255,255,255,.07); overflow: hidden; }
+        .logo-image, .logo-mono img { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
+        .logo-full { min-width: 0; flex: 1; }
+        .logo-full h2 { margin: 0; color: #fff; font-size: 1.2rem; white-space: nowrap; }
+        .logo-full h2 em { color: var(--gold); font-style: normal; }
+        .logo-full p { margin: 1px 0 0; color: #b5d9cb; font-size: .56rem; letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; }
+        .logo-mono { display: none; }
+        .toggle-btn, .hamburger-btn { width: 28px; height: 28px; margin-right: 8px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: rgba(255,255,255,.08); color: #d8efe5; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .hamburger-wrap { display: none; justify-content: center; padding: .4rem 0 .2rem; }
+        .sidebar-nav { flex: 1; padding: .4rem 0; }
+        .nav-section-label { padding: 1.1rem 1.1rem .35rem; color: rgba(216,239,229,.35); font-size: .55rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .nav-link-custom { display: flex; align-items: center; gap: 13px; margin: 0 .4rem 2px; padding: .55rem .9rem; border-radius: 12px; color: var(--sidebar-text); text-decoration: none; font-size: .86rem; white-space: nowrap; transition: all .25s ease; }
+        .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: .95rem; }
+        .nav-link-custom:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .nav-link-custom.active { background: #fff; color: var(--green-deep); font-weight: 650; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+        .sidebar-user { display: none !important; align-items: center; gap: 11px; padding: .9rem 1.1rem; border-top: 1px solid rgba(255,255,255,.07); }
+        .sidebar-avatar { width: 34px; height: 34px; border-radius: 11px; background: linear-gradient(135deg, var(--gold), #d4922a); color: #fff; display: grid; place-items: center; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+        .sidebar-user-info h4 { margin: 0; color: #d8efe5; font-size: .78rem; white-space: nowrap; }
+        .sidebar-user-info p { margin: 1px 0 0; color: #b5d9cb; font-size: .6rem; white-space: nowrap; }
+        .main-content { margin-left: var(--sidebar-w); min-height: 100vh; padding: 40px 20px; transition: margin-left .35s ease; }
+        .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
+        main { max-width: 760px; margin: 0 auto; padding: 0; }
+        .header, .notification { background: #fff; border: 1px solid #dde9e3; border-radius: 16px; box-shadow: 0 4px 16px rgba(20,90,66,.06); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; }
+        h1 { margin: 0; font-size: 20px; } button { border: 0; border-radius: 999px; padding: 9px 14px; cursor: pointer; background: #1f8a64; color: #fff; }
+        #badge { background: #e06050; padding: 2px 7px; border-radius: 999px; font-size: 11px; } #list { display: grid; gap: 12px; margin-top: 16px; }
+        .notification { padding: 16px 18px; } .notification.unread { border-left: 4px solid #e8a838; } .notification h2 { margin: 0 0 6px; font-size: 15px; } .notification p { margin: 0 0 8px; color: #4a6b5e; } small { color: #7f9e92; }
+        .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
+        .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem .5rem; }
+        .sidebar.collapsed .logo-image, .sidebar.collapsed .logo-full, .sidebar.collapsed .toggle-btn, .sidebar.collapsed .sidebar-user-info { display: none; }
+        .sidebar.collapsed .logo-mono, .sidebar.collapsed .hamburger-wrap { display: flex; }
+        .sidebar.collapsed .logo-mono { width: 42px; min-width: 42px; justify-content: center; }
+        .sidebar.collapsed .nav-link-custom { justify-content: center; padding: .55rem 0; margin: 0 .3rem; }
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .nav-section-label { display: none; }
+        .sidebar.collapsed .sidebar-user { justify-content: center; padding: .7rem .5rem; }
+        @media (max-width: 768px) { .sidebar { width: var(--sidebar-collapsed-w); } .sidebar .sidebar-logo { justify-content: center; padding: 1rem .5rem; } .sidebar .logo-image, .sidebar .logo-full, .sidebar .toggle-btn { display: none; } .sidebar .logo-mono, .sidebar .hamburger-wrap { display: flex; } .sidebar .logo-mono { width: 100%; justify-content: center; } .sidebar .nav-link-custom { justify-content: center; padding: .55rem 0; margin: 0 .3rem; } .sidebar .nav-text, .sidebar .nav-section-label { display: none; } .sidebar .sidebar-user { justify-content: center; padding: .7rem .5rem; } .sidebar .sidebar-user-info { display: none; } .main-content { margin-left: var(--sidebar-collapsed-w); padding: 20px 12px; } }
+    </style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-logo">
+        <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
+        <div class="logo-full"><h2>Block<em>Learn</em></h2><p>PNHS · ICT</p></div>
+        <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo"></div>
+        <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar"><iconify-icon icon="lucide:panel-left-close"></iconify-icon></button>
+    </div>
+    <div class="hamburger-wrap"><button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar"><iconify-icon icon="lucide:menu"></iconify-icon></button></div>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a>
+        <a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a>
+        <a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a>
+        <div class="nav-section-label">Languages</div>
+        <a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a>
+        <a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a>
+        <a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a>
+        <div class="nav-section-label">Account</div>
+        <a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a>
+        <a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a>
+        <div class="nav-section-label">Support</div>
+        <a href="/student_help" class="nav-link-custom"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a>
+        <a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a>
+    </nav>
+    <div class="sidebar-user"><div class="sidebar-avatar">{{ (full_name or username or 'S')[0] | upper }}</div><div class="sidebar-user-info"><h4>{{ full_name or username or 'Student' }}</h4><p>{{ grade_level or 'Grade 11 - ICT' }}</p></div></div>
+</aside>
+<div class="main-content" id="mainContent"><main>
+    <section class="header"><h1>Student Notifications <span id="badge">0</span></h1><button id="read">Mark all as read</button></section>
+    <section id="list"><p>Loading notifications...</p></section>
+</main></div></div>
+<script>
+function collapseSidebar() { document.getElementById('sidebar').classList.add('collapsed'); document.getElementById('mainContent').classList.add('shifted'); }
+function expandSidebar() { document.getElementById('sidebar').classList.remove('collapsed'); document.getElementById('mainContent').classList.remove('shifted'); }
+async function loadNotifications() {
+    try {
+        const response = await fetch('/get_notifications', { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) throw new Error('Unable to load notifications');
+        const data = await response.json();
+        const list = document.getElementById('list');
+        document.getElementById('badge').textContent = data.unread_count || 0;
+        list.innerHTML = data.notifications?.length
+            ? data.notifications.map(n => `<article class="notification ${n.is_read ? '' : 'unread'}"><h2>${n.title}</h2><p>${n.message}</p><small>${n.time_ago || n.created_at || ''}</small></article>`).join('')
+            : '<p>No notifications yet.</p>';
+    } catch (error) {
+        console.error('Notification refresh failed:', error);
+    }
+}
+
+document.getElementById('read').onclick = async () => {
+    await fetch('/mark_notifications_read', { method: 'POST' });
+    loadNotifications();
+};
+
+loadNotifications();
+window.setInterval(() => {
+    if (!document.hidden) loadNotifications();
+}, 5000);
+</script></body></html>

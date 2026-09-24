@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Fetch dashboard data (role-aware) and update shared sidebar badges/notifications
+// Fetch dashboard data (role-aware) and update shared sidebar badges
 async function loadSharedDashboardData() {
     try {
         const d = await makeRequest('/get_dashboard_data');
@@ -191,21 +191,6 @@ async function loadSharedDashboardData() {
                 ticketBadge.style.display = 'none';
                 ticketBadge.textContent = '';
             }
-        }
-
-        // Notification badge (student-specific notifications)
-        const notifBadge = document.getElementById('notificationBadge');
-        if (notifBadge && Array.isArray(d.notifications)) {
-            const unread = d.notifications.filter(n => !n.is_read).length;
-            if (unread > 0) { notifBadge.classList.add('show'); notifBadge.textContent = unread > 9 ? '9+' : unread; }
-            else { notifBadge.classList.remove('show'); notifBadge.textContent = ''; }
-        }
-        // Student page badge id
-        const studentNotif = document.getElementById('notifBadge');
-        if (studentNotif && Array.isArray(d.notifications)) {
-            const unread2 = d.notifications.filter(n => !n.is_read).length;
-            if (unread2 > 0) { studentNotif.classList.remove('hidden'); studentNotif.textContent = unread2 > 99 ? '99+' : unread2; }
-            else { studentNotif.classList.add('hidden'); studentNotif.textContent = ''; }
         }
 
         // Merge into global dashboard_data if present (pages can read it)
