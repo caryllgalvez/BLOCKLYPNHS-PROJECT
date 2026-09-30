@@ -6,7 +6,7 @@
     <title>Student Notifications · BlockLearn</title>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <style>
-        :root { --sidebar-w: 256px; --sidebar-collapsed-w: 72px; --green-deep: #145a42; --green-main: #1f8a64; --gold: #e8a838; --sidebar-text: #b5d9cb; }
+        :root { --sidebar-w: 256px; --sidebar-collapsed-w: 72px; --green-deep: #145a42; --green-main: #145a42; --gold: #e8a838; --sidebar-text: #b5d9cb; }
         * { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; font-family: Inter, Arial, sans-serif; background: #f0f6f3; color: #1a463a; }
         .app { min-height: 100vh; }
@@ -35,9 +35,17 @@
         main { max-width: 760px; margin: 0 auto; padding: 0; }
         .header, .notification { background: #fff; border: 1px solid #dde9e3; border-radius: 16px; box-shadow: 0 4px 16px rgba(20,90,66,.06); }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; }
-        h1 { margin: 0; font-size: 20px; } button { border: 0; border-radius: 999px; padding: 9px 14px; cursor: pointer; background: #1f8a64; color: #fff; }
-        #badge { background: #e06050; padding: 2px 7px; border-radius: 999px; font-size: 11px; } #list { display: grid; gap: 12px; margin-top: 16px; }
-        .notification { padding: 16px 18px; } .notification.unread { border-left: 4px solid #e8a838; } .notification h2 { margin: 0 0 6px; font-size: 15px; } .notification p { margin: 0 0 8px; color: #4a6b5e; } small { color: #7f9e92; }
+        h1 { margin: 0; font-size: 20px; } button { border: 0; border-radius: 999px; padding: 9px 14px; cursor: pointer; background: #145a42; color: #fff; }
+        #badge { background: #e06050; padding: 2px 7px; border-radius: 999px; font-size: 11px; }
+        .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+        .filter { border: 1px solid #dde9e3; background: #fff; color: #4a6b5e; font: inherit; font-size: 13px; font-weight: 650; padding: 8px 13px; }
+        .filter[aria-pressed="true"] { background: #145a42; border-color: #145a42; color: #fff; }
+        #list { display: grid; gap: 12px; margin-top: 12px; }
+        .notification { padding: 16px 18px; } .notification.unread { border-left: 4px solid #e8a838; }
+        .notification h2 { margin: 0 0 6px; font-size: 15px; } .notification p { margin: 0 0 8px; color: #4a6b5e; white-space: pre-wrap; }
+        .notification-meta { display: flex; align-items: center; gap: 8px; color: #7f9e92; font-size: 12px; }
+        .notification-category { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: #e2f3ed; color: #145a42; font-size: 11px; font-weight: 700; }
+        .empty-state { padding: 28px 16px; color: #7f9e92; text-align: center; background: #fff; border: 1px dashed #cbded5; border-radius: 16px; }
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem .5rem; }
         .sidebar.collapsed .logo-image, .sidebar.collapsed .logo-full, .sidebar.collapsed .toggle-btn, .sidebar.collapsed .sidebar-user-info { display: none; }
@@ -79,30 +87,116 @@
 </aside>
 <div class="main-content" id="mainContent"><main>
     <section class="header"><h1>Student Notifications <span id="badge">0</span></h1><button id="read">Mark all as read</button></section>
-    <section id="list"><p>Loading notifications...</p></section>
+    <nav class="filters" aria-label="Filter notifications">
+        <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter" type="button" data-filter="assessments" aria-pressed="false">Assessments &amp; Feedback</button>
+        <button class="filter" type="button" data-filter="progress" aria-pressed="false">Activities &amp; Modules</button>
+        <button class="filter" type="button" data-filter="support" aria-pressed="false">Support</button>
+        <button class="filter" type="button" data-filter="announcements" aria-pressed="false">Announcements</button>
+        <button class="filter" type="button" data-filter="reminders" aria-pressed="false">Reminders</button>
+    </nav>
+    <section id="list" aria-live="polite"><p class="empty-state">Loading notifications...</p></section>
 </main></div></div>
 <script>
 function collapseSidebar() { document.getElementById('sidebar').classList.add('collapsed'); document.getElementById('mainContent').classList.add('shifted'); }
 function expandSidebar() { document.getElementById('sidebar').classList.remove('collapsed'); document.getElementById('mainContent').classList.remove('shifted'); }
+let notifications = [];
+let activeFilter = 'all';
+
+function notificationCategory(type) {
+    if (['assessment_result', 'assessment_checked', 'activity_checked'].includes(type)) return 'assessments';
+    if (['activity_completed', 'module_assessment_result'].includes(type)) return 'progress';
+    if (['support_ticket_received', 'support_ticket_updated'].includes(type)) return 'support';
+    if (['announcement', 'teacher_announcement'].includes(type)) return 'announcements';
+    if (['reminder', 'deadline_reminder'].includes(type)) return 'reminders';
+    return 'other';
+}
+
+function categoryLabel(category) {
+    return {
+        assessments: 'Assessment',
+        progress: 'Progress',
+        support: 'Support',
+        announcements: 'Announcement',
+        reminders: 'Reminder',
+        other: 'Update'
+    }[category] || 'Update';
+}
+
+function renderNotifications() {
+    const list = document.getElementById('list');
+    const filtered = notifications.filter(item => activeFilter === 'all' || notificationCategory(item.type) === activeFilter);
+    list.replaceChildren();
+
+    if (!filtered.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-state';
+        empty.textContent = notifications.length ? 'No notifications in this category.' : 'No notifications yet.';
+        list.appendChild(empty);
+        return;
+    }
+
+    filtered.forEach(item => {
+        const category = notificationCategory(item.type);
+        const article = document.createElement('article');
+        const title = document.createElement('h2');
+        const message = document.createElement('p');
+        const meta = document.createElement('div');
+        const categoryTag = document.createElement('span');
+        const time = document.createElement('time');
+
+        article.className = 'notification' + (item.is_read ? '' : ' unread');
+        title.textContent = item.title || 'Notification';
+        message.textContent = item.message || '';
+        meta.className = 'notification-meta';
+        categoryTag.className = 'notification-category';
+        categoryTag.textContent = categoryLabel(category);
+        time.textContent = item.time_ago || item.created_at || '';
+        if (item.created_at) time.dateTime = item.created_at;
+        meta.append(categoryTag, time);
+        article.append(title, message, meta);
+        list.appendChild(article);
+    });
+}
+
 async function loadNotifications() {
     try {
         const response = await fetch('/get_notifications', { headers: { 'Accept': 'application/json' } });
         if (!response.ok) throw new Error('Unable to load notifications');
         const data = await response.json();
-        const list = document.getElementById('list');
         document.getElementById('badge').textContent = data.unread_count || 0;
-        list.innerHTML = data.notifications?.length
-            ? data.notifications.map(n => `<article class="notification ${n.is_read ? '' : 'unread'}"><h2>${n.title}</h2><p>${n.message}</p><small>${n.time_ago || n.created_at || ''}</small></article>`).join('')
-            : '<p>No notifications yet.</p>';
+        notifications = Array.isArray(data.notifications) ? data.notifications : [];
+        renderNotifications();
     } catch (error) {
         console.error('Notification refresh failed:', error);
+        const list = document.getElementById('list');
+        list.replaceChildren();
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'empty-state';
+        errorMessage.textContent = 'Unable to load notifications. Please try again.';
+        list.appendChild(errorMessage);
     }
 }
 
-document.getElementById('read').onclick = async () => {
-    await fetch('/mark_notifications_read', { method: 'POST' });
-    loadNotifications();
-};
+document.querySelectorAll('[data-filter]').forEach(button => {
+    button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        document.querySelectorAll('[data-filter]').forEach(filterButton => {
+            filterButton.setAttribute('aria-pressed', String(filterButton === button));
+        });
+        renderNotifications();
+    });
+});
+
+document.getElementById('read').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/mark_notifications_read', { method: 'POST' });
+        if (!response.ok) throw new Error('Unable to update notifications');
+        await loadNotifications();
+    } catch (error) {
+        console.error('Notification update failed:', error);
+    }
+});
 
 loadNotifications();
 window.setInterval(() => {

@@ -17,7 +17,7 @@
         }
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -261,14 +261,6 @@
             border-color: var(--green-main);
             box-shadow: 0 0 0 3px rgba(31, 138, 100, 0.1);
         }
-        .filters-bar .search-input {
-            flex: 1;
-            min-width: 160px;
-        }
-        .filters-bar .search-input input {
-            width: 100%;
-        }
-
         /* Language Badge */
         .lang-badge {
             font-size: 0.6rem;
@@ -722,10 +714,6 @@
                 <div class="trend up" id="statPassRate"></div>
             </div>
             <div class="stat-card">
-                <div class="label"><i class="fas fa-star me-1"></i> Average Score</div>
-                <div class="value" id="statAvgScore">— <span class="sub"></span></div>
-            </div>
-            <div class="stat-card">
                 <div class="label"><i class="fas fa-clock me-1"></i> Pending Review</div>
                 <div class="value" id="statPending">—</div>
             </div>
@@ -734,9 +722,19 @@
         <!-- Filters -->
         <div class="filters-bar">
             <div class="filter-group">
+                <label>Type</label>
+                <select id="filterType">
+                    <option value="all">Assessments &amp; Activities</option>
+                    <option value="assessment">Assessments</option>
+                    <option value="activity">Activities</option>
+                </select>
+            </div>
+            <div class="filter-group">
                 <label><i class="fas fa-filter me-1"></i> Language</label>
                 <select id="filterLanguage">
                     <option value="all">All Languages</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
                     <option value="php">PHP</option>
                     <option value="javascript">JavaScript</option>
                     <option value="cpp">C++</option>
@@ -751,10 +749,7 @@
                     <option value="pending">Pending</option>
                 </select>
             </div>
-            <div class="filter-group search-input">
-                <input type="text" id="filterSearch" placeholder="Search student or activity..." />
-            </div>
-            <button class="btn btn-outline" onclick="applyFilters()"><i class="fas fa-search"></i> Apply</button>
+            <button class="btn btn-outline" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply</button>
             <button class="btn btn-outline" onclick="resetFilters()"><i class="fas fa-times"></i> Reset</button>
         </div>
 
@@ -763,7 +758,7 @@
             <!-- Submission List -->
             <div class="submissions-list">
                 <div class="list-header">
-                    <span>Student / Activity</span>
+                    <span>Activity / Assessment</span>
                     <span>Score</span>
                 </div>
                 <div class="list-body" id="submissionList">
@@ -795,6 +790,42 @@
         let submissions = [];
         let filteredSubmissions = [];
         let selectedSubmission = null;
+        const languageOptionsByType = {
+            all: [
+                ['python', 'Python'],
+                ['java', 'Java'],
+                ['php', 'PHP'],
+                ['javascript', 'JavaScript'],
+                ['cpp', 'C++'],
+            ],
+            assessment: [
+                ['python', 'Python'],
+                ['java', 'Java'],
+            ],
+            activity: [
+                ['php', 'PHP'],
+                ['javascript', 'JavaScript'],
+                ['cpp', 'C++'],
+            ],
+        };
+
+        function updateLanguageFilterOptions() {
+            const type = document.getElementById('filterType').value;
+            const languageFilter = document.getElementById('filterLanguage');
+            const selectedLanguage = languageFilter.value;
+            const options = languageOptionsByType[type];
+
+            languageFilter.replaceChildren(new Option('All Languages', 'all'));
+            options.forEach(([value, label]) => languageFilter.add(new Option(label, value)));
+            languageFilter.value = options.some(([value]) => value === selectedLanguage)
+                ? selectedLanguage
+                : 'all';
+        }
+
+        document.getElementById('filterType').addEventListener('change', () => {
+            updateLanguageFilterOptions();
+            applyFilters();
+        });
 
         // ============================================================
         // THEME
@@ -878,18 +909,12 @@
             const passed = data.filter(s => s.status === 'passed').length;
             const failed = data.filter(s => s.status === 'failed').length;
             const pending = data.filter(s => s.status === 'pending').length;
-            const scores = data
-                .filter(s => s.teacher_score !== null && s.teacher_score !== undefined)
-                .map(s => s.teacher_score);
-            const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
             const passRate = total ? Math.round((passed / total) * 100) : 0;
 
             document.getElementById('statStudents').textContent = students.size;
             document.getElementById('statSubmissions').textContent = total;
             document.getElementById('statPassed').innerHTML = `${passed} <span class="sub">/ ${total}</span>`;
             document.getElementById('statPassRate').textContent = `${passRate}% pass rate`;
-            document.getElementById('statAvgScore').innerHTML =
-                `${avg.toFixed(1)} <span class="sub">/ 20</span>`;
             document.getElementById('statPending').textContent = pending;
         }
 
@@ -905,8 +930,8 @@
                 return;
             }
             container.innerHTML = data.map((sub, idx) => {
-                const isActive = selectedSubmission && selectedSubmission.student_name === sub.student_name &&
-                    selectedSubmission.activity_title === sub.activity_title;
+                const activityTitle = sub.activity_title || 'Untitled activity';
+                const isActive = selectedSubmission && selectedSubmission.submission_id === sub.submission_id;
                 const score = sub.teacher_score !== null && sub.teacher_score !== undefined ?
                     sub.teacher_score :
                     sub.auto_score !== null && sub.auto_score !== undefined ?
@@ -920,10 +945,11 @@
                 return `
                     <div class="submission-item ${isActive ? 'active' : ''}" data-index="${idx}">
                         <div class="info">
-                            <div class="name">${sub.student_name}</div>
+                            <div class="name">${escapeHtml(activityTitle)}</div>
                             <div class="meta">
                                 <span class="lang-badge ${langClass}">${langLabel}</span>
-                                <span>${sub.activity_title}</span>
+                                <span>${sub.item_type === 'activity' ? 'Activity' : 'Assessment'}</span>
+                                ${sub.student_lrn ? `<span>LRN: ${escapeHtml(sub.student_lrn)}</span>` : ''}
                                 <span>${new Date(sub.submitted_at).toLocaleDateString()}</span>
                             </div>
                         </div>
@@ -968,15 +994,15 @@
             const statusLabel = sub.status.charAt(0).toUpperCase() + sub.status.slice(1);
             const langClass = `lang-${sub.language}`;
             const langLabel = sub.language.toUpperCase();
+            const activityTitle = sub.activity_title || 'Untitled activity';
 
             panel.innerHTML = `
                 <div class="detail-header">
                     <div class="student-info">
-                        <h3>${sub.student_name}</h3>
+                        <h3>${escapeHtml(activityTitle)}</h3>
                         <div class="sub">
                             <span class="lang-badge ${langClass}">${langLabel}</span>
-                            ${sub.student_lrn ? ' · LRN: '+sub.student_lrn : ''}
-                            · ${sub.activity_title}
+                            ${sub.student_lrn ? ' · LRN: ' + escapeHtml(sub.student_lrn) : ''}
                         </div>
                     </div>
                     <div class="detail-score">
@@ -989,8 +1015,18 @@
                 </div>
 
                 <div class="detail-section">
+                    <label><i class="fas fa-circle-question me-1"></i> Question / Instructions</label>
+                    <div class="output-box">${escapeHtml(sub.question || 'Question not available for this activity.')}</div>
+                </div>
+
+                <div class="detail-section">
+                    <label><i class="fas fa-lightbulb me-1"></i> Guide / Hint</label>
+                    <div class="feedback-box">${escapeHtml(sub.guide || 'No guide available for this activity.')}</div>
+                </div>
+
+                <div class="detail-section">
                     <label><i class="fas fa-code me-1"></i> Code</label>
-                    <div class="code-box">${escapeHtml(sub.code || '—')}</div>
+                    <div class="code-box">${escapeHtml(sub.code || sub.code_blocks || 'Student code unavailable')}</div>
                 </div>
 
                 <div class="detail-section">
@@ -1036,8 +1072,7 @@
             `;
 
             // Store reference for actions
-            panel.dataset.student = sub.student_name;
-            panel.dataset.activityId = sub.activity_id;
+            panel.dataset.submissionId = sub.submission_id;
             panel.dataset.autoScore = sub.auto_score;
         }
 
@@ -1066,17 +1101,12 @@
 
         function applyFilters() {
             const lang = document.getElementById('filterLanguage').value;
+            const type = document.getElementById('filterType').value;
             const status = document.getElementById('filterStatus').value;
-            const search = document.getElementById('filterSearch').value.toLowerCase().trim();
-
             filteredSubmissions = submissions.filter(sub => {
                 if (lang !== 'all' && sub.language !== lang) return false;
+                if (type !== 'all' && sub.item_type !== type) return false;
                 if (status !== 'all' && sub.status !== status) return false;
-                if (search) {
-                    const name = (sub.student_name || '').toLowerCase();
-                    const title = (sub.activity_title || '').toLowerCase();
-                    if (!name.includes(search) && !title.includes(search)) return false;
-                }
                 return true;
             });
 
@@ -1084,8 +1114,7 @@
             // If there's a selected submission, try to keep it
             if (selectedSubmission) {
                 const stillExists = filteredSubmissions.some(s =>
-                    s.student_name === selectedSubmission.student_name &&
-                    s.activity_title === selectedSubmission.activity_title
+                    s.submission_id === selectedSubmission.submission_id
                 );
                 if (!stillExists) {
                     selectedSubmission = null;
@@ -1093,8 +1122,7 @@
                 } else {
                     // re-select to refresh detail
                     const found = filteredSubmissions.find(s =>
-                        s.student_name === selectedSubmission.student_name &&
-                        s.activity_title === selectedSubmission.activity_title
+                        s.submission_id === selectedSubmission.submission_id
                     );
                     if (found) selectSubmission(found);
                 }
@@ -1106,8 +1134,9 @@
 
         function resetFilters() {
             document.getElementById('filterLanguage').value = 'all';
+            document.getElementById('filterType').value = 'all';
+            updateLanguageFilterOptions();
             document.getElementById('filterStatus').value = 'all';
-            document.getElementById('filterSearch').value = '';
             applyFilters();
         }
 
@@ -1116,30 +1145,28 @@
         // ============================================================
         async function saveTeacherUpdate() {
             const panel = document.getElementById('detailPanel');
-            const student = panel.dataset.student;
-            const activityId = parseInt(panel.dataset.activityId);
+            const submissionId = parseInt(panel.dataset.submissionId);
             const scoreInput = document.getElementById('overrideScoreInput');
             const feedbackInput = document.getElementById('teacherFeedbackInput');
 
-            if (!student || !activityId) {
+            if (!submissionId) {
                 showToast('No submission selected', 'error');
                 return;
             }
 
             const newScore = parseInt(scoreInput.value);
-            if (isNaN(newScore) || newScore < 0) {
-                showToast('Please enter a valid score (0 or higher)', 'error');
+            if (isNaN(newScore) || newScore < 0 || newScore > 10) {
+                showToast('Please enter a score from 0 to 10', 'error');
                 return;
             }
 
             const feedback = feedbackInput.value.trim();
 
             try {
-                const result = await apiFetch('/teacher/update_score', {
+                const result = await apiFetch('/teacher/review_submission', {
                     method: 'POST',
                     body: JSON.stringify({
-                        student_name: student,
-                        activity_id: activityId,
+                        submission_id: submissionId,
                         score: newScore,
                         feedback: feedback
                     })
@@ -1150,10 +1177,7 @@
                     // Refresh data
                     await refreshData();
                     // Re-select the same student
-                    const found = filteredSubmissions.find(s =>
-                        s.student_name === student &&
-                        s.activity_id === activityId
-                    );
+                    const found = filteredSubmissions.find(s => s.submission_id === submissionId);
                     if (found) selectSubmission(found);
                 } else {
                     showToast(result.message || 'Failed to update', 'error');
@@ -1166,21 +1190,19 @@
 
         async function resetToAuto() {
             const panel = document.getElementById('detailPanel');
-            const student = panel.dataset.student;
-            const activityId = parseInt(panel.dataset.activityId);
+            const submissionId = parseInt(panel.dataset.submissionId);
             const autoScore = parseInt(panel.dataset.autoScore);
 
-            if (!student || !activityId) {
+            if (!submissionId) {
                 showToast('No submission selected', 'error');
                 return;
             }
 
             try {
-                const result = await apiFetch('/teacher/update_score', {
+                const result = await apiFetch('/teacher/review_submission', {
                     method: 'POST',
                     body: JSON.stringify({
-                        student_name: student,
-                        activity_id: activityId,
+                        submission_id: submissionId,
                         score: autoScore,
                         feedback: '' // clear feedback on revert
                     })
@@ -1189,10 +1211,7 @@
                 if (result.success) {
                     showToast('Reverted to auto-grade score', 'success');
                     await refreshData();
-                    const found = filteredSubmissions.find(s =>
-                        s.student_name === student &&
-                        s.activity_id === activityId
-                    );
+                    const found = filteredSubmissions.find(s => s.submission_id === submissionId);
                     if (found) selectSubmission(found);
                 } else {
                     showToast(result.message || 'Failed to revert', 'error');

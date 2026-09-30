@@ -10,7 +10,7 @@
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-        --green-deep:#145a42; --green-main:#1f8a64; --green-light:#28a87a; --green-soft:#e2f3ed;
+        --green-deep:#145a42; --green-main:#145a42; --green-light:#28a87a; --green-soft:#e2f3ed;
         --gold-warm:#e8a838; --gold-light:#fce9c5; --coral:#e06050; --coral-soft:#fce8e5;
         --blue:#4a90d9; --blue-soft:#e4eefb;
         --stone:#7f9e92; --stone-light:#a8bfb4;
@@ -75,25 +75,19 @@
     .sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:10px; }
 
     .sidebar-logo {
-        display:flex; align-items:center; gap:12px;
+        display:flex; align-items:center; gap:0;
         border-bottom:1px solid rgba(255,255,255,.07);
-        padding:1rem 1.1rem; min-height:64px; overflow:hidden;
+        padding:1rem .4rem; min-height:64px; overflow:hidden;
         justify-content:space-between; transition:all .35s ease;
     }
-    .logo-box {
-        width:40px; height:40px; border-radius:12px; flex-shrink:0;
-        background:linear-gradient(135deg, var(--green-main), var(--green-deep));
-        display:flex; align-items:center; justify-content:center;
-        box-shadow:0 4px 14px rgba(0,0,0,.2);
-    }
-    .logo-box iconify-icon { font-size:20px; color:#fff; }
+    .logo-image { width:70px; height:70px; object-fit:contain; flex-shrink:0; }
     .logo-full { display:flex; flex-direction:column; flex:1; min-width:0; }
-    .logo-full h2 { font-size:1.05rem; font-weight:800; letter-spacing:-.5px; white-space:nowrap; color:#2e6f40; }
+    .logo-full h2 { font-size:1.2rem; font-weight:800; letter-spacing:-.5px; white-space:nowrap; color:#ffffff; margin:0; }
     .logo-full h2 em { font-style:normal; color:var(--gold-warm); }
-    .logo-full p { font-size:.55rem; opacity:.45; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
+    .logo-full p { font-size:.56rem; opacity:.4; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; margin:1px 0 0; }
     .toggle-btn, .hamburger-btn {
         background:var(--sidebar-icon-toggle); border:1px solid rgba(255,255,255,.06);
-        color:#d8efe5; width:28px; height:28px; border-radius:8px; cursor:pointer;
+        color:#d8efe5; width:28px; height:28px; border-radius:8px; cursor:pointer; margin-right:8px;
         display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s;
     }
     .toggle-btn iconify-icon, .hamburger-btn iconify-icon { font-size:14px; }
@@ -108,8 +102,6 @@
     .sidebar.collapsed .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
     .sidebar.collapsed .nav-text { display:none !important; }
     .sidebar.collapsed .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
-    .sidebar.collapsed .sidebar-user { justify-content:center; padding:.7rem .5rem; }
-    .sidebar.collapsed .sidebar-user-info { display:none !important; }
     .sidebar.collapsed .nav-badge { left:auto; right:8px; top:4px; }
 
     .nav-section-label {
@@ -147,23 +139,6 @@
     }
     .nav-link-custom.active .nav-badge { border-color:var(--card-white); }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5); opacity:.6} }
-    .nav-link-custom.logout { color:rgba(224,96,80,.75); margin-top:.6rem; }
-    .nav-link-custom.logout:hover { background:rgba(224,96,80,.12); color:#f08070; }
-
-    .sidebar-user {
-        display:flex; align-items:center; gap:11px;
-        border-top:1px solid rgba(255,255,255,.07);
-        padding:.9rem 1.1rem; overflow:hidden; transition:all .35s;
-    }
-    .sidebar-avatar {
-        width:34px; height:34px; border-radius:11px; flex-shrink:0;
-        background:linear-gradient(135deg, var(--gold-warm), #d4922a);
-        display:flex; align-items:center; justify-content:center;
-        color:#fff; font-size:.75rem; font-weight:700;
-        box-shadow:0 2px 8px rgba(232,168,56,.3);
-    }
-    .sidebar-user-info h4 { font-size:.78rem; font-weight:650; color:#d8efe5; }
-    .sidebar-user-info p { font-size:.6rem; opacity:.45; }
 
     /* ═══ MAIN ═══ */
     .main-content {
@@ -179,6 +154,7 @@
         padding:.5rem 1rem .5rem 1.4rem; margin-bottom:1.1rem;
         display:flex; justify-content:space-between; align-items:center;
         box-shadow:var(--sh-sm); transition:background .4s, border-color .4s;
+        position:relative; z-index:500; /* ← para hindi ma-overlap ng panels ang dropdown */
     }
     .page-title { font-size:1.05rem; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:9px; }
     .page-title iconify-icon { color:var(--gold-warm); font-size:17px; }
@@ -199,6 +175,71 @@
     .theme-btn .icon-sun { display:none !important; }
     [data-theme="dark"] .theme-btn .icon-sun { display:flex !important; }
     [data-theme="dark"] .theme-btn .icon-moon { display:none !important; }
+
+    /* ═══ USER MENU (upper right) ═══ */
+    .user-menu-wrap { position:relative; }
+    .user-pill {
+        display:flex; align-items:center; gap:10px;
+        background:var(--card-white); border:1.5px solid var(--border-fresh);
+        border-radius:999px; padding:4px 14px 4px 4px; cursor:pointer;
+        font:inherit; color:inherit; transition:all .25s;
+    }
+    .user-pill:hover { border-color:var(--green-main); transform:translateY(-1px); box-shadow:var(--sh-sm); }
+    .user-menu-wrap.open .user-pill { border-color:var(--green-main); box-shadow:var(--sh-sm); }
+    .up-avatar {
+        width:36px; height:36px; border-radius:12px; flex-shrink:0;
+        background:linear-gradient(135deg, var(--green-main), var(--green-deep));
+        color:#fff; display:flex; align-items:center; justify-content:center;
+        font-size:.75rem; font-weight:800;
+        box-shadow:0 2px 8px rgba(20,90,66,.25);
+    }
+    .up-avatar iconify-icon { font-size:20px; }
+    .up-info { display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; }
+    .up-info strong { font-size:.78rem; font-weight:800; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .up-info small { font-size:.62rem; color:var(--stone-light); font-weight:600; }
+    .user-pill .chev { font-size:16px; color:var(--stone); transition:transform .3s; }
+    .user-menu-wrap.open .user-pill .chev { transform:rotate(180deg); }
+
+    .user-dropdown {
+        position:absolute; top:calc(100% + 10px); right:0; width:256px;
+        background:var(--card-white); border:1px solid var(--border-fresh);
+        border-radius:18px; box-shadow:var(--sh-lg); overflow:hidden;
+        opacity:0; transform:translateY(-8px) scale(.97); transform-origin:top right;
+        pointer-events:none; transition:all .25s cubic-bezier(.4,0,.2,1);
+        z-index:99999; /* ← laging nasa itaas */
+    }
+    .user-menu-wrap.open .user-dropdown { opacity:1; transform:none; pointer-events:auto; }
+
+    .ud-head {
+        display:flex; align-items:center; gap:12px;
+        padding:.85rem .95rem; border-bottom:1px solid var(--border-fresh);
+    }
+    .ud-head .up-avatar { width:42px; height:42px; border-radius:13px; }
+    .ud-head .up-avatar iconify-icon { font-size:23px; }
+    .ud-head strong { display:block; font-size:.85rem; font-weight:800; line-height:1.3; }
+    .ud-head small { font-size:.66rem; color:var(--stone-light); font-weight:600; }
+
+    .ud-body { padding:.45rem; }
+    .ud-item {
+        display:flex; align-items:center; gap:12px;
+        padding:.62rem .75rem; border-radius:12px;
+        color:var(--text-secondary); text-decoration:none;
+        font-size:.8rem; font-weight:600; transition:all .2s;
+    }
+    .ud-item iconify-icon { font-size:17px; color:var(--stone); transition:color .2s; }
+    .ud-item:hover { background:var(--green-soft); color:var(--text-primary); }
+    .ud-item:hover iconify-icon { color:var(--green-main); }
+    [data-theme="dark"] .ud-item:hover { color:#4ad9a0; }
+
+    .ud-signout {
+        display:flex; align-items:center; gap:12px;
+        padding:.78rem .95rem; margin-top:.35rem;
+        border-top:1px solid var(--border-fresh);
+        background:var(--coral-soft); color:var(--coral);
+        text-decoration:none; font-size:.8rem; font-weight:700; transition:filter .2s;
+    }
+    .ud-signout iconify-icon { font-size:17px; }
+    .ud-signout:hover { filter:brightness(.95); color:var(--coral); }
 
     /* ═══ STATS ═══ */
     .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.2rem; }
@@ -470,8 +511,6 @@
         .sidebar .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
         .sidebar .nav-text { display:none !important; }
         .sidebar .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
-        .sidebar .sidebar-user { justify-content:center; padding:.7rem .5rem; }
-        .sidebar .sidebar-user-info { display:none !important; }
         .sidebar .nav-badge { left:auto; right:8px; top:4px; }
         .main-content, .main-content.shifted { margin-left:var(--sidebar-collapsed-w); padding:16px 14px 32px; }
         .panel-toolbar { gap:8px; }
@@ -479,6 +518,11 @@
         .dlg-meta { grid-template-columns:1fr; }
         .seg { grid-template-columns:repeat(2,1fr); }
         .toast-box { left:12px; right:12px; bottom:12px; }
+    }
+    @media (max-width:520px) {
+        .up-info { display:none; }
+        .user-pill { padding:4px; border-radius:12px; }
+        .user-pill .chev { display:none; }
     }
     @media (prefers-reduced-motion:reduce) {
         *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
@@ -495,10 +539,10 @@
 <!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-box"><iconify-icon icon="lucide:monitor-cog"></iconify-icon></div>
+        <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
         <div class="logo-full">
-            <h2>ICT <em>Tech</em> Support</h2>
-            <p>PNHS-Main</p>
+            <h2>Block<em>Learn</em></h2>
+            <p>PNHS · ICT Studio</p>
         </div>
         <button class="toggle-btn" id="toggleSidebar" title="Collapse sidebar" aria-label="Collapse sidebar">
             <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
@@ -527,23 +571,16 @@
         <a href="/ict_support_reports" class="nav-link-custom" data-tip="Reports">
             <iconify-icon icon="lucide:file-text"></iconify-icon><span class="nav-text">Reports</span>
         </a>
+        <a href="/ict_support_audit_logs" class="nav-link-custom" data-tip="Audit Logs">
+            <iconify-icon icon="lucide:scroll-text"></iconify-icon><span class="nav-text">Audit Logs</span>
+        </a>
 
         <p class="nav-section-label">System</p>
         <a href="/ict_support_settings" class="nav-link-custom" data-tip="Settings">
             <iconify-icon icon="lucide:settings"></iconify-icon><span class="nav-text">Settings</span>
         </a>
-        <a href="/logout" class="nav-link-custom logout" data-tip="Logout">
-            <iconify-icon icon="lucide:log-out"></iconify-icon><span class="nav-text">Logout</span>
-        </a>
     </nav>
 
-    <div class="sidebar-user">
-        <div class="sidebar-avatar">T</div>
-        <div class="sidebar-user-info">
-            <h4>ICT-Tech</h4>
-            <p>Tech Support</p>
-        </div>
-    </div>
 </aside>
 
 <!-- ═══ MAIN ═══ -->
@@ -559,6 +596,36 @@
                 <iconify-icon icon="lucide:moon" class="icon-moon"></iconify-icon>
                 <iconify-icon icon="lucide:sun" class="icon-sun"></iconify-icon>
             </button>
+
+            <!-- ═══ USER PILL + DROPDOWN (upper right) ═══ -->
+            <div class="user-menu-wrap" id="userMenuWrap">
+                <button class="user-pill" id="userPill" aria-haspopup="true" aria-expanded="false">
+                    <span class="up-avatar">T</span>
+                    <span class="up-info">
+                        <strong>ICT-Tech</strong>
+                        <small>Tech Support</small>
+                    </span>
+                    <iconify-icon icon="lucide:chevron-down" class="chev"></iconify-icon>
+                </button>
+
+                <div class="user-dropdown" role="menu">
+                    <div class="ud-head">
+                        <span class="up-avatar">T</span>
+                        <div>
+                            <strong>ICT-Tech</strong>
+                            <small>Tech Support</small>
+                        </div>
+                    </div>
+                    <div class="ud-body">
+                        <a href="#" class="ud-item" role="menuitem">
+                            <iconify-icon icon="lucide:user-round"></iconify-icon>My Profile
+                        </a>
+                        <a href="/ict_support_settings" class="ud-item" role="menuitem">
+                            <iconify-icon icon="lucide:sliders-horizontal"></iconify-icon>Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -708,6 +775,21 @@ const applySidebar = collapsed => {
 applySidebar(localStorage.getItem('bl-ict-sidebar') === '1');
  $('toggleSidebar').addEventListener('click', () => applySidebar(true));
  $('hamburgerBtn').addEventListener('click', () => applySidebar(false));
+
+/* ── User dropdown (upper right) ── */
+const userMenuWrap = $('userMenuWrap');
+const userPill = $('userPill');
+const closeUserMenu = () => {
+    userMenuWrap.classList.remove('open');
+    userPill.setAttribute('aria-expanded', 'false');
+};
+userPill.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = userMenuWrap.classList.toggle('open');
+    userPill.setAttribute('aria-expanded', open);
+});
+document.addEventListener('click', e => { if (!userMenuWrap.contains(e.target)) closeUserMenu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUserMenu(); });
 
 /* ── Collapsed tooltips ── */
 const tip = document.createElement('div');
@@ -923,17 +1005,17 @@ function saveStatus() {
         .then(data => {
             if (!data.success) throw new Error(data.message || 'Update failed');
             closeDialog();
-            toast(`Ticket #${selectedTicket.ticket_number || selectedTicket.id} updated to "${pickedStatus.replace('_', ' ')}"`);
+            toast(`Ticket #${selectedTicket.ticket_number ?? selectedTicket.id} → ${STATUS_META[pickedStatus].label}`);
             loadTickets();
         })
-        .catch(error => {
-            toast(error.message || 'Update failed', 'error');
+        .catch(error => toast(error.message || 'Unable to update ticket.', 'error'))
+        .finally(() => {
             btn.classList.remove('loading');
             btn.disabled = false;
         });
 }
 
-loadTickets();
+document.addEventListener('DOMContentLoaded', loadTickets);
 </script>
 </body>
 </html>

@@ -9,13 +9,12 @@
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
-        /* ===== ALL EXISTING STYLES ===== */
-        /* (Keep the exact same styles as the original file) */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* ===== DASHBOARD TOKENS ===== */
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -24,8 +23,8 @@
             --coral-soft: #fce8e5;
             --blue: #4a90d9;
             --blue-soft: #e4eefb;
-            --stone: #7f9e92;
-            --stone-light: #a8bfb4;
+            --stone: #52705f;                        /* FIX: AA contrast */
+            --stone-light: #5f7d70;                  /* FIX: AA contrast */
             --border-fresh: #dde9e3;
             --card-white: #ffffff;
             --bg-main: #f0f6f3;
@@ -64,9 +63,13 @@
             --greeting-overlay: rgba(255,255,255,0.1);
             --search-bg: var(--card-white);
             --dropdown-z-index: 99999;
+            --green-on-soft: var(--green-deep);      /* FIX: badge text token */
+            --gold-text: #9a7020;
+            --green-accent: var(--green-main);
+            --toast-bg: #1a463a;
         }
 
-        /* ===== DARK MODE ===== */
+        /* ===== DARK MODE (dashboard) ===== */
         [data-theme="dark"] {
             --bg-main: #0f1f19;
             --text-primary: #d8ede5;
@@ -86,7 +89,8 @@
             --gold-light: #2e2510;
             --coral-soft: #2e1a16;
             --blue-soft: #152535;
-            --stone-light: #5a7a6d;
+            --stone: #7fa895;
+            --stone-light: #8fb8a8;
             --grid-line: rgba(40,80,60,0.25);
             --blob-opacity: 0.15;
             --sidebar-text: #8fb8a8;
@@ -104,6 +108,10 @@
             --chart-tick: #5a7a6d;
             --greeting-overlay: rgba(255,255,255,0.06);
             --search-bg: #1a3329;
+            --green-on-soft: #4ad9a0;
+            --gold-text: #e0b45c;
+            --green-accent: #4ad9a0;
+            --toast-bg: #21493a;
         }
 
         body {
@@ -115,10 +123,10 @@
             transition: background 0.4s ease, color 0.4s ease;
         }
 
-        /* ===== BACKGROUND ===== */
-        .bg-layer {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-        }
+        :focus-visible { outline: 2px solid var(--green-accent); outline-offset: 2px; }
+
+        /* ===== BACKGROUND (dashboard) ===== */
+        .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-layer::before {
             content: '';
             position: absolute; inset: 0;
@@ -151,7 +159,7 @@
 
         .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
-        /* ===== SIDEBAR ===== */
+        /* ===== SIDEBAR (dashboard) ===== */
         .sidebar {
             width: var(--sidebar-w);
             background: linear-gradient(175deg, #14423a 0%, #185a48 40%, #1a6850 100%);
@@ -173,16 +181,14 @@
         .sidebar-logo {
             display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 0.4rem 1rem 0.4rem;
+            padding: 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
+        .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
         .logo-full {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
             transition: opacity 0.2s ease;
-        }
-        .logo-image {
-            width: 70px; height: 70px; object-fit: contain; flex-shrink: 0;
         }
         .logo-full h2 {
             font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
@@ -198,15 +204,13 @@
             display: none; width: 42px; min-width: 42px; text-align: center; flex-shrink: 0;
             align-items: center; justify-content: center;
         }
-        .logo-mono img {
-            display: block; width: 42px; height: 42px; object-fit: contain; margin: 0 auto;
-        }
+        .logo-mono img { display: block; width: 42px; height: 42px; object-fit: contain; margin: 0 auto; }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
         .toggle-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
-            color: #d8efe5; font-size: 0.9rem; width: 28px; height: 28px;
+            color: #d8efe5; font-size: 0.9rem; width: 34px; height: 34px;
             border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
@@ -215,7 +219,7 @@
         .hamburger-wrap { display: none; padding: 0.4rem 0 0.2rem; justify-content: center; }
         .hamburger-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
-            color: #d8efe5; font-size: 0.85rem; width: 32px; height: 32px;
+            color: #d8efe5; font-size: 0.85rem; width: 36px; height: 36px;
             border-radius: 10px; cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center;
         }
@@ -232,9 +236,9 @@
         .sidebar.collapsed .nav-link-custom i { font-size: 1.15rem; }
         .sidebar.collapsed .nav-text { display: none !important; }
         .sidebar.collapsed .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
-        .sidebar.collapsed .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
-        .sidebar.collapsed .sidebar-user-info { display: none !important; }
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
+        .sidebar.collapsed .activities-submenu { display: none !important; }
+        .sidebar.collapsed .activities-chevron { display: none; }
 
         .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
         .sidebar:not(.collapsed) .logo-image { display: block; }
@@ -246,8 +250,6 @@
         .sidebar:not(.collapsed) .nav-link-custom i { font-size: 0.95rem; }
         .sidebar:not(.collapsed) .nav-text { display: inline !important; }
         .sidebar:not(.collapsed) .nav-section-label { height: auto; padding: 1.1rem 1.1rem 0.35rem; opacity: 1; }
-        .sidebar:not(.collapsed) .sidebar-user { justify-content: flex-start; padding: 0.9rem 1.1rem; }
-        .sidebar:not(.collapsed) .sidebar-user-info { display: block !important; }
 
         .nav-section-label {
             font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.5px;
@@ -261,20 +263,37 @@
             color: var(--sidebar-text); text-decoration: none;
             border-radius: var(--radius-sm); transition: all 0.25s ease;
             font-size: 0.86rem; font-weight: 500; position: relative;
-            white-space: nowrap;
+            white-space: nowrap; width: calc(100% - 0.8rem); border: 0;
+            background: transparent; cursor: pointer; text-align: left;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
         .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
-        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
-        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
-        .nav-link-custom:hover i { transform: scale(1.12); }
+        .nav-link-custom:hover i,
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .activities-chevron { margin-left: auto; font-size: 0.68rem !important; transition: transform 0.25s ease; }
+        .activities-toggle.open .activities-chevron { transform: rotate(180deg); }
+        .activities-submenu { display: none; padding: 0.15rem 0 0.3rem 2.55rem; }
+        .activities-submenu.open { display: block; }
+        .activities-submenu-label {
+            padding: 0.45rem 0.65rem 0.2rem; color: var(--sidebar-section);
+            font-size: 0.52rem; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+        .activities-submenu a {
+            display: block; padding: 0.38rem 0.65rem; color: var(--sidebar-text);
+            text-decoration: none; border-radius: 8px; font-size: 0.76rem;
+            transition: all 0.2s ease;
+        }
+        .activities-submenu a:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom.active {
             background: var(--card-white); color: #145a42; font-weight: 650;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             border-radius: var(--radius-sm);
         }
-        .nav-link-custom.active i { color: var(--green-main); }
+        .nav-link-custom.active i,
+        .nav-link-custom.active iconify-icon { color: var(--green-accent); }
+        [data-theme="dark"] .nav-link-custom.active { color: var(--green-accent); }   /* FIX: readable in dark */
         .nav-badge {
             position: absolute; top: 5px; left: 24px;
             width: 7px; height: 7px; background: var(--coral);
@@ -287,23 +306,7 @@
             50% { transform: scale(1.5); opacity: 0.6; }
         }
 
-        .sidebar-user {
-            display: none !important;
-            align-items: center; gap: 11px;
-            border-top: 1px solid rgba(255,255,255,0.07);
-            transition: all 0.35s ease; overflow: hidden;
-        }
-        .sidebar-avatar {
-            width: 34px; height: 34px; border-radius: 11px;
-            background: linear-gradient(135deg, var(--gold-warm), #d4922a);
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(232,168,56,0.3);
-        }
-        .sidebar-user-info h4 { font-size: 0.78rem; font-weight: 650; margin: 0; white-space: nowrap; color: #d8efe5; }
-        .sidebar-user-info p { font-size: 0.6rem; opacity: 0.45; margin: 1px 0 0; white-space: nowrap; }
-
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN CONTENT (dashboard) ===== */
         .main-content {
             flex: 1; margin-left: var(--sidebar-w);
             padding: 28px 34px 40px;
@@ -312,7 +315,7 @@
         }
         .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
 
-        /* ===== TOP BAR ===== */
+        /* ===== TOP BAR (dashboard) ===== */
         .top-bar {
             background: var(--glass-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -329,33 +332,10 @@
             letter-spacing: -0.4px; margin: 0; transition: color 0.4s ease;
         }
         .page-title i { color: var(--gold-warm); margin-right: 8px; font-size: 0.9rem; }
-        .top-bar-right {
-            display: flex; align-items: center; gap: 10px;
-            position: relative; z-index: 200;
-        }
+        .top-bar-right { display: flex; align-items: center; gap: 10px; position: relative; z-index: 200; }
 
-        /* Search */
-        .top-search { position: relative; display: flex; align-items: center; }
-        .top-search i {
-            position: absolute; left: 11px; color: var(--stone-light);
-            font-size: 0.8rem; pointer-events: none; transition: color 0.2s;
-        }
-        .top-search input {
-            width: 200px; padding: 0.45rem 0.7rem 0.45rem 2.2rem;
-            border: 1.5px solid var(--border-fresh); border-radius: 10px;
-            font-size: 0.78rem; font-family: inherit; background: var(--search-bg);
-            color: var(--text-primary); transition: all 0.25s ease;
-        }
-        .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
-        .top-search input:focus {
-            outline: none; border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.1); width: 240px;
-        }
-        .top-search:focus-within i { color: var(--green-main); }
-
-        /* Theme toggle */
         .theme-btn {
-            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.88rem; cursor: pointer;
             transition: all 0.3s ease; flex-shrink: 0;
@@ -369,9 +349,8 @@
         [data-theme="dark"] .theme-btn .icon-sun { display: inline; }
         [data-theme="dark"] .theme-btn .icon-moon { display: none; }
 
-        /* Notification Button */
         .notif-btn {
-            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.9rem; cursor: pointer;
             transition: all 0.25s ease; position: relative; flex-shrink: 0;
@@ -388,10 +367,12 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px solid var(--card-white); transition: all 0.3s ease;
         }
-        /* Notification Dropdown */
+        .notif-btn .notif-badge.hidden { display: none; }   /* FIX: was missing */
+
         .notif-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
-            width: 380px; max-height: 420px;
+            width: min(380px, calc(100vw - 32px));   /* FIX: no phone overflow */
+            max-height: 420px;
             background: var(--dropdown-bg); border-radius: var(--radius-md);
             border: 1px solid var(--border-fresh);
             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
@@ -409,8 +390,11 @@
             font-size: 0.65rem; color: var(--green-main); cursor: pointer;
             background: none; border: none; font-weight: 600; transition: color 0.2s;
         }
-        .notif-dropdown .notif-header .mark-read-btn:hover { color: var(--green-deep); }
-        .notif-dropdown .notif-list { max-height: 340px; overflow-y: auto; padding: 0.3rem 0; }
+        .notif-dropdown .notif-header .mark-read-btn:hover { color: var(--green-on-soft); }
+        .notif-dropdown .notif-list {
+            max-height: 340px; overflow-y: auto; padding: 0.3rem 0;
+            scrollbar-width: thin; scrollbar-color: var(--border-fresh) transparent;
+        }
         .notif-dropdown .notif-list::-webkit-scrollbar { width: 4px; }
         .notif-dropdown .notif-list::-webkit-scrollbar-thumb { background: var(--border-fresh); border-radius: 10px; }
         .notif-item {
@@ -424,15 +408,20 @@
         .notif-item .notif-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
         .notif-item .notif-message { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
         .notif-item .notif-time { font-size: 0.6rem; color: var(--stone-light); margin-top: 4px; display: block; }
+        .notif-item .notif-read-btn {
+            font-size: 0.6rem; color: var(--green-main); cursor: pointer;
+            background: none; border: none; margin-top: 4px; font-weight: 600;
+            padding: 2px 8px; border-radius: 20px; transition: all 0.2s;
+        }
+        .notif-item .notif-read-btn:hover { background: var(--green-main); color: white; }
         .notif-item .score-badge {
-            display: inline-block; background: var(--green-soft); color: var(--green-deep);
+            display: inline-block; background: var(--green-soft); color: var(--green-on-soft);
             padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;
         }
         .notif-empty { padding: 2rem 1.2rem; text-align: center; color: var(--stone-light); }
         .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--border-fresh); }
         .notif-empty p { font-size: 0.8rem; margin: 0; }
 
-        /* Profile Trigger */
         .profile-trigger {
             display: flex; align-items: center; gap: 9px;
             cursor: pointer; padding: 4px 10px 4px 4px;
@@ -457,7 +446,6 @@
         .profile-trigger-chevron { color: var(--stone-light); font-size: 0.6rem; margin-left: 2px; transition: transform 0.25s ease; }
         .profile-trigger.open .profile-trigger-chevron { transform: rotate(180deg); }
 
-        /* Profile Dropdown */
         .profile-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
             min-width: 220px; background: var(--dropdown-bg);
@@ -492,15 +480,20 @@
         }
         .pd-link:hover { background: var(--dropdown-link-hover); color: var(--dropdown-link-hover-text); }
         .pd-link i { width: 18px; text-align: center; font-size: 0.8rem; color: var(--stone); transition: color 0.2s; }
-        .pd-link:hover i { color: var(--green-main); }
+        .pd-link:hover i { color: var(--green-accent); }
         .pd-sep { height: 1px; background: var(--pd-sep); margin: 0.3rem 0; transition: background 0.4s ease; }
         .pd-link.logout { color: var(--coral); }
         .pd-link.logout i { color: var(--coral); }
         .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
+        [data-theme="dark"] .pd-link.logout:hover { color: #f28a7a; }
 
-        /* ===== PROGRESS BANNER ===== */
+        /* ============================================ */
+        /* PROGRESS PAGE CONTENT (styled to match dashboard UI) */
+        /* ============================================ */
+
+        /* Banner (same treatment as dashboard greeting-banner) */
         .progress-banner {
-            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #145a42 100%);
             border-radius: var(--radius-xl); padding: 1.6rem 2rem;
             margin-bottom: 1.6rem; position: relative; overflow: hidden;
             color: white; box-shadow: var(--shadow-lg);
@@ -525,21 +518,13 @@
             display: flex; align-items: center; justify-content: space-between;
             position: relative; z-index: 1; flex-wrap: wrap; gap: 1.5rem;
         }
-        .progress-banner-text h1 {
-            font-size: 1.3rem; font-weight: 900; margin-bottom: 0.2rem;
-            letter-spacing: -0.5px;
-        }
+        .progress-banner-text h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.2rem; letter-spacing: -0.5px; }
         .progress-banner-text h1 em { font-style: normal; color: var(--gold-warm); }
-        .progress-banner-text p { font-size: 0.82rem; opacity: 0.75; margin: 0; }
+        .progress-banner-text p { font-size: 0.85rem; opacity: 0.75; margin: 0; max-width: 460px; }
 
-        /* Circular Progress */
-        .circular-progress {
-            width: 100px; height: 100px; position: relative; flex-shrink: 0;
-        }
+        .circular-progress { width: 100px; height: 100px; position: relative; flex-shrink: 0; }
         .circular-progress svg { transform: rotate(-90deg); }
-        .circular-progress .track {
-            fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 8;
-        }
+        .circular-progress .track { fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 8; }
         .circular-progress .fill {
             fill: none; stroke: var(--gold-warm); stroke-width: 8;
             stroke-linecap: round;
@@ -548,26 +533,20 @@
         }
         .circular-progress .center-text {
             position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+            transform: translate(-50%, -50%); text-align: center;
         }
-        .circular-progress .center-text .pct {
-            font-size: 1.4rem; font-weight: 900; line-height: 1; display: block;
-        }
+        .circular-progress .center-text .pct { font-size: 1.4rem; font-weight: 900; line-height: 1; display: block; }
         .circular-progress .center-text .label {
             font-size: 0.5rem; opacity: 0.6; text-transform: uppercase;
             letter-spacing: 1px; font-weight: 600;
         }
 
-        /* ===== STATS GRID ===== */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 1rem; margin-bottom: 1.6rem;
-        }
+        /* Stats — activity and assessment totals */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.6rem; }
         .stat-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: var(--radius-lg); padding: 1.2rem 1.4rem;
+            border-radius: var(--radius-lg); padding: 1.1rem 1.3rem;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, border-color 0.4s ease;
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
@@ -579,30 +558,27 @@
         .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
         .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
-        .stat-card:hover {
-            transform: translateY(-4px); border-color: var(--green-main);
-            box-shadow: var(--shadow-lg);
-        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .stat-card:nth-child(1):hover { border-color: var(--green-main); }
+        .stat-card:nth-child(2):hover { border-color: var(--blue); }
+        .stat-card:nth-child(3):hover { border-color: var(--gold-warm); }
         .stat-card:hover::before { opacity: 1; }
-        .stat-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 0.7rem;
-        }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.7rem; }
         .stat-header span {
             font-size: 0.6rem; text-transform: uppercase; font-weight: 700;
             letter-spacing: 1px; color: var(--stone); transition: color 0.4s ease;
         }
         .stat-icon {
-            width: 38px; height: 38px; border-radius: 12px;
+            width: 36px; height: 36px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.95rem; transition: all 0.35s ease;
+            font-size: 0.9rem; transition: all 0.35s ease;
         }
-        .stat-card:nth-child(1) .stat-icon { background: var(--green-soft); color: var(--green-main); }
+        .stat-card:nth-child(1) .stat-icon { background: var(--green-soft); color: var(--green-accent); }
         .stat-card:nth-child(2) .stat-icon { background: var(--blue-soft); color: var(--blue); }
         .stat-card:nth-child(3) .stat-icon { background: var(--gold-light); color: #c48a20; }
         .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-3deg); }
         .stat-value {
-            font-size: 2rem; font-weight: 900; color: var(--text-primary);
+            font-size: 1.9rem; font-weight: 900; color: var(--text-primary);
             margin-bottom: 2px; letter-spacing: -1px; line-height: 1.1;
             transition: color 0.4s ease;
         }
@@ -610,10 +586,7 @@
             font-size: 0.85rem; font-weight: 600; color: var(--stone-light);
             letter-spacing: 0; margin-left: 2px;
         }
-        .stat-label-bottom {
-            color: var(--stone-light); font-size: 0.68rem; font-weight: 500;
-            transition: color 0.4s ease;
-        }
+        .stat-label-bottom { color: var(--stone-light); font-size: 0.68rem; font-weight: 500; transition: color 0.4s ease; }
         .stat-progress {
             height: 4px; background: var(--chart-grid); border-radius: 10px;
             overflow: hidden; margin-top: 10px; transition: background 0.4s ease;
@@ -626,7 +599,7 @@
         .stat-card:nth-child(2) .stat-progress-fill { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .stat-card:nth-child(3) .stat-progress-fill { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
 
-        /* ===== SECTION CARDS ===== */
+        /* Section cards (dashboard glass-card treatment) */
         .section-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -644,15 +617,14 @@
             font-size: 0.9rem; font-weight: 750; color: var(--text-primary);
             margin: 0; transition: color 0.4s ease;
         }
-        .section-header h3 i { color: var(--green-main); margin-right: 8px; font-size: 0.82rem; }
+        .section-header h3 i { color: var(--green-accent); margin-right: 8px; font-size: 0.82rem; }
         .section-header .section-badge {
             background: var(--green-soft); padding: 4px 12px; border-radius: 40px;
-            font-size: 0.62rem; font-weight: 650; color: var(--green-deep);
+            font-size: 0.62rem; font-weight: 650; color: var(--green-on-soft);
             letter-spacing: 0.3px; transition: background 0.4s ease, color 0.4s ease;
         }
         .section-content { padding: 0.4rem 1.6rem; }
 
-        /* Detail List */
         .detail-list { list-style: none; padding: 0; margin: 0; }
         .detail-item {
             display: flex; justify-content: space-between; align-items: center;
@@ -660,10 +632,18 @@
             transition: all 0.2s ease, border-color 0.4s ease;
         }
         .detail-item:last-child { border-bottom: none; }
-        .detail-item:hover { background: rgba(31,138,100,0.03); margin: 0 -0.5rem; padding: 0.85rem 0.5rem; border-radius: 10px; }
-        .detail-left {
-            display: flex; align-items: center; gap: 12px;
+        .detail-item--group-end { border-bottom: 0; }
+        .detail-group-heading {
+            padding: 0.1rem 0 0.35rem; color: var(--stone);
+            font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
         }
+        .detail-group-heading--separated {
+            margin-top: 0.25rem; padding-top: 0.65rem;
+            border-top: 1px solid var(--border-fresh);
+        }
+        .detail-item:hover { background: rgba(31,138,100,0.03); margin: 0 -0.5rem; padding: 0.85rem 0.5rem; border-radius: 10px; }
+        [data-theme="dark"] .detail-item:hover { background: rgba(74,217,160,0.06); }
+        .detail-left { display: flex; align-items: center; gap: 12px; }
         .detail-icon {
             width: 36px; height: 36px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
@@ -672,63 +652,40 @@
         .detail-icon.php { background: var(--blue-soft); color: var(--blue); }
         .detail-icon.js { background: var(--gold-light); color: #c48a20; }
         .detail-icon.cpp { background: var(--coral-soft); color: var(--coral); }
-        .detail-icon iconify-icon { width: 1.1rem; height: 1.1rem; }
-        .detail-icon.py { background: var(--green-soft); color: var(--green-main); }
+        .detail-icon.py { background: var(--green-soft); color: var(--green-accent); }
         .detail-icon.java { background: var(--blue-soft); color: var(--blue); }
-        .detail-label {
-            font-size: 0.85rem; color: var(--text-secondary);
-            transition: color 0.4s ease;
-        }
-        .detail-label small {
-            display: block; font-size: 0.68rem; color: var(--stone-light);
-            margin-top: 1px; transition: color 0.4s ease;
-        }
+        .detail-icon iconify-icon { width: 1.1rem; height: 1.1rem; }
+        .detail-label { font-size: 0.85rem; color: var(--text-secondary); transition: color 0.4s ease; }
+        .detail-label small { display: block; font-size: 0.68rem; color: var(--stone-light); margin-top: 1px; transition: color 0.4s ease; }
         .detail-right { display: flex; align-items: center; gap: 12px; }
         .detail-value {
             font-size: 0.85rem; font-weight: 700; color: var(--text-primary);
             transition: color 0.4s ease; min-width: 60px; text-align: right;
         }
-        .detail-percent {
-            font-size: 0.72rem; font-weight: 700; color: var(--green-main);
-            min-width: 32px; text-align: right;
-        }
+        .detail-percent { font-size: 0.72rem; font-weight: 700; color: var(--green-accent); min-width: 32px; text-align: right; }
 
-        /* Mini meter in detail row */
         .mini-meter {
             width: 80px; height: 6px; border-radius: 10px;
             background: var(--chart-grid); overflow: hidden;
             transition: background 0.4s ease;
         }
-        .mini-meter-fill {
-            height: 100%; border-radius: 10px; width: 0%;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .mini-meter-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .mini-meter-fill.php { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .mini-meter-fill.js { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .mini-meter-fill.cpp { background: linear-gradient(90deg, var(--coral), #f08070); }
         .mini-meter-fill.py { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
         .mini-meter-fill.java { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
 
-        /* ===== DETAILED PROGRESS GRID ===== */
-        .progress-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr);
-            gap: 1rem; padding: 1.4rem 1.6rem;
-        }
+        /* Progress grid */
+        .progress-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.4rem 1.6rem; }
         .progress-block {
             padding: 1.1rem 1.3rem; border-radius: var(--radius-md);
             background: var(--green-soft);
             transition: all 0.35s ease, background 0.4s ease;
             border: 1px solid transparent;
         }
-        .progress-block:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-            border-color: var(--border-fresh);
-        }
-        .progress-block-head {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 0.6rem;
-        }
+        .progress-block:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--border-fresh); }
+        .progress-block-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
         .progress-block-head h4 {
             font-size: 0.85rem; font-weight: 700; color: var(--text-primary);
             margin: 0; display: flex; align-items: center; gap: 8px;
@@ -736,26 +693,16 @@
         }
         .progress-block-head h4 i { font-size: 0.8rem; }
         .progress-block-head h4 iconify-icon { width: 0.9rem; height: 0.9rem; vertical-align: -0.12em; }
-        .progress-block-head .pct-label {
-            font-size: 0.72rem; font-weight: 750; padding: 2px 10px;
-            border-radius: 20px;
-        }
+        .progress-block-head .pct-label { font-size: 0.72rem; font-weight: 750; padding: 2px 10px; border-radius: 20px; }
         .pct-label.php { background: var(--blue-soft); color: var(--blue); }
-        .pct-label.js { background: var(--gold-light); color: #9a7020; }
+        .pct-label.js { background: var(--gold-light); color: var(--gold-text); }
         .pct-label.cpp { background: var(--coral-soft); color: var(--coral); }
-        .pct-label.py { background: var(--green-soft); color: var(--green-deep); }
+        .pct-label.py { background: var(--card-white); color: var(--green-accent); box-shadow: inset 0 0 0 1px var(--border-fresh); }
         .pct-label.java { background: var(--blue-soft); color: var(--blue); }
-        .pct-label.overall { background: var(--green-soft); color: var(--green-deep); }
+        .pct-label.overall { background: var(--card-white); color: var(--green-accent); box-shadow: inset 0 0 0 1px var(--border-fresh); }
 
-        .meter {
-            height: 8px; border-radius: 999px;
-            background: var(--chart-grid); overflow: hidden;
-            transition: background 0.4s ease;
-        }
-        .meter-fill {
-            height: 100%; border-radius: inherit; width: 0%;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .meter { height: 8px; border-radius: 999px; background: var(--chart-grid); overflow: hidden; transition: background 0.4s ease; }
+        .meter-fill { height: 100%; border-radius: inherit; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .meter-fill.php { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .meter-fill.js { background: linear-gradient(90deg, var(--gold-warm), #f0c060); }
         .meter-fill.cpp { background: linear-gradient(90deg, var(--coral), #f08070); }
@@ -763,18 +710,15 @@
         .meter-fill.java { background: linear-gradient(90deg, var(--blue), #6ba8e8); }
         .meter-fill.overall { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
 
-        .progress-block-sub {
-            font-size: 0.65rem; color: var(--stone-light); margin-top: 6px;
-            transition: color 0.4s ease;
-        }
+        .progress-block-sub { font-size: 0.65rem; color: var(--stone-light); margin-top: 6px; transition: color 0.4s ease; }
 
-        /* ===== TOAST ===== */
+        /* ===== TOAST (dashboard) ===== */
         .toast-box {
             position: fixed; bottom: 24px; right: 24px; z-index: 99999;
             display: flex; flex-direction: column; gap: 8px;
         }
         .toast-msg {
-            background: #1a463a; color: white; padding: 10px 16px;
+            background: var(--toast-bg); color: white; padding: 10px 16px;
             border-radius: 12px; font-size: 0.78rem; font-weight: 500;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             display: flex; align-items: center; gap: 8px;
@@ -782,6 +726,7 @@
             transition: all 0.3s ease;
         }
         .toast-msg.out { opacity: 0; transform: translateX(40px); }
+        .toast-msg i { color: var(--gold-warm); }
         .toast-msg.success i { color: #4ade80; }
         .toast-msg.error i { color: var(--coral); }
         @keyframes tIn {
@@ -789,18 +734,15 @@
             to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
-        /* ===== ENTRANCE ===== */
-        .fu {
-            opacity: 0; transform: translateY(16px);
-            animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        /* ===== ENTRANCE (dashboard) ===== */
+        .fu { opacity: 0; transform: translateY(16px); animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
         .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.1s; }
         .e3 { animation-delay: 0.15s; } .e4 { animation-delay: 0.2s; }
         .e5 { animation-delay: 0.25s; } .e6 { animation-delay: 0.3s; }
         .e7 { animation-delay: 0.35s; }
 
-        /* ===== RESPONSIVE ===== */
+        /* ===== RESPONSIVE (dashboard breakpoints, adapted to progress content) ===== */
         @media (max-width: 992px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .progress-grid { grid-template-columns: 1fr; }
@@ -816,17 +758,15 @@
             .sidebar .nav-link-custom i { font-size: 1.15rem; }
             .sidebar .nav-text { display: none !important; }
             .sidebar .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
-            .sidebar .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
-            .sidebar .sidebar-user-info { display: none !important; }
             .sidebar .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
+            .sidebar .activities-submenu { display: none !important; }
+            .sidebar .activities-chevron { display: none !important; }
             .main-content { margin-left: var(--sidebar-collapsed-w); padding: 16px; }
             .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
             .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
-            .top-search input { width: 130px; }
-            .top-search input:focus { width: 160px; }
             .profile-trigger-info { display: none; }
             .profile-dropdown { right: 0; left: auto; min-width: 200px; }
-            .notif-dropdown { width: 320px; right: 0; left: auto; }
+            .notif-dropdown { right: 0; left: auto; }
             .progress-banner { padding: 1.3rem; }
             .progress-banner-inner { justify-content: center; text-align: center; }
             .circular-progress { width: 80px; height: 80px; }
@@ -842,10 +782,8 @@
             .stat-value { font-size: 1.6rem; }
             .top-bar { flex-wrap: wrap; gap: 8px; }
             .top-bar-right { margin-left: auto; flex-wrap: wrap; }
-            .top-search { order: 10; width: 100%; }
-            .top-search input { width: 100% !important; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
-            .notif-dropdown { width: 290px; right: 0; left: auto; }
+            .notif-dropdown { right: 0; left: auto; }
             .progress-grid { padding: 1rem; }
         }
 
@@ -865,7 +803,7 @@
 </div>
 
 <div class="app">
-    <!-- ===== SIDEBAR ===== -->
+    <!-- ===== SIDEBAR (dashboard UI) ===== -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
             <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
@@ -886,48 +824,50 @@
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
             <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span><span class="nav-badge" aria-hidden="true"></span></a></div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Languages</div>
-            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
+
+            <div class="nav-section-label">Activities</div>
+            <div class="nav-item">
+                <button class="nav-link-custom activities-toggle" id="activitiesToggle" aria-expanded="false">
+                    <iconify-icon icon="lucide:code"></iconify-icon>
+                    <span class="nav-text">Activities</span>
+                    <i class="fas fa-chevron-down activities-chevron"></i>
+                </button>
+                <div class="activities-submenu" id="activitiesSubmenu">
+                    <div class="activities-submenu-label">Languages</div>
+                    <a href="/student_activities_php"><iconify-icon icon="logos:php"></iconify-icon> PHP</a>
+                    <a href="/student_activities_javascript"><iconify-icon icon="logos:javascript"></iconify-icon> JavaScript</a>
+                    <a href="/student_activities_cpp"><iconify-icon icon="logos:cplusplus"></iconify-icon> C++</a>
+                </div>
+            </div>
+
             <div class="nav-section-label">Account</div>
             <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
             <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+
             <div class="nav-section-label">Support</div>
             <div class="nav-item"><a href="/student_help" class="nav-link-custom"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a></div>
             <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a></div>
         </nav>
-        <div class="sidebar-user">
-            <div class="sidebar-avatar" id="sidebarAvatar">S</div>
-            <div class="sidebar-user-info">
-                <h4 id="sidebarName">Student</h4>
-                <p id="sidebarGrade">Grade 11 - ICT</p>
-            </div>
-        </div>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content" id="mainContent">
-        <!-- Top Bar -->
+        <!-- Top Bar (dashboard UI) -->
         <header class="top-bar fu">
             <div>
                 <h1 class="page-title"><i class="fas fa-chart-line"></i>My Progress</h1>
             </div>
             <div class="top-bar-right">
-                <div class="top-search">
-                    <input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search">
-                    <i class="fas fa-search"></i>
-                </div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
                     <i class="fas fa-moon icon-moon"></i>
                     <i class="fas fa-sun icon-sun"></i>
                 </button>
 
-                <!-- Notification -->
+                <!-- Notification (dashboard UI) -->
                 <div style="position: relative;">
-                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" aria-label="Notifications">
+                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications(event)" aria-label="Notifications">
                         <i class="fas fa-bell"></i>
                         <span class="notif-badge hidden" id="notifBadge">0</span>
                     </button>
@@ -938,590 +878,278 @@
                         </div>
                         <div class="notif-list" id="notifList">
                             <div class="notif-empty">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Loading notifications...</p>
+                                <i class="fas fa-inbox"></i>
+                                <p>No notifications yet</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Profile Trigger -->
-                <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()">
-                    <div class="profile-trigger-avatar"><i class="fas fa-user"></i></div>
-                    <div class="profile-trigger-info">
-                        <span class="profile-trigger-name" id="triggerName">Student</span>
-                        <span class="profile-trigger-role" id="triggerRole">Grade 11</span>
+                <!-- Profile (dashboard UI) -->
+                <div style="position: relative;">
+                    <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile(event)">
+                        <div class="profile-trigger-avatar" id="profileAvatar">S</div>
+                        <div class="profile-trigger-info">
+                            <span class="profile-trigger-name" id="profileName">Student</span>
+                            <span class="profile-trigger-role" id="profileRole">Grade 11 - ICT</span>
+                        </div>
+                        <i class="fas fa-chevron-down profile-trigger-chevron"></i>
                     </div>
-                    <i class="fas fa-chevron-down profile-trigger-chevron"></i>
-
-                    <!-- Profile Dropdown -->
                     <div class="profile-dropdown" id="profileDropdown">
                         <div class="pd-header">
-                            <div class="pd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="pd-avatar" id="pdAvatar">S</div>
                             <div>
                                 <div class="pd-name" id="pdName">Student</div>
                                 <div class="pd-grade" id="pdGrade">Grade 11 - ICT</div>
                             </div>
                         </div>
                         <div class="pd-links">
-                            <a href="/student_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
-                            <a href="/student_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
+                            <a class="pd-link" href="/student_profile"><i class="fas fa-user"></i>My Profile</a>
+                            <a class="pd-link" href="/student_settings"><i class="fas fa-sliders-h"></i>Settings</a>
                             <div class="pd-sep"></div>
-                            <a href="/logout" class="pd-link logout"><i class="fas fa-sign-out-alt"></i> Sign out</a>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Progress Banner with Circular Progress -->
-        <section class="progress-banner fu e2">
+        <!-- ===== PROGRESS CONTENT ONLY ===== -->
+
+        <section class="progress-banner fu e1">
             <div class="progress-banner-inner">
                 <div class="progress-banner-text">
-                    <h1>Your <em>Learning</em> Journey</h1>
-                    <p>Track your progress across all programming activities &amp; assessments</p>
+                    <h1>Your Learning <em>Progress</em></h1>
+                    <p>{{ progress.overall.completed }} of {{ progress.overall.total }} activities and assessments completed.</p>
                 </div>
-                <div class="circular-progress" id="circularProgress">
-                    <svg width="100" height="100" viewBox="0 0 100 100">
-                        <circle class="track" cx="50" cy="50" r="42" />
-                        <circle class="fill" id="circularFill" cx="50" cy="50" r="42" />
+                <div class="circular-progress">
+                    <svg viewBox="0 0 100 100" width="100" height="100" aria-hidden="true">
+                        <circle class="track" cx="50" cy="50" r="42"></circle>
+                        <circle class="fill" id="cpFill" cx="50" cy="50" r="42"></circle>
                     </svg>
                     <div class="center-text">
-                        <span class="pct" id="circularPct">0%</span>
-                        <span class="label">Done</span>
+                        <span class="pct" id="cpPct">{{ progress.overall.percentage }}%</span>
+                        <span class="label">Overall</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Stats Grid -->
-        <section class="stats-grid">
-            <div class="stat-card fu e3">
-                <div class="stat-header">
-                    <span>Completion</span>
-                    <div class="stat-icon"><i class="fas fa-trophy"></i></div>
-                </div>
-                <div class="stat-value" id="progressPercent">0<span class="stat-unit">%</span></div>
-                <div class="stat-label-bottom">Overall progress</div>
-                <div class="stat-progress">
-                    <div class="stat-progress-fill" id="progressBar" data-width="0"></div>
-                </div>
+        <section class="stats-grid fu e2">
+            <div class="stat-card">
+                <div class="stat-header"><span>Activities Completed</span><div class="stat-icon"><i class="fas fa-list-check"></i></div></div>
+                <div class="stat-value">{{ progress.activities.completed }}<span class="stat-unit">/{{ progress.activities.total }}</span></div>
+                <div class="stat-label-bottom">PHP, JavaScript, and C++</div>
+                <div class="stat-progress"><div class="stat-progress-fill" data-pct="{{ progress.activities.percentage }}"></div></div>
             </div>
-            <div class="stat-card fu e4">
-                <div class="stat-header">
-                    <span>Activities Done</span>
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                </div>
-                <div class="stat-value" id="completedLessons">0<span class="stat-unit">/0</span></div>
-                <div class="stat-label-bottom">Activities completed</div>
-                <div class="stat-progress">
-                    <div class="stat-progress-fill" id="lessonsBar" data-width="0"></div>
-                </div>
-            </div>
-            <div class="stat-card fu e5">
-                <div class="stat-header">
-                    <span>Assessments Done</span>
-                    <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
-                </div>
-                <div class="stat-value" id="completedAssessments">0<span class="stat-unit">/0</span></div>
-                <div class="stat-label-bottom">Assessments completed</div>
-                <div class="stat-progress">
-                    <div class="stat-progress-fill" id="assessmentsBar" data-width="0"></div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-header"><span>Assessments Completed</span><div class="stat-icon"><i class="fas fa-clipboard-check"></i></div></div>
+                <div class="stat-value">{{ progress.assessments.completed }}<span class="stat-unit">/{{ progress.assessments.total }}</span></div>
+                <div class="stat-label-bottom">Python and Java</div>
+                <div class="stat-progress"><div class="stat-progress-fill" data-pct="{{ progress.assessments.percentage }}"></div></div>
             </div>
         </section>
 
-        <!-- Progress by Assessment Type -->
-        <section class="section-card fu e6">
+        <section class="section-card fu e3">
             <div class="section-header">
-                <h3><i class="fas fa-clipboard-check"></i> Assessment Progress</h3>
-                <span class="section-badge"><i class="fas fa-tasks me-1"></i> Python · Java</span>
+                <h3><i class="fas fa-code"></i>Progress by Language</h3>
+                <span class="section-badge">{{ progress.by_language|length }} Languages</span>
             </div>
             <div class="section-content">
                 <ul class="detail-list">
-                    <li class="detail-item">
+                    {% set category_state = namespace(value='') %}
+                    {% for item in progress.by_language %}
+                    {% if item.category != category_state.value %}
+                    <li class="detail-group-heading{% if category_state.value %} detail-group-heading--separated{% endif %}">{{ item.category }}</li>
+                    {% set category_state.value = item.category %}
+                    {% endif %}
+                    <li class="detail-item{% if loop.nextitem is defined and loop.nextitem.category != item.category %} detail-item--group-end{% endif %}">
                         <div class="detail-left">
-                            <div class="detail-icon py"><i class="fab fa-python"></i></div>
-                            <div class="detail-label">
-                                Python
-                                <small>Python assessments</small>
-                            </div>
+                            <div class="detail-icon {{ item.icon_class }}"><iconify-icon icon="{{ item.icon }}"></iconify-icon></div>
+                            <div class="detail-label">{{ item.name }}</div>
                         </div>
                         <div class="detail-right">
-                            <span class="detail-value" id="pythonCompleted">0/0</span>
-                            <div class="mini-meter"><div class="mini-meter-fill py" id="pythonMiniMeter"></div></div>
-                            <span class="detail-percent" id="pythonProgressPercent">0%</span>
+                            <div class="mini-meter"><div class="mini-meter-fill {{ item.icon_class }}" data-pct="{{ item.percentage }}"></div></div>
+                            <div class="detail-value">{{ item.completed }}/{{ item.total }}</div>
+                            <div class="detail-percent">{{ item.percentage }}%</div>
                         </div>
                     </li>
-                    <li class="detail-item">
-                        <div class="detail-left">
-                            <div class="detail-icon java"><i class="fab fa-java"></i></div>
-                            <div class="detail-label">
-                                Java
-                                <small>Java assessments</small>
-                            </div>
-                        </div>
-                        <div class="detail-right">
-                            <span class="detail-value" id="javaCompleted">0/0</span>
-                            <div class="mini-meter"><div class="mini-meter-fill java" id="javaMiniMeter"></div></div>
-                            <span class="detail-percent" id="javaProgressPercent">0%</span>
-                        </div>
-                    </li>
+                    {% endfor %}
                 </ul>
-            </div>
-        </section>
-
-        <!-- Progress by Activity Type -->
-        <section class="section-card fu e7">
-            <div class="section-header">
-                <h3><i class="fas fa-code"></i> Activities Progress</h3>
-                <span class="section-badge" id="activitiesUnlockBadge"><i class="fas fa-lock me-1"></i> Locked until assessments are complete</span>
-            </div>
-            <div class="section-content">
-                <ul class="detail-list">
-                    <li class="detail-item">
-                        <div class="detail-left">
-                            <div class="detail-icon php"><i class="fab fa-php"></i></div>
-                            <div class="detail-label">
-                                PHP
-                                <small>Web scripting activities</small>
-                            </div>
-                        </div>
-                        <div class="detail-right">
-                            <span class="detail-value" id="phpCompleted">0/0</span>
-                            <div class="mini-meter"><div class="mini-meter-fill php" id="phpMiniMeter"></div></div>
-                            <span class="detail-percent" id="phpProgressPercent">0%</span>
-                        </div>
-                    </li>
-                    <li class="detail-item">
-                        <div class="detail-left">
-                            <div class="detail-icon js"><i class="fab fa-js"></i></div>
-                            <div class="detail-label">
-                                JavaScript
-                                <small>Interactive web activities</small>
-                            </div>
-                        </div>
-                        <div class="detail-right">
-                            <span class="detail-value" id="jsCompleted">0/0</span>
-                            <div class="mini-meter"><div class="mini-meter-fill js" id="jsMiniMeter"></div></div>
-                            <span class="detail-percent" id="jsProgressPercent">0%</span>
-                        </div>
-                    </li>
-                    <li class="detail-item">
-                        <div class="detail-left">
-                            <div class="detail-icon cpp"><iconify-icon icon="logos:cplusplus"></iconify-icon></div>
-                            <div class="detail-label">
-                                C++
-                                <small>Systems programming activities</small>
-                            </div>
-                        </div>
-                        <div class="detail-right">
-                            <span class="detail-value" id="cppCompleted">0/0</span>
-                            <div class="mini-meter"><div class="mini-meter-fill cpp" id="cppMiniMeter"></div></div>
-                            <span class="detail-percent" id="cppProgressPercent">0%</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="section-card fu e8">
-            <div class="section-header">
-                <h3><i class="fas fa-clipboard-check"></i> Auto-Grading Results</h3>
-                <span class="section-badge">Live</span>
-            </div>
-            <div class="section-content" id="autoGradingResults">
-                <p class="text-muted mb-0">Loading results...</p>
-            </div>
-        </section>
-
-        <!-- Detailed Progress -->
-        <section class="section-card fu e7">
-            <div class="section-header">
-                <h3><i class="fas fa-bars-progress"></i> Detailed Progress</h3>
-                <span class="section-badge"><i class="fas fa-signal me-1"></i> Live</span>
-            </div>
-            <div class="progress-grid">
-                <!-- PHP -->
-                <div class="progress-block">
-                    <div class="progress-block-head">
-                        <h4><i class="fab fa-php" style="color: var(--blue);"></i> PHP</h4>
-                        <span class="pct-label php" id="phpPctLabel">0%</span>
-                    </div>
-                    <div class="meter"><div class="meter-fill php" id="phpMeter"></div></div>
-                    <div class="progress-block-sub" id="phpSub">0 of 0 activities completed</div>
-                </div>
-                <!-- JavaScript -->
-                <div class="progress-block">
-                    <div class="progress-block-head">
-                        <h4><i class="fab fa-js" style="color: #c48a20;"></i> JavaScript</h4>
-                        <span class="pct-label js" id="jsPctLabel">0%</span>
-                    </div>
-                    <div class="meter"><div class="meter-fill js" id="jsMeter"></div></div>
-                    <div class="progress-block-sub" id="jsSub">0 of 0 activities completed</div>
-                </div>
-                <!-- C++ -->
-                <div class="progress-block">
-                    <div class="progress-block-head">
-                        <h4><iconify-icon icon="logos:cplusplus" style="color: var(--coral);"></iconify-icon> C++</h4>
-                        <span class="pct-label cpp" id="cppPctLabel">0%</span>
-                    </div>
-                    <div class="meter"><div class="meter-fill cpp" id="cppMeter"></div></div>
-                    <div class="progress-block-sub" id="cppSub">0 of 0 activities completed</div>
-                </div>
-                <!-- Python -->
-                <div class="progress-block">
-                    <div class="progress-block-head">
-                        <h4><i class="fab fa-python" style="color: var(--green-main);"></i> Python</h4>
-                        <span class="pct-label py" id="pythonPctLabel">0%</span>
-                    </div>
-                    <div class="meter"><div class="meter-fill py" id="pythonMeter"></div></div>
-                    <div class="progress-block-sub" id="pythonSub">0 of 0 assessments completed</div>
-                </div>
-                <!-- Java -->
-                <div class="progress-block">
-                    <div class="progress-block-head">
-                        <h4><i class="fab fa-java" style="color: var(--blue);"></i> Java</h4>
-                        <span class="pct-label java" id="javaPctLabel">0%</span>
-                    </div>
-                    <div class="meter"><div class="meter-fill java" id="javaMeter"></div></div>
-                    <div class="progress-block-sub" id="javaSub">0 of 0 assessments completed</div>
-                </div>
-                <!-- Overall -->
-                <div class="progress-block">
-                    <div class="progress-block-head">
-                        <h4><i class="fas fa-flag-checkered" style="color: var(--green-main);"></i> Overall</h4>
-                        <span class="pct-label overall" id="overallPctLabel">0%</span>
-                    </div>
-                    <div class="meter"><div class="meter-fill overall" id="completionMeter"></div></div>
-                    <div class="progress-block-sub" id="overallSub">Keep going! You're doing great.</div>
-                </div>
             </div>
         </section>
     </main>
 </div>
 
-<!-- Toast Container -->
 <div class="toast-box" id="toastBox"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* ===== SIDEBAR ===== */
-    var sidebar = document.getElementById('sidebar');
-    var mainContent = document.getElementById('mainContent');
-    var isExpanded = window.innerWidth > 768;
-
-    function applyState() {
-        if (isExpanded) {
-            sidebar.classList.remove('collapsed');
-            mainContent.classList.remove('shifted');
-        } else {
-            sidebar.classList.add('collapsed');
-            mainContent.classList.add('shifted');
-        }
+    // ===== THEME (dashboard behavior) =====
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('bl-theme', t);
     }
-    function collapseSidebar() { isExpanded = false; applyState(); }
-    function expandSidebar() { isExpanded = true; applyState(); }
-    function checkSidebarState() {
-        if (window.innerWidth <= 768) {
-            isExpanded = false;
-        }
-        applyState();
-    }
-    window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768 && isExpanded) { isExpanded = false; applyState(); }
-    });
-    applyState();
-
-    /* ===== THEME TOGGLE ===== */
+    applyTheme(localStorage.getItem('bl-theme') || 'light');
     function toggleTheme() {
-        var html = document.documentElement;
-        var current = html.getAttribute('data-theme');
-        if (current === 'dark') {
-            html.removeAttribute('data-theme');
-            localStorage.setItem('blocklearn-theme', 'light');
-        } else {
-            html.setAttribute('data-theme', 'dark');
-            localStorage.setItem('blocklearn-theme', 'dark');
+        const cur = document.documentElement.getAttribute('data-theme');
+        applyTheme(cur === 'dark' ? 'light' : 'dark');
+    }
+
+    // ===== SIDEBAR =====
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    function collapseSidebar() {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('shifted');
+        localStorage.setItem('bl-sidebar', 'collapsed');
+    }
+    function expandSidebar() {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('shifted');
+        localStorage.setItem('bl-sidebar', 'expanded');
+    }
+    if (localStorage.getItem('bl-sidebar') === 'collapsed') collapseSidebar();
+
+    // ===== ACTIVITIES SUBMENU (dashboard UI) =====
+    const activitiesToggle = document.getElementById('activitiesToggle');
+    const activitiesSubmenu = document.getElementById('activitiesSubmenu');
+    activitiesToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = activitiesSubmenu.classList.toggle('open');
+        activitiesToggle.classList.toggle('open', open);
+        activitiesToggle.setAttribute('aria-expanded', open);
+    });
+
+    // ===== DROPDOWNS =====
+    const notifDropdown = document.getElementById('notifDropdown');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const profileTrigger = document.getElementById('profileTrigger');
+
+    function toggleNotifications(e) {
+        e.stopPropagation();
+        profileDropdown.classList.remove('open');
+        profileTrigger.classList.remove('open');
+        notifDropdown.classList.toggle('open');
+    }
+    function toggleProfile(e) {
+        e.stopPropagation();
+        notifDropdown.classList.remove('open');
+        profileDropdown.classList.toggle('open');
+        profileTrigger.classList.toggle('open');
+    }
+    document.addEventListener('click', (e) => {
+        if (!notifDropdown.contains(e.target) && !e.target.closest('.notif-btn')) {
+            notifDropdown.classList.remove('open');
         }
-    }
-    (function() {
-        var saved = localStorage.getItem('blocklearn-theme');
-        if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    })();
-
-    /* ===== NOTIFICATIONS ===== */
-    function toggleNotifications() {
-        const dd = document.getElementById('notifDropdown');
-        document.getElementById('profileDropdown').classList.remove('open');
-        document.getElementById('profileTrigger').classList.remove('open');
-        dd.classList.toggle('open');
-    }
-    function markAllRead() {
-        document.querySelectorAll('.notif-item.unread').forEach(i => i.classList.remove('unread'));
-        updateNotifBadge();
-        showToast('All notifications marked as read', 'success');
-    }
-    function updateNotifBadge() {
-        const unread = document.querySelectorAll('.notif-item.unread').length;
-        const badge = document.getElementById('notifBadge');
-        if (unread > 0) { badge.textContent = unread; badge.classList.remove('hidden'); }
-        else { badge.classList.add('hidden'); }
-    }
-    function loadNotifications() {
-        fetch('/get_notifications')
-            .then(r => r.json())
-            .then(d => {
-                const list = document.getElementById('notifList');
-                if (d.success && d.notifications && d.notifications.length > 0) {
-                    list.innerHTML = d.notifications.map(n => {
-                        const cls = n.is_read ? '' : ' unread';
-                        const scoreHtml = n.score != null ? `<span class="score-badge">${n.score}%</span>` : '';
-                        return `<div class="notif-item${cls}" data-id="${n.id}">
-                            <div class="notif-title">${n.title}</div>
-                            <div class="notif-message">${n.message}</div>
-                            ${scoreHtml}
-                            <span class="notif-time">${n.time_ago}</span>
-                        </div>`;
-                    }).join('');
-                    updateNotifBadge();
-                } else {
-                    list.innerHTML = `<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>`;
-                }
-            })
-            .catch(() => {
-                document.getElementById('notifList').innerHTML = `<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>`;
-            });
-    }
-
-    // ===== PROFILE DROPDOWN =====
-    function toggleProfile() {
-        const dd = document.getElementById('profileDropdown');
-        document.getElementById('notifDropdown').classList.remove('open');
-        dd.classList.toggle('open');
-        document.getElementById('profileTrigger').classList.toggle('open');
-    }
-
-    // ===== CLOSE ON OUTSIDE CLICK =====
-    document.addEventListener('click', function(e) {
-        const nb = document.getElementById('notifBtn');
-        const nd = document.getElementById('notifDropdown');
-        const pt = document.getElementById('profileTrigger');
-        const pd = document.getElementById('profileDropdown');
-        if (!nb.contains(e.target) && !nd.contains(e.target)) nd.classList.remove('open');
-        if (!pt.contains(e.target) && !pd.contains(e.target)) { pd.classList.remove('open'); pt.classList.remove('open'); }
+        if (!profileDropdown.contains(e.target) && !profileTrigger.contains(e.target)) {
+            profileDropdown.classList.remove('open');
+            profileTrigger.classList.remove('open');
+        }
     });
 
     // ===== TOAST =====
-    function showToast(message, type) {
+    function showToast(msg, type = 'success') {
         const box = document.getElementById('toastBox');
-        const toast = document.createElement('div');
-        toast.className = `toast-msg ${type || 'success'}`;
-        const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
-        toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
-        box.appendChild(toast);
-        setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 3000);
+        const el = document.createElement('div');
+        el.className = 'toast-msg ' + type;
+        el.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i>${msg}`;
+        box.appendChild(el);
+        setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3000);
     }
 
-    // ===== CIRCULAR PROGRESS =====
-    function setCircularProgress(percent) {
-        const fill = document.getElementById('circularFill');
-        const pctText = document.getElementById('circularPct');
-        const circumference = 2 * Math.PI * 42; // ~264
-        const offset = circumference - (percent / 100) * circumference;
-        fill.style.strokeDasharray = circumference;
-        fill.style.strokeDashoffset = offset;
-        pctText.textContent = percent + '%';
-    }
+    async function loadNotifications() {
+        const list = document.getElementById('notifList');
+        const badge = document.getElementById('notifBadge');
+        try {
+            const response = await fetch('/get_notifications', { headers: { 'Accept': 'application/json' } });
+            if (!response.ok) throw new Error('Unable to load notifications');
+            const data = await response.json();
+            const notifications = Array.isArray(data.notifications) ? data.notifications : [];
+            list.replaceChildren();
 
-    // ===== ANIMATE PROGRESS BARS =====
-    function animateBars() {
-        document.querySelectorAll('.stat-progress-fill').forEach(bar => {
-            const w = bar.getAttribute('data-width');
-            if (w) bar.style.width = w + '%';
+            if (!notifications.length) {
+                const empty = document.createElement('div');
+                empty.className = 'notif-empty';
+                empty.innerHTML = '<i class="fas fa-inbox"></i><p>No notifications yet</p>';
+                list.appendChild(empty);
+            } else {
+                notifications.slice(0, 8).forEach(notification => {
+                    const item = document.createElement('div');
+                    const title = document.createElement('div');
+                    const message = document.createElement('div');
+                    const time = document.createElement('span');
+                    item.className = 'notif-item' + (notification.is_read ? '' : ' unread');
+                    title.className = 'notif-title';
+                    title.textContent = notification.title || 'Notification';
+                    message.className = 'notif-message';
+                    message.textContent = notification.message || '';
+                    time.className = 'notif-time';
+                    time.textContent = notification.time_ago || notification.created_at || '';
+                    item.append(title, message, time);
+                    list.appendChild(item);
+                });
+            }
+
+            const unread = Number(data.unread_count) || 0;
+            badge.textContent = unread;
+            badge.classList.toggle('hidden', unread === 0);
+        } catch (error) {
+            console.error('Notification refresh failed:', error);
+            list.replaceChildren();
+            const message = document.createElement('div');
+            message.className = 'notif-empty';
+            message.textContent = 'Unable to load notifications.';
+            list.appendChild(message);
+        }
+    }
+    async function markAllRead() {
+        try {
+            const response = await fetch('/mark_notifications_read', { method: 'POST' });
+            if (!response.ok) throw new Error('Unable to update notifications');
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'Unable to update notifications');
+            await loadNotifications();
+            showToast('All notifications marked as read');
+        } catch (error) {
+            console.error('Notification update failed:', error);
+            showToast('Unable to mark notifications as read.', 'error');
+        }
+    }
+    loadNotifications();
+    window.setInterval(() => {
+        if (!document.hidden) loadNotifications();
+    }, 15000);
+
+    // ===== PROFILE INFO (replace with your real session data) =====
+    function setUser(name, grade) {
+        const initial = (name || 'S').charAt(0).toUpperCase();
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('profileRole').textContent = grade;
+        document.getElementById('pdName').textContent = name;
+        document.getElementById('pdGrade').textContent = grade;
+        document.getElementById('profileAvatar').textContent = initial;
+        document.getElementById('pdAvatar').textContent = initial;
+    }
+    // setUser('Juan Dela Cruz', 'Grade 11 - ICT');
+
+    // ===== PROGRESS ANIMATIONS =====
+    const OVERALL_PCT = Number(document.getElementById('cpPct').textContent.replace('%', ''));
+
+    function animateProgress() {
+        const cpFill = document.getElementById('cpFill');
+        const cpPct = document.getElementById('cpPct');
+        cpFill.style.strokeDashoffset = 264 - (264 * OVERALL_PCT / 100);
+        const dur = 1200, start = performance.now();
+        (function tick(now) {
+            const p = Math.min((now - start) / dur, 1);
+            cpPct.textContent = Math.round(OVERALL_PCT * p) + '%';
+            if (p < 1) requestAnimationFrame(tick);
+        })(start);
+
+        document.querySelectorAll('[data-pct]').forEach(el => {
+            el.style.width = el.dataset.pct + '%';
         });
     }
-
-    // ===== SET METER =====
-    function setMeter(id, percent) {
-        const el = document.getElementById(id);
-        if (el) el.style.width = Math.min(percent, 100) + '%';
-    }
-
-    // ===== LOAD PROGRESS DATA =====
-    let progressRequest;
-    function loadProgress() {
-        if (progressRequest) progressRequest.abort();
-        progressRequest = new AbortController();
-        fetch('/get_activity_progress', { signal: progressRequest.signal })
-            .then(r => {
-                if (!r.ok) throw new Error(`Progress request failed (${r.status})`);
-                return r.json();
-            })
-            .then(d => {
-                if (!d.success) throw new Error(d.message || 'Progress data was not returned');
-
-                const percent = d.overall_percentage || 0;
-                const activitiesCompleted = d.completed_activities || 0;
-                const assessmentsCompleted = d.completed_assessments || 0;
-                const totalActivities = d.total_activities || 0;
-                const totalAssessments = d.total_assessments || 0;
-                document.getElementById('progressPercent').innerHTML = percent + '<span class="stat-unit">%</span>';
-                document.getElementById('completedLessons').innerHTML = activitiesCompleted + '<span class="stat-unit">/' + totalActivities + '</span>';
-                document.getElementById('completedAssessments').innerHTML = assessmentsCompleted + '<span class="stat-unit">/' + totalAssessments + '</span>';
-                document.getElementById('progressBar').setAttribute('data-width', percent);
-                document.getElementById('lessonsBar').setAttribute('data-width', totalActivities ? Math.round(activitiesCompleted / totalActivities * 100) : 0);
-                document.getElementById('assessmentsBar').setAttribute('data-width', totalAssessments ? Math.round(assessmentsCompleted / totalAssessments * 100) : 0);
-                setCircularProgress(percent);
-                setMeter('completionMeter', percent);
-                document.getElementById('overallPctLabel').textContent = percent + '%';
-                const unlockBadge = document.getElementById('activitiesUnlockBadge');
-                if (unlockBadge) {
-                    unlockBadge.innerHTML = d.activities_unlocked
-                        ? '<i class="fas fa-unlock me-1"></i> Unlocked'
-                        : '<i class="fas fa-lock me-1"></i> Locked until assessments are complete';
-                }
-                if (percent === 100) {
-                    document.getElementById('overallSub').textContent = 'All activities and assessments completed! Amazing!';
-                } else if (assessmentsCompleted === totalAssessments) {
-                    document.getElementById('overallSub').textContent = 'Assessments complete! Activities are unlocked.';
-                } else if (percent > 0) {
-                    document.getElementById('overallSub').textContent = 'Good start! Keep going!';
-                } else {
-                    document.getElementById('overallSub').textContent = 'Start an assessment to see your progress here.';
-                }
-
-                // PHP
-                const phpC = d.php?.completed || 0;
-                const phpT = d.php?.total || 0;
-                const phpPct = phpT ? Math.round(phpC / phpT * 100) : 0;
-                document.getElementById('phpCompleted').innerText = `${phpC}/${phpT}`;
-                setMeter('phpMeter', phpPct);
-                setMeter('phpMiniMeter', phpPct);
-                document.getElementById('phpPctLabel').textContent = phpPct + '%';
-                document.getElementById('phpProgressPercent').textContent = phpPct + '%';
-                document.getElementById('phpSub').textContent = phpC + ' of ' + phpT + ' PHP activities completed';
-
-                // JavaScript
-                const jsC = d.javascript?.completed || 0;
-                const jsT = d.javascript?.total || 0;
-                const jsPct = jsT ? Math.round(jsC / jsT * 100) : 0;
-                document.getElementById('jsCompleted').innerText = `${jsC}/${jsT}`;
-                setMeter('jsMeter', jsPct);
-                setMeter('jsMiniMeter', jsPct);
-                document.getElementById('jsPctLabel').textContent = jsPct + '%';
-                document.getElementById('jsProgressPercent').textContent = jsPct + '%';
-                document.getElementById('jsSub').textContent = jsC + ' of ' + jsT + ' JavaScript activities completed';
-
-                // C++
-                const cppC = d.cpp?.completed || 0;
-                const cppT = d.cpp?.total || 0;
-                const cppPct = cppT ? Math.round(cppC / cppT * 100) : 0;
-                document.getElementById('cppCompleted').innerText = `${cppC}/${cppT}`;
-                setMeter('cppMeter', cppPct);
-                setMeter('cppMiniMeter', cppPct);
-                document.getElementById('cppPctLabel').textContent = cppPct + '%';
-                document.getElementById('cppProgressPercent').textContent = cppPct + '%';
-                document.getElementById('cppSub').textContent = cppC + ' of ' + cppT + ' C++ activities completed';
-
-                // Python (Assessments)
-                const pyC = d.python?.completed || 0;
-                const pyT = d.python?.total || 0;
-                const pyPct = pyT ? Math.round(pyC / pyT * 100) : 0;
-                document.getElementById('pythonCompleted').innerText = `${pyC}/${pyT}`;
-                setMeter('pythonMeter', pyPct);
-                setMeter('pythonMiniMeter', pyPct);
-                document.getElementById('pythonPctLabel').textContent = pyPct + '%';
-                document.getElementById('pythonProgressPercent').textContent = pyPct + '%';
-                document.getElementById('pythonSub').textContent = pyC + ' of ' + pyT + ' Python assessments completed';
-
-                // Java (Assessments)
-                const javaC = d.java?.completed || 0;
-                const javaT = d.java?.total || 0;
-                const javaPct = javaT ? Math.round(javaC / javaT * 100) : 0;
-                document.getElementById('javaCompleted').innerText = `${javaC}/${javaT}`;
-                setMeter('javaMeter', javaPct);
-                setMeter('javaMiniMeter', javaPct);
-                document.getElementById('javaPctLabel').textContent = javaPct + '%';
-                document.getElementById('javaProgressPercent').textContent = javaPct + '%';
-                document.getElementById('javaSub').textContent = javaC + ' of ' + javaT + ' Java assessments completed';
-            })
-            .catch(err => {
-                if (err.name !== 'AbortError') console.error(err);
-            });
-
-        // Animate stat bars after a short delay
-        setTimeout(animateBars, 600);
-    }
-
-    function loadAutoGradingResults() {
-        fetch('/get_progress_results')
-            .then(r => {
-                if (!r.ok) throw new Error(`Progress results request failed (${r.status})`);
-                return r.json();
-            })
-            .then(data => {
-                const container = document.getElementById('autoGradingResults');
-                if (!data.success || !data.results) {
-                    throw new Error(data.message || 'Progress results were not returned');
-                }
-                if (!data.results.length) {
-                    container.innerHTML = '<p class="text-muted mb-0">No assessments or activities available.</p>';
-                    return;
-                }
-                container.innerHTML = `<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Item</th><th>Language</th><th>Type</th><th>Score</th><th>Status</th></tr></thead><tbody>${data.results.map(result => {
-                    const completed = result.status === 'COMPLETED';
-                    const score = completed ? `${result.score}/${result.max_score}` : '-';
-                    const badge = completed ? 'bg-success' : 'bg-secondary';
-                    return `<tr><td>${result.item_name}</td><td>${result.language}</td><td>${result.item_type}</td><td><strong>${score}</strong></td><td><span class="badge ${badge}">${result.status}</span></td></tr>`;
-                }).join('')}</tbody></table></div>`;
-            })
-            .catch(err => {
-                console.error('Error loading progress results:', err);
-                document.getElementById('autoGradingResults').innerHTML = '<p class="text-muted mb-0">Unable to load results.</p>';
-            });
-    }
-
-    // ===== LOAD USER INFO =====
-    function loadUserInfo() {
-        fetch('/student_profile_data')
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    const name = d.full_name || d.lrn || 'Student';
-                    const initial = name.charAt(0).toUpperCase();
-                    const grade = d.grade_level || 'Grade 11';
-                    document.getElementById('sidebarAvatar').innerText = initial;
-                    document.getElementById('sidebarName').innerText = name;
-                    document.getElementById('sidebarGrade').innerText = grade + ' - ICT';
-                    document.getElementById('triggerName').innerText = name;
-                    document.getElementById('triggerRole').innerText = grade;
-                    document.getElementById('pdName').innerText = name;
-                    document.getElementById('pdGrade').innerText = grade + ' - ICT';
-                }
-            })
-            .catch(err => console.error('Error loading user info:', err));
-    }
-
-    // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', function() {
-        checkSidebarState();
-        loadProgress();
-        loadNotifications();
-        loadUserInfo();
-        loadAutoGradingResults();
-        window.autoGradingTimer = window.setInterval(loadAutoGradingResults, 2000);
-        window.progressRefreshTimer = window.setInterval(loadProgress, 2000);
-    });
-    window.addEventListener('resize', checkSidebarState);
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) loadProgress();
-    });
-    window.addEventListener('storage', function(event) {
-        if (event.key === 'progress_updated' || event.key === 'assessment_status_updated') {
-            loadProgress();
-        }
-    });
+    window.addEventListener('load', () => setTimeout(animateProgress, 300));
 </script>
 </body>
 </html>

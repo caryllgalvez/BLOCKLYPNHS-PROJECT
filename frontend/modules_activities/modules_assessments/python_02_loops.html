@@ -16,7 +16,7 @@
     --py-yellow:#ffd43b;
     --gold-warm:#e8a838;--gold-light:#fce9c5;--coral:#e06050;--coral-soft:#fce8e5;
     --blue:#4a90d9;--blue-soft:#e4eefb;--stone:#7f9e92;--stone-light:#a8bfb4;
-    --green-deep:#145a42;--green-main:#1f8a64;--green-soft:#e2f3ed;
+    --green-deep:#145a42;--green-main:#145a42;--green-soft:#e2f3ed;
     --border-fresh:#dde9e3;--card-white:#fff;--bg-main:#f0f6f3;
     --text-primary:#1a463a;--text-secondary:#4a6b5e;
     --shadow-sm:0 4px 16px rgba(20,90,66,.06);--shadow-md:0 8px 28px rgba(20,90,66,.08);
@@ -49,6 +49,7 @@
   .step-chip.active .num{background:var(--py-main);color:#fff}
   .step-chip.done{color:var(--green-main)}
   .step-chip.done .num{background:var(--green-main);color:#fff}
+  .step-chip.locked{opacity:.5;cursor:not-allowed}
 
   .section{background:var(--card-glass);backdrop-filter:blur(12px);border-radius:var(--radius-lg);
     border:1px solid var(--glass-border);box-shadow:var(--shadow-sm);padding:1.6rem 1.8rem;
@@ -205,7 +206,7 @@
       <div class="module-meta">
         <span><i class="fas fa-clock"></i> 25 mins</span>
         <span><i class="fas fa-signal"></i> Intermediate</span>
-        <span><i class="fas fa-star"></i> 25 points</span>
+        <span><i class="fas fa-star"></i> 10 points</span>
         <span><i class="fas fa-code"></i> for / while / range</span>
       </div>
     </div>
@@ -250,6 +251,9 @@
 5</div>
 
     <ul class="obj-list" style="margin-top:10px">
+<div style="display:flex;justify-content:flex-end;padding:1rem 20px 2rem;">
+  <button class="btn-nav secondary" onclick="goStep(0)"><i class="fas fa-arrow-up"></i> Back to Start</button>
+</div>
       <li><i class="fas fa-play"></i> <code>range(1, 6)</code> produces 1, 2, 3, 4, 5 — the stop value <code>6</code> is <strong>not included</strong>.</li>
       <li><i class="fas fa-indent"></i> <code>print(i)</code> is indented → it belongs to the loop body.</li>
       <li><i class="fas fa-redo"></i> Each iteration, <code>i</code> takes the next value from <code>range()</code>.</li>
@@ -535,7 +539,7 @@ const MODULE = {
     }
   ],
   assessment: {
-    points: 25,
+    points: 10,
     expectedOutput: '1\n2\n3\n4\n5',
     taskDescription: 'Use a Python for loop to print the numbers 1 through 5, each on its own line.'
   }
@@ -549,6 +553,20 @@ let quizAnswers = [];
 let guidedWorkspace, independentWorkspace, assessmentWorkspace;
 let lastGeneratedCode = {};
 let assessmentResultData = null;
+const PROGRESS_KEY = 'blocklearn_assessment_' + MODULE.id;
+
+function saveProgress() {
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify({ currentStep, quizAnswers, assessmentResultData })); } catch (e) {}
+}
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null');
+    if (!saved || typeof saved !== 'object') return;
+    currentStep = Math.max(0, Math.min(Number(saved.currentStep) || 0, MODULE.steps.length - 1));
+    quizAnswers = Array.isArray(saved.quizAnswers) ? saved.quizAnswers : [];
+    assessmentResultData = saved.assessmentResultData || null;
+  } catch (e) {}
+}
 
 /* ============================================================
    STEPPER
@@ -559,13 +577,19 @@ function renderStepper() {
     let cls = 'step-chip';
     if (i === currentStep) cls += ' active';
     else if (i < currentStep) cls += ' done';
+    else if (i > currentStep) cls += ' locked';
     const num = i < currentStep ? '<i class="fas fa-check" style="font-size:.55rem"></i>' : (i + 1);
-    return `<button class="${cls}" onclick="goStep(${i})"><span class="num">${num}</span>${label}</button>`;
+    return `<button class="${cls}" ${i > currentStep ? 'disabled' : ''} onclick="goStep(${i}, true)"><span class="num">${num}</span>${label}</button>`;
   }).join('');
 }
 
-function goStep(n) {
+function goStep(n, fromStepper) {
   if (n < 0 || n >= MODULE.steps.length) return;
+  if (fromStepper && n > currentStep) {
+    showToast('Complete the current section first.', 'error');
+    return;
+  }
+  if (!fromStepper && n > currentStep + 1) return;
   if (n === 6 && quizAnswers.filter(a => a !== undefined).length < 3) {
     showToast('Please answer all quiz questions first.', 'error');
     return;
@@ -575,6 +599,7 @@ function goStep(n) {
     return;
   }
   currentStep = n;
+  saveProgress();
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   const target = document.querySelector(`.section[data-step="${n}"]`);
   if (target) target.classList.add('active');
@@ -937,6 +962,7 @@ function answerQuiz(qIdx, optIdx) {
     fb.innerHTML = `<i class="fas fa-times-circle"></i> ${q.explain}`;
     quizAnswers[qIdx] = false;
   }
+  saveProgress();
   if (quizAnswers.filter(a => a !== undefined).length === MODULE.quiz.length) {
     document.getElementById('quizNextBtn').disabled = false;
   }
@@ -967,39 +993,31 @@ async function submitAssessment() {
   }
   const codeBlocks = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(assessmentWorkspace));
   const generated = lastGeneratedCode.assessment || '';
-  const points = MODULE.assessment.points;
-  const score = 100;
-  const passed = score >= 75;
 
   try {
-    const res = await fetch('/submit_assessment', {
+    const res = await fetch('/submit_module_assessment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        language: 'python',
-        assessment_number: 2,
+        language: MODULE.language,
         module_id: MODULE.id,
         code_blocks: codeBlocks,
         generated_code: generated,
-        output: out,
-        expected_output: expected,
-        score: score,
-        max_points: points,
-        status: passed ? 'passed' : 'failed'
+        output: out
       })
     });
     const data = await res.json();
     if (!data.success) { showToast(data.message || 'Failed to save assessment.', 'error'); return; }
+    const score = data.score;
+    const passed = data.passed;
     assessmentResultData = { score, passed, out, expected };
+    saveProgress();
     renderAssessmentResult();
     document.getElementById('completionBtn').disabled = false;
     try { localStorage.setItem('progress_updated', Date.now().toString()); } catch(e) {}
     showToast(`Score: ${score}/100 · ${passed ? 'PASSED' : 'FAILED'}`, passed ? 'success' : 'error');
   } catch (e) {
-    assessmentResultData = { score, passed, out, expected };
-    renderAssessmentResult();
-    document.getElementById('completionBtn').disabled = false;
-    showToast('Saved locally (server unreachable).', 'error');
+    showToast('Could not save your assessment. Check your connection and try again.', 'error');
   }
 }
 
@@ -1031,6 +1049,7 @@ function retryAssessment() {
   document.getElementById('assessmentResult').innerHTML = '';
   document.getElementById('completionBtn').disabled = true;
   assessmentResultData = null;
+  saveProgress();
   showToast('Assessment reset. Try again!', 'success');
 }
 
@@ -1086,8 +1105,14 @@ function showToast(msg, type) {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', function() {
+  loadProgress();
   renderStepper();
   renderQuiz();
+  if (assessmentResultData) {
+    renderAssessmentResult();
+    document.getElementById('completionBtn').disabled = false;
+  }
+  goStep(currentStep);
 });
 </script>
 </body>

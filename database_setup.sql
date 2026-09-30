@@ -21,6 +21,26 @@ CREATE TABLE IF NOT EXISTS students (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Student feedback submissions used by teacher and ICT feedback analytics.
+CREATE TABLE IF NOT EXISTS feedback (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    student_name VARCHAR(200),
+    student_lrn VARCHAR(50),
+    assessment_id INT NULL,
+    activity_id INT NULL,
+    module_id INT NULL,
+    language VARCHAR(30) NULL,
+    rating TINYINT UNSIGNED NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    comment TEXT NULL,
+    feedback_type ENUM('learning', 'technical') NOT NULL DEFAULT 'learning',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_feedback_student_type (student_id, feedback_type),
+    INDEX idx_feedback_type_created (feedback_type, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Teachers table
 CREATE TABLE IF NOT EXISTS teachers (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -65,19 +85,6 @@ CREATE TABLE IF NOT EXISTS assessments (
     UNIQUE KEY uq_assessment_language_number (language, assessment_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Activity scores are separate from assessment attempts.
-CREATE TABLE IF NOT EXISTS activities (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL,
-    activity_name VARCHAR(200) NOT NULL,
-    score SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-    code_blocks TEXT,
-    language VARCHAR(30),
-    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_student_activity (student_id, activity_name),
-    INDEX idx_activities_student (student_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- Student assessment submissions and scores
 CREATE TABLE IF NOT EXISTS assessment_attempts (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,6 +99,29 @@ CREATE TABLE IF NOT EXISTS assessment_attempts (
     FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     UNIQUE KEY uq_student_assessment_attempt (assessment_id, student_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Module final assessments are stored separately from the regular assessment catalog.
+CREATE TABLE IF NOT EXISTS module_assessment_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    module_id VARCHAR(100) NOT NULL,
+    language VARCHAR(20) NOT NULL,
+    module_number TINYINT UNSIGNED NOT NULL,
+    module_title VARCHAR(200) NOT NULL,
+    code_blocks TEXT NOT NULL,
+    generated_code TEXT,
+    output TEXT,
+    expected_output TEXT NOT NULL,
+    score SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    points_earned SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    max_points SMALLINT UNSIGNED NOT NULL DEFAULT 10,
+    status ENUM('passed', 'failed') NOT NULL,
+    submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_student_module_assessment (student_id, module_id),
+    INDEX idx_module_attempts_student (student_id),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ICT support tickets

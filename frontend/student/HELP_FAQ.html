@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help & FAQ · BlockLearn Studio</title>
+    <title>Help &amp; FAQ · BlockLearn Studio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- UPDATED: FA 6.4.0 (same as dashboard) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- ADDED: iconify (ginamit ng dashboard sidebar) -->
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* ===== DASHBOARD TOKENS ===== */
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -24,8 +23,8 @@
             --coral-soft: #fce8e5;
             --blue: #4a90d9;
             --blue-soft: #e4eefb;
-            --stone: #7f9e92;
-            --stone-light: #a8bfb4;
+            --stone: #52705f;                        /* FIX: AA contrast */
+            --stone-light: #5f7d70;                  /* FIX: AA contrast */
             --border-fresh: #dde9e3;
             --card-white: #ffffff;
             --bg-main: #f0f6f3;
@@ -64,8 +63,17 @@
             --greeting-overlay: rgba(255,255,255,0.1);
             --search-bg: var(--card-white);
             --dropdown-z-index: 99999;
+            --green-on-soft: var(--green-deep);      /* FIX: badge text token */
+            --gold-text: #9a7020;
+            --green-accent: var(--green-main);
+            --toast-bg: #1a463a;
+            --html-soft: #fce4d6;                    /* FIX: tokenized FAQ tags */
+            --html-text: #c04a2a;
+            --danger-soft: #fee2e2;
+            --danger-text: #991b1b;
         }
 
+        /* ===== DARK MODE (dashboard) ===== */
         [data-theme="dark"] {
             --bg-main: #0f1f19;
             --text-primary: #d8ede5;
@@ -85,7 +93,8 @@
             --gold-light: #2e2510;
             --coral-soft: #2e1a16;
             --blue-soft: #152535;
-            --stone-light: #5a7a6d;
+            --stone: #7fa895;
+            --stone-light: #8fb8a8;
             --grid-line: rgba(40,80,60,0.25);
             --blob-opacity: 0.15;
             --sidebar-text: #8fb8a8;
@@ -103,6 +112,14 @@
             --chart-tick: #5a7a6d;
             --greeting-overlay: rgba(255,255,255,0.06);
             --search-bg: #1a3329;
+            --green-on-soft: #4ad9a0;
+            --gold-text: #e0b45c;
+            --green-accent: #4ad9a0;
+            --toast-bg: #21493a;
+            --html-soft: #3a2418;
+            --html-text: #f0a080;
+            --danger-soft: #3a1a1a;
+            --danger-text: #f08080;
         }
 
         body {
@@ -114,7 +131,9 @@
             transition: background 0.4s ease, color 0.4s ease;
         }
 
-        /* ===== BACKGROUND ===== */
+        :focus-visible { outline: 2px solid var(--green-accent); outline-offset: 2px; }
+
+        /* ===== BACKGROUND (dashboard) ===== */
         .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-layer::before {
             content: ''; position: absolute; inset: 0;
@@ -140,7 +159,7 @@
 
         .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
-        /* ===== SIDEBAR ===== (COPIED FROM DASHBOARD — logo image version) */
+        /* ===== SIDEBAR (dashboard) ===== */
         .sidebar {
             width: var(--sidebar-w);
             background: linear-gradient(175deg, #14423a 0%, #185a48 40%, #1a6850 100%);
@@ -162,12 +181,12 @@
         .sidebar-logo {
             display: flex; align-items: center; gap: 0;
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 1rem 0.4rem 1rem 0.4rem;
+            padding: 1rem 0.4rem;
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
-        .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
         .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
+        .logo-full { display: flex; flex-direction: column; flex: 1; min-width: 0; transition: opacity 0.2s ease; }
         .logo-full h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; margin: 0; white-space: nowrap; color: #ffffff; }
         .logo-full h2 em { font-style: normal; color: var(--gold-warm); }
         .logo-full p { font-size: 0.56rem; opacity: 0.4; margin: 1px 0 0; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
@@ -181,7 +200,7 @@
 
         .toggle-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
-            color: #d8efe5; font-size: 0.9rem; width: 28px; height: 28px;
+            color: #d8efe5; font-size: 0.9rem; width: 34px; height: 34px;   /* FIX: touch target */
             border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
@@ -190,7 +209,7 @@
         .hamburger-wrap { display: none; padding: 0.4rem 0 0.2rem; justify-content: center; }
         .hamburger-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
-            color: #d8efe5; font-size: 0.85rem; width: 32px; height: 32px;
+            color: #d8efe5; font-size: 0.85rem; width: 36px; height: 36px;
             border-radius: 10px; cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center;
         }
@@ -200,14 +219,18 @@
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
         .sidebar.collapsed .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
-        .sidebar.collapsed .logo-mono { display: block; }
+        .sidebar.collapsed .logo-mono { display: flex; }
         .sidebar.collapsed .toggle-btn { display: none; }
         .sidebar.collapsed .hamburger-wrap { display: flex; }
         .sidebar.collapsed .nav-link-custom { justify-content: center; padding: 0.55rem 0; margin: 0 0.3rem; }
         .sidebar.collapsed .nav-link-custom i { font-size: 1.15rem; }
         .sidebar.collapsed .nav-text { display: none !important; }
         .sidebar.collapsed .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
+        .sidebar.collapsed .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
+        .sidebar.collapsed .sidebar-user-info { display: none !important; }
         .sidebar.collapsed .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
+        .sidebar.collapsed .activities-submenu { display: none !important; }
+        .sidebar.collapsed .activities-chevron { display: none; }
 
         .sidebar:not(.collapsed) .sidebar-logo { justify-content: space-between; }
         .sidebar:not(.collapsed) .logo-image { display: block; }
@@ -219,6 +242,8 @@
         .sidebar:not(.collapsed) .nav-link-custom i { font-size: 0.95rem; }
         .sidebar:not(.collapsed) .nav-text { display: inline !important; }
         .sidebar:not(.collapsed) .nav-section-label { height: auto; padding: 1.1rem 1.1rem 0.35rem; opacity: 1; }
+        .sidebar:not(.collapsed) .sidebar-user { justify-content: flex-start; padding: 0.9rem 1.1rem; }
+        .sidebar:not(.collapsed) .sidebar-user-info { display: block !important; }
 
         .nav-section-label {
             font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.5px;
@@ -232,20 +257,37 @@
             color: var(--sidebar-text); text-decoration: none;
             border-radius: var(--radius-sm); transition: all 0.25s ease;
             font-size: 0.86rem; font-weight: 500; position: relative;
-            white-space: nowrap;
+            white-space: nowrap; width: calc(100% - 0.8rem); border: 0;
+            background: transparent; cursor: pointer; text-align: left;
         }
         .nav-link-custom i { width: 22px; flex-shrink: 0; text-align: center; transition: all 0.25s; }
         .nav-link-custom iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; transition: all 0.25s; }
-        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
-        .sidebar.collapsed .nav-link-custom iconify-icon { font-size: 1.15rem; }
         .nav-link-custom:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
-        .nav-link-custom:hover i { transform: scale(1.12); }
+        .nav-link-custom:hover i,
+        .nav-link-custom:hover iconify-icon { transform: scale(1.12); }
+        .activities-chevron { margin-left: auto; font-size: 0.68rem !important; transition: transform 0.25s ease; }
+        .activities-toggle.open .activities-chevron { transform: rotate(180deg); }
+        .activities-submenu { display: none; padding: 0.15rem 0 0.3rem 2.55rem; }
+        .activities-submenu.open { display: block; }
+        .activities-submenu-label {
+            padding: 0.45rem 0.65rem 0.2rem; color: var(--sidebar-section);
+            font-size: 0.52rem; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+        .activities-submenu a {
+            display: block; padding: 0.38rem 0.65rem; color: var(--sidebar-text);
+            text-decoration: none; border-radius: 8px; font-size: 0.76rem;
+            transition: all 0.2s ease;
+        }
+        .activities-submenu a:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .nav-link-custom.active {
             background: var(--card-white); color: #145a42; font-weight: 650;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             border-radius: var(--radius-sm);
         }
-        .nav-link-custom.active i { color: var(--green-main); }
+        .nav-link-custom.active i,
+        .nav-link-custom.active iconify-icon { color: var(--green-accent); }
+        [data-theme="dark"] .nav-link-custom.active { color: var(--green-accent); }   /* FIX: readable in dark */
         .nav-badge {
             position: absolute; top: 5px; left: 24px;
             width: 7px; height: 7px; background: var(--coral);
@@ -258,7 +300,22 @@
             50% { transform: scale(1.5); opacity: 0.6; }
         }
 
-        /* ===== MAIN CONTENT ===== */
+        .sidebar-user {                                 /* FIX: added (dashboard parity) */
+            display: flex; align-items: center; gap: 11px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            transition: all 0.35s ease; overflow: hidden;
+        }
+        .sidebar-avatar {
+            width: 34px; height: 34px; border-radius: 11px;
+            background: linear-gradient(135deg, var(--gold-warm), #d4922a);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(232,168,56,0.3);
+        }
+        .sidebar-user-info h4 { font-size: 0.78rem; font-weight: 650; margin: 0; white-space: nowrap; color: #d8efe5; }
+        .sidebar-user-info p { font-size: 0.6rem; opacity: 0.45; margin: 1px 0 0; white-space: nowrap; }
+
+        /* ===== MAIN CONTENT (dashboard) ===== */
         .main-content {
             flex: 1; margin-left: var(--sidebar-w);
             padding: 28px 34px 40px;
@@ -267,7 +324,7 @@
         }
         .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
 
-        /* ===== TOP BAR ===== */
+        /* ===== TOP BAR (dashboard) ===== */
         .top-bar {
             background: var(--glass-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -295,11 +352,14 @@
             color: var(--text-primary); transition: all 0.25s ease;
         }
         .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
-        .top-search input:focus { outline: none; border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(31,138,100,0.1); width: 240px; }
+        .top-search input:focus {
+            outline: none; border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);   /* FIX: no width jump */
+        }
         .top-search:focus-within i { color: var(--green-main); }
 
         .theme-btn {
-            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.88rem; cursor: pointer;
             transition: all 0.3s ease; flex-shrink: 0;
@@ -310,9 +370,8 @@
         [data-theme="dark"] .theme-btn .icon-sun { display: inline; }
         [data-theme="dark"] .theme-btn .icon-moon { display: none; }
 
-        /* ===== NOTIFICATION (COPIED FROM DASHBOARD — bago ito sa Help page) ===== */
         .notif-btn {
-            width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
+            width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--border-fresh);
             background: var(--card-white); display: flex; align-items: center; justify-content: center;
             color: var(--stone); font-size: 0.9rem; cursor: pointer;
             transition: all 0.25s ease; position: relative; flex-shrink: 0;
@@ -330,7 +389,8 @@
 
         .notif-dropdown {
             display: none; position: absolute; top: calc(100% + 12px); right: 0;
-            width: 380px; max-height: 420px;
+            width: min(380px, calc(100vw - 32px));   /* FIX: no phone overflow */
+            max-height: 420px;
             background: var(--dropdown-bg); border-radius: var(--radius-md);
             border: 1px solid var(--border-fresh);
             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
@@ -348,15 +408,17 @@
             font-size: 0.65rem; color: var(--green-main); cursor: pointer;
             background: none; border: none; font-weight: 600; transition: color 0.2s;
         }
-        .notif-dropdown .notif-header .mark-read-btn:hover { color: var(--green-deep); }
-        .notif-dropdown .notif-list { max-height: 340px; overflow-y: auto; padding: 0.3rem 0; }
+        .notif-dropdown .notif-header .mark-read-btn:hover { color: var(--green-on-soft); }
+        .notif-dropdown .notif-list {
+            max-height: 340px; overflow-y: auto; padding: 0.3rem 0;
+            scrollbar-width: thin; scrollbar-color: var(--border-fresh) transparent;
+        }
         .notif-dropdown .notif-list::-webkit-scrollbar { width: 4px; }
         .notif-dropdown .notif-list::-webkit-scrollbar-thumb { background: var(--border-fresh); border-radius: 10px; }
         .notif-item { padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border-fresh); transition: all 0.2s; cursor: default; }
         .notif-item:last-child { border-bottom: none; }
         .notif-item:hover { background: var(--green-soft); }
         .notif-item.unread { background: var(--blue-soft); border-left: 3px solid var(--blue); }
-        .notif-item.unread:hover { background: #d4e8fa; }
         [data-theme="dark"] .notif-item.unread:hover { background: #1a3040; }
         .notif-item .notif-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
         .notif-item .notif-message { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
@@ -368,14 +430,13 @@
         }
         .notif-item .notif-read-btn:hover { background: var(--green-main); color: white; }
         .notif-item .score-badge {
-            display: inline-block; background: var(--green-soft); color: var(--green-deep);
+            display: inline-block; background: var(--green-soft); color: var(--green-on-soft);   /* FIX: dark-readable */
             padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;
         }
         .notif-empty { padding: 2rem 1.2rem; text-align: center; color: var(--stone-light); }
         .notif-empty i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--border-fresh); }
         .notif-empty p { font-size: 0.8rem; margin: 0; }
 
-        /* ===== PROFILE TRIGGER + DROPDOWN ===== (same as dashboard) */
         .profile-trigger {
             display: flex; align-items: center; gap: 9px;
             cursor: pointer; padding: 4px 10px 4px 4px;
@@ -428,18 +489,19 @@
         }
         .pd-link:hover { background: var(--dropdown-link-hover); color: var(--dropdown-link-hover-text); }
         .pd-link i { width: 18px; text-align: center; font-size: 0.8rem; color: var(--stone); transition: color 0.2s; }
-        .pd-link:hover i { color: var(--green-main); }
+        .pd-link:hover i { color: var(--green-accent); }
         .pd-sep { height: 1px; background: var(--pd-sep); margin: 0.3rem 0; transition: background 0.4s ease; }
         .pd-link.logout { color: var(--coral); }
         .pd-link.logout i { color: var(--coral); }
         .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
+        [data-theme="dark"] .pd-link.logout:hover { color: #f28a7a; }
 
-        /* ================================================== */
-        /* ===== HELP & FAQ CONTENT (UNCHANGED CSS) ========= */
-        /* ================================================== */
+        /* ============================================ */
+        /* HELP & FAQ CONTENT (your CSS, dashboard tokens + fixes) */
+        /* ============================================ */
 
         .help-banner {
-            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #145a42 100%);
             border-radius: var(--radius-xl); padding: 1.6rem 2rem;
             margin-bottom: 1.6rem; position: relative; overflow: hidden;
             color: white; box-shadow: var(--shadow-lg);
@@ -470,7 +532,7 @@
             position: relative; z-index: 1; max-width: 460px;
         }
         .help-search { max-width: 500px; margin-top: 0.8rem; position: relative; z-index: 1; }
-        .help-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--stone-light); }
+        .help-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.6); pointer-events: none; }
         .help-search input {
             width: 100%; padding: 0.7rem 1rem 0.7rem 2.6rem;
             border: 2px solid rgba(255,255,255,0.15); border-radius: 40px;
@@ -508,7 +570,7 @@
         .help-cat:hover::before { opacity: 1; }
         .help-cat.active { border-color: var(--green-main); background: var(--green-soft); }
         .help-cat.active::before { opacity: 1; }
-        .help-cat i { font-size: 1.5rem; color: var(--green-main); display: block; margin-bottom: 0.3rem; transition: all 0.35s ease; }
+        .help-cat i { font-size: 1.5rem; color: var(--green-accent); display: block; margin-bottom: 0.3rem; transition: all 0.35s ease; }
         .help-cat:hover i { transform: scale(1.1) rotate(-3deg); }
         .help-cat h5 { font-size: 0.78rem; font-weight: 700; margin: 0; color: var(--text-primary); transition: color 0.4s ease; }
         .help-cat span { font-size: 0.6rem; color: var(--stone-light); display: block; margin-top: 2px; transition: color 0.4s ease; }
@@ -529,7 +591,7 @@
         .faq-section-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0; transition: color 0.4s ease; }
         .faq-section-header h3 i { color: var(--gold-warm); margin-right: 8px; }
         .faq-section-header .count-badge {
-            background: var(--green-soft); color: var(--green-deep);
+            background: var(--green-soft); color: var(--green-on-soft);   /* FIX: dark-readable */
             padding: 2px 12px; border-radius: 20px;
             font-size: 0.65rem; font-weight: 600;
             transition: background 0.4s ease, color 0.4s ease;
@@ -548,11 +610,14 @@
         .faq-question .q-icon { color: var(--stone-light); transition: transform 0.3s ease, color 0.3s ease; font-size: 0.7rem; flex-shrink: 0; }
         .faq-question .q-tag { font-size: 0.5rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
         .tag-getting-started { background: var(--blue-soft); color: var(--blue); }
-        .tag-python { background: var(--green-soft); color: var(--green-deep); }
-        .tag-javascript { background: var(--gold-light); color: #9a7020; }
-        .tag-html { background: #fce4d6; color: #c04a2a; }
+        .tag-python { background: var(--green-soft); color: var(--green-on-soft); }
+        .tag-javascript { background: var(--gold-light); color: var(--gold-text); }   /* FIX: tokenized */
+        .tag-html { background: var(--html-soft); color: var(--html-text); }          /* FIX: dark-readable */
         .tag-general { background: var(--coral-soft); color: var(--coral); }
-        .tag-troubleshooting { background: #fee2e2; color: #991b1b; }
+        .tag-troubleshooting { background: var(--danger-soft); color: var(--danger-text); }   /* FIX: dark-readable */
+        .tag-assessments { background: var(--blue-soft); color: var(--blue); }
+        .tag-scores { background: var(--gold-light); color: var(--gold-text); }
+        .tag-notifications { background: var(--green-soft); color: var(--green-on-soft); }
         .faq-answer {
             max-height: 0; overflow: hidden; padding: 0 1.5rem;
             background: var(--bg-main);
@@ -569,8 +634,12 @@
             font-size: 0.7rem; margin: 6px 0 0;
             overflow-x: auto; white-space: pre-wrap; word-break: break-all;
         }
-        .faq-item.open .faq-question .q-icon { transform: rotate(180deg); color: var(--green-main); }
+        .faq-item.open .faq-question .q-icon { transform: rotate(180deg); color: var(--green-accent); }
         .faq-item.open .faq-question { background: var(--green-soft); }
+        .faq-empty {
+            padding: 2rem 1.5rem; text-align: center;
+            color: var(--stone-light); font-size: 0.8rem;
+        }
 
         .contact-support {
             margin-top: 1.6rem;
@@ -584,7 +653,7 @@
             transition: background 0.4s ease, border-color 0.4s ease;
         }
         .contact-support .cs-info h4 { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin: 0; transition: color 0.4s ease; }
-        .contact-support .cs-info h4 i { color: var(--green-main); margin-right: 8px; }
+        .contact-support .cs-info h4 i { color: var(--green-accent); margin-right: 8px; }
         .contact-support .cs-info p { font-size: 0.75rem; color: var(--text-secondary); margin: 2px 0 0; transition: color 0.4s ease; }
         .contact-support .cs-btn {
             background: var(--green-main); color: white; border: none;
@@ -595,9 +664,10 @@
         }
         .contact-support .cs-btn:hover { background: var(--green-deep); transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
+        /* ===== TOAST (dashboard) ===== */
         .toast-box { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
         .toast-msg {
-            background: #1a463a; color: white; padding: 10px 16px;
+            background: var(--toast-bg); color: white; padding: 10px 16px;   /* FIX: tokenized */
             border-radius: 12px; font-size: 0.78rem; font-weight: 500;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             display: flex; align-items: center; gap: 8px;
@@ -606,11 +676,14 @@
         }
         .toast-msg.out { opacity: 0; transform: translateX(40px); }
         .toast-msg i { color: var(--gold-warm); }
+        .toast-msg.success i { color: #4ade80; }
+        .toast-msg.error i { color: var(--coral); }
         @keyframes tIn {
             from { opacity: 0; transform: translateX(40px) scale(0.95); }
             to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
+        /* ===== ENTRANCE (dashboard) ===== */
         .fu { opacity: 0; transform: translateY(16px); animation: fuA 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fuA { to { opacity: 1; transform: translateY(0); } }
         .e1 { animation-delay: 0.05s; } .e2 { animation-delay: 0.1s; }
@@ -638,15 +711,18 @@
             .sidebar .nav-link-custom i { font-size: 1.15rem; }
             .sidebar .nav-text { display: none !important; }
             .sidebar .nav-section-label { height: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; }
+            .sidebar .sidebar-user { justify-content: center; padding: 0.7rem 0.5rem; }
+            .sidebar .sidebar-user-info { display: none !important; }
             .sidebar .nav-badge { left: auto; right: 8px; top: 4px; border-color: #185a48; }
+            .sidebar .activities-submenu { display: none !important; }
+            .sidebar .activities-chevron { display: none !important; }
             .main-content { margin-left: var(--sidebar-collapsed-w); padding: 16px; }
             .main-content.shifted { margin-left: var(--sidebar-collapsed-w); }
             .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
             .top-search input { width: 130px; }
-            .top-search input:focus { width: 160px; }
             .profile-trigger-info { display: none; }
             .profile-dropdown { right: 0; left: auto; min-width: 200px; }
-            .notif-dropdown { width: 320px; right: 0; left: auto; }
+            .notif-dropdown { right: 0; left: auto; }
             .help-categories { grid-template-columns: 1fr 1fr; }
             .help-banner { padding: 1.2rem; }
             .contact-support { flex-direction: column; text-align: center; }
@@ -658,7 +734,7 @@
             .top-search { order: 10; width: 100%; }
             .top-search input { width: 100% !important; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
-            .notif-dropdown { width: 290px; right: 0; left: auto; }
+            .notif-dropdown { right: 0; left: auto; }
             .help-categories { grid-template-columns: 1fr; }
             .faq-question { padding: 0.7rem 1rem; }
             .faq-question .q-text { font-size: 0.75rem; }
@@ -683,7 +759,7 @@
 </div>
 
 <div class="app">
-    <!-- ===== SIDEBAR ===== (COPIED FROM DASHBOARD: logo, iconify icons, complete nav; Help & FAQ = active) -->
+    <!-- ===== SIDEBAR (dashboard UI: Activities submenu + user footer) ===== -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-logo">
             <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
@@ -704,16 +780,28 @@
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
             <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments</span></a></div>
-            <div class="nav-item"><a href="/student_modules" class="nav-link-custom"><iconify-icon icon="lucide:book-open"></iconify-icon><span class="nav-text">Modules</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span><span class="nav-badge" aria-hidden="true"></span></a></div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
-            <div class="nav-section-label">Languages</div>
-            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
+
+            <div class="nav-section-label">Activities</div>
+            <div class="nav-item">
+                <button class="nav-link-custom activities-toggle" id="activitiesToggle" aria-expanded="false">
+                    <iconify-icon icon="lucide:code"></iconify-icon>
+                    <span class="nav-text">Activities</span>
+                    <i class="fas fa-chevron-down activities-chevron"></i>
+                </button>
+                <div class="activities-submenu" id="activitiesSubmenu">
+                    <div class="activities-submenu-label">Languages</div>
+                    <a href="/student_activities_php"><iconify-icon icon="logos:php"></iconify-icon> PHP</a>
+                    <a href="/student_activities_javascript"><iconify-icon icon="logos:javascript"></iconify-icon> JavaScript</a>
+                    <a href="/student_activities_cpp"><iconify-icon icon="logos:cplusplus"></iconify-icon> C++</a>
+                </div>
+            </div>
+
             <div class="nav-section-label">Account</div>
             <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
             <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
+
             <div class="nav-section-label">Support</div>
             <div class="nav-item"><a href="/student_help" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:circle-help"></iconify-icon><span class="nav-text">Help &amp; FAQ</span></a></div>
             <div class="nav-item"><a href="/student_tickets" class="nav-link-custom"><iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Support Tickets</span></a></div>
@@ -722,24 +810,20 @@
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content" id="mainContent">
-        <!-- Top Bar (COPIED FROM DASHBOARD: search + theme + notifications + profile) -->
+        <!-- Top Bar (dashboard UI) -->
         <header class="top-bar fu">
             <div>
                 <h1 class="page-title"><i class="fas fa-circle-question"></i>Help &amp; FAQ</h1>
             </div>
             <div class="top-bar-right">
-                <div class="top-search">
-                    <input type="text" placeholder="Search help..." id="topSearchInput" aria-label="Search" onkeyup="searchFAQ()">
-                    <i class="fas fa-search"></i>
-                </div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
                     <i class="fas fa-moon icon-moon"></i>
                     <i class="fas fa-sun icon-sun"></i>
                 </button>
 
-                <!-- ADDED: Notification button + dropdown (wala ito sa Help page mo dati) -->
+                <!-- Notification (dashboard UI) -->
                 <div style="position: relative;">
-                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" aria-label="Notifications">
+                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications(event)" aria-label="Notifications">
                         <i class="fas fa-bell"></i>
                         <span class="notif-badge hidden" id="notifBadge">0</span>
                     </button>
@@ -757,78 +841,91 @@
                     </div>
                 </div>
 
-                <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile()">
-                    <div class="profile-trigger-avatar"><i class="fas fa-user"></i></div>
-                    <div class="profile-trigger-info">
-                        <span class="profile-trigger-name" id="profileName">{{ full_name or username or 'Student' }}</span>
-                        <span class="profile-trigger-role" id="profileRole">{{ grade_level or 'Grade 11 - ICT' }}</span>
-                    </div>
-                    <i class="fas fa-chevron-down profile-trigger-chevron"></i>
-                </div>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <div class="pd-header">
-                        <div class="pd-avatar"><i class="fas fa-user"></i></div>
-                        <div>
-                            <div class="pd-name" id="pdName">{{ full_name or username or 'Student' }}</div>
-                            <div class="pd-grade" id="pdGrade">{{ grade_level or 'Grade 11 - ICT' }}</div>
+                <!-- Profile (dashboard UI: wrapped so dropdown anchors correctly) -->
+                <div style="position: relative;">
+                    <div class="profile-trigger" id="profileTrigger" onclick="toggleProfile(event)">
+                        <div class="profile-trigger-avatar" id="profileAvatar">S</div>
+                        <div class="profile-trigger-info">
+                            <span class="profile-trigger-name" id="profileName">{{ full_name or username or 'Student' }}</span>
+                            <span class="profile-trigger-role" id="profileRole">{{ grade_level or 'Grade 11 - ICT' }}</span>
                         </div>
+                        <i class="fas fa-chevron-down profile-trigger-chevron"></i>
                     </div>
-                    <div class="pd-links">
-                        <a href="/student_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
-                        <a href="/student_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
-                        <a href="/student_help" class="pd-link"><i class="fas fa-circle-question"></i> Help &amp; FAQ</a>
-                        <div class="pd-sep"></div>
-                        <a href="/logout" class="pd-link logout"><i class="fas fa-arrow-right-from-bracket"></i> Sign Out</a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="pd-header">
+                            <div class="pd-avatar" id="pdAvatar">S</div>
+                            <div>
+                                <div class="pd-name" id="pdName">{{ full_name or username or 'Student' }}</div>
+                                <div class="pd-grade" id="pdGrade">{{ grade_level or 'Grade 11 - ICT' }}</div>
+                            </div>
+                        </div>
+                        <div class="pd-links">
+                            <a href="/student_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
+                            <a href="/student_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
+                            <a href="/student_help" class="pd-link"><i class="fas fa-circle-question"></i> Help &amp; FAQ</a>
+                            <div class="pd-sep"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- ================= HELP & FAQ CONTENT (UNCHANGED) ================= -->
+        <!-- ================= HELP & FAQ CONTENT ================= -->
 
         <!-- HELP BANNER -->
         <section class="help-banner fu e1">
             <h1>How can we help <em>you</em>?</h1>
-            <p>Browse our frequently asked questions or search for specific topics</p>
-            <div class="help-search">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search for help topics..." id="searchInput" onkeyup="searchFAQ()">
-            </div>
+            <p>Browse frequently asked questions by category</p>
         </section>
 
         <!-- HELP CATEGORIES -->
         <section class="help-categories fu e2" id="helpCategories">
-            <div class="help-cat active" data-category="all" onclick="filterCategory('all')">
+            <div class="help-cat active" data-category="all" onclick="filterCategory('all')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('all')">
                 <i class="fas fa-th-list"></i>
                 <h5>All Topics</h5>
                 <span>View all</span>
             </div>
-            <div class="help-cat" data-category="getting-started" onclick="filterCategory('getting-started')">
+            <div class="help-cat" data-category="getting-started" onclick="filterCategory('getting-started')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('getting-started')">
                 <i class="fas fa-rocket"></i>
                 <h5>Getting Started</h5>
                 <span>Beginner guides</span>
             </div>
-            <div class="help-cat" data-category="python" onclick="filterCategory('python')">
+            <div class="help-cat" data-category="assessments" onclick="filterCategory('assessments')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('assessments')">
+                <i class="fas fa-clipboard-check"></i>
+                <h5>Assessments &amp; Modules</h5>
+                <span>Lessons and graded tasks</span>
+            </div>
+            <div class="help-cat" data-category="scores" onclick="filterCategory('scores')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('scores')">
+                <i class="fas fa-chart-simple"></i>
+                <h5>Scores</h5>
+                <span>Points and results</span>
+            </div>
+            <div class="help-cat" data-category="notifications" onclick="filterCategory('notifications')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('notifications')">
+                <i class="fas fa-bell"></i>
+                <h5>Notifications</h5>
+                <span>Results and updates</span>
+            </div>
+            <div class="help-cat" data-category="python" onclick="filterCategory('python')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('python')">
                 <i class="fab fa-python"></i>
                 <h5>Python</h5>
                 <span>Python blocks help</span>
             </div>
-            <div class="help-cat" data-category="javascript" onclick="filterCategory('javascript')">
+            <div class="help-cat" data-category="javascript" onclick="filterCategory('javascript')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('javascript')">
                 <i class="fab fa-js"></i>
                 <h5>JavaScript</h5>
                 <span>JS blocks help</span>
             </div>
-            <div class="help-cat" data-category="html" onclick="filterCategory('html')">
+            <div class="help-cat" data-category="html" onclick="filterCategory('html')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('html')">
                 <i class="fab fa-html5"></i>
                 <h5>HTML</h5>
                 <span>HTML blocks help</span>
             </div>
-            <div class="help-cat" data-category="troubleshooting" onclick="filterCategory('troubleshooting')">
+            <div class="help-cat" data-category="troubleshooting" onclick="filterCategory('troubleshooting')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('troubleshooting')">
                 <i class="fas fa-wrench"></i>
                 <h5>Troubleshooting</h5>
                 <span>Fix common issues</span>
             </div>
-            <div class="help-cat" data-category="general" onclick="filterCategory('general')">
+            <div class="help-cat" data-category="general" onclick="filterCategory('general')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')filterCategory('general')">
                 <i class="fas fa-info-circle"></i>
                 <h5>General</h5>
                 <span>Other questions</span>
@@ -838,11 +935,11 @@
         <!-- FAQ SECTION -->
         <section class="faq-section fu e3" id="faqSection">
             <div class="faq-section-header">
-                <h3><i class="fas fa-regular fa-comments"></i> Frequently Asked Questions</h3>
+                <h3><i class="far fa-comments"></i> Frequently Asked Questions</h3>
                 <span class="count-badge" id="faqCount">0 questions</span>
             </div>
             <div class="faq-list" id="faqList">
-                <!-- FAQ items will be rendered by JavaScript -->
+                <!-- FAQ items rendered by JavaScript -->
             </div>
         </section>
 
@@ -852,426 +949,304 @@
                 <h4><i class="fas fa-headset"></i> Still need help?</h4>
                 <p>Our support team is here to assist you with any questions or issues.</p>
             </div>
-            <button class="cs-btn" onclick="showToast('Support ticket created! We\'ll get back to you soon.')">
+            <a class="cs-btn" href="/student_tickets">
                 <i class="fas fa-paper-plane"></i> Contact Support
-            </button>
+            </a>
         </section>
     </main>
 </div>
 
-<!-- TOAST -->
 <div class="toast-box" id="toastBox"></div>
 
 <script>
-    /* ===== SIDEBAR ===== (same as dashboard) */
-    var sidebar = document.getElementById('sidebar');
-    var mainContent = document.getElementById('mainContent');
-    var isExpanded = window.innerWidth > 768;
-
-    function applyState() {
-        if (isExpanded) {
-            sidebar.classList.remove('collapsed');
-            mainContent.classList.remove('shifted');
-        } else {
-            sidebar.classList.add('collapsed');
-            mainContent.classList.add('shifted');
-        }
+    // ===== THEME (dashboard behavior) =====
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('bl-theme', t);
     }
-    function collapseSidebar() { isExpanded = false; applyState(); }
-    function expandSidebar() { isExpanded = true; applyState(); }
-    window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768 && isExpanded) { isExpanded = false; applyState(); }
-    });
-    applyState();
-
-    /* ===== THEME ===== (key: blocklearn-theme — same as dashboard) */
+    applyTheme(localStorage.getItem('bl-theme') || 'light');
     function toggleTheme() {
-        var html = document.documentElement;
-        if (html.getAttribute('data-theme') === 'dark') {
-            html.removeAttribute('data-theme');
-            localStorage.setItem('blocklearn-theme', 'light');
-        } else {
-            html.setAttribute('data-theme', 'dark');
-            localStorage.setItem('blocklearn-theme', 'dark');
+        const cur = document.documentElement.getAttribute('data-theme');
+        applyTheme(cur === 'dark' ? 'light' : 'dark');
+    }
+
+    // ===== SIDEBAR =====
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    function collapseSidebar() {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('shifted');
+        localStorage.setItem('bl-sidebar', 'collapsed');
+    }
+    function expandSidebar() {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('shifted');
+        localStorage.setItem('bl-sidebar', 'expanded');
+    }
+    if (localStorage.getItem('bl-sidebar') === 'collapsed') collapseSidebar();
+
+    // ===== ACTIVITIES SUBMENU (dashboard UI) =====
+    const activitiesToggle = document.getElementById('activitiesToggle');
+    const activitiesSubmenu = document.getElementById('activitiesSubmenu');
+    activitiesToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = activitiesSubmenu.classList.toggle('open');
+        activitiesToggle.classList.toggle('open', open);
+        activitiesToggle.setAttribute('aria-expanded', open);
+    });
+
+    // ===== DROPDOWNS =====
+    const notifDropdown = document.getElementById('notifDropdown');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const profileTrigger = document.getElementById('profileTrigger');
+
+    function toggleNotifications(e) {
+        e.stopPropagation();
+        profileDropdown.classList.remove('open');
+        profileTrigger.classList.remove('open');
+        notifDropdown.classList.toggle('open');
+    }
+    function toggleProfile(e) {
+        e.stopPropagation();
+        notifDropdown.classList.remove('open');
+        profileDropdown.classList.toggle('open');
+        profileTrigger.classList.toggle('open');
+    }
+    document.addEventListener('click', (e) => {
+        if (!notifDropdown.contains(e.target) && !e.target.closest('.notif-btn')) {
+            notifDropdown.classList.remove('open');
+        }
+        if (!profileDropdown.contains(e.target) && !profileTrigger.contains(e.target)) {
+            profileDropdown.classList.remove('open');
+            profileTrigger.classList.remove('open');
+        }
+    });
+
+    // ===== TOAST =====
+    function showToast(msg, type = 'success') {
+        const box = document.getElementById('toastBox');
+        const el = document.createElement('div');
+        el.className = 'toast-msg ' + type;
+        el.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i>${msg}`;
+        box.appendChild(el);
+        setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3000);
+    }
+
+    async function loadNotifications() {
+        const list = document.getElementById('notifList');
+        const badge = document.getElementById('notifBadge');
+        try {
+            const response = await fetch('/get_notifications', { headers: { 'Accept': 'application/json' } });
+            if (!response.ok) throw new Error('Unable to load notifications');
+            const data = await response.json();
+            const notifications = Array.isArray(data.notifications) ? data.notifications : [];
+            list.replaceChildren();
+
+            if (!notifications.length) {
+                const empty = document.createElement('div');
+                empty.className = 'notif-empty';
+                empty.innerHTML = '<i class="fas fa-inbox"></i><p>No notifications yet</p>';
+                list.appendChild(empty);
+            } else {
+                notifications.slice(0, 8).forEach(notification => {
+                    const item = document.createElement('div');
+                    const title = document.createElement('div');
+                    const message = document.createElement('div');
+                    const time = document.createElement('span');
+                    item.className = 'notif-item' + (notification.is_read ? '' : ' unread');
+                    title.className = 'notif-title';
+                    title.textContent = notification.title || 'Notification';
+                    message.className = 'notif-message';
+                    message.textContent = notification.message || '';
+                    time.className = 'notif-time';
+                    time.textContent = notification.time_ago || notification.created_at || '';
+                    item.append(title, message, time);
+                    list.appendChild(item);
+                });
+            }
+
+            const unread = Number(data.unread_count) || 0;
+            badge.textContent = unread;
+            badge.classList.toggle('hidden', unread === 0);
+        } catch (error) {
+            console.error('Notification refresh failed:', error);
+            list.replaceChildren();
+            const message = document.createElement('div');
+            message.className = 'notif-empty';
+            message.textContent = 'Unable to load notifications.';
+            list.appendChild(message);
         }
     }
-    (function() {
-        if (localStorage.getItem('blocklearn-theme') === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
+
+    async function markAllRead() {
+        try {
+            const response = await fetch('/mark_notifications_read', { method: 'POST' });
+            if (!response.ok) throw new Error('Unable to update notifications');
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'Unable to update notifications');
+            await loadNotifications();
+            showToast('All notifications marked as read');
+        } catch (error) {
+            console.error('Notification update failed:', error);
+            showToast('Unable to mark notifications as read.', 'error');
         }
+    }
+    loadNotifications();
+    window.setInterval(() => {
+        if (!document.hidden) loadNotifications();
+    }, 15000);
+
+    // ===== USER INFO (sidebar footer + trigger + dropdown) =====
+    (function setUser() {
+        const name = "{{ full_name or username or 'Student' }}";
+        const grade = "{{ grade_level or 'Grade 11 - ICT' }}";
+        const initial = name.charAt(0).toUpperCase() || 'S';
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('profileRole').textContent = grade;
+        document.getElementById('pdName').textContent = name;
+        document.getElementById('pdGrade').textContent = grade;
+        document.getElementById('profileAvatar').textContent = initial;
+        document.getElementById('pdAvatar').textContent = initial;
     })();
 
-    /* ===== DROPDOWNS ===== */
-    var profileOpen = false;
-    var notifOpen = false;
-    var notificationCount = 0;
-
-    function toggleProfile() {
-        profileOpen = !profileOpen;
-        document.getElementById('profileDropdown').classList.toggle('open', profileOpen);
-        document.getElementById('profileTrigger').classList.toggle('open', profileOpen);
-    }
-
-    function toggleNotifications() {
-        notifOpen = !notifOpen;
-        var dropdown = document.getElementById('notifDropdown');
-        if (notifOpen) {
-            dropdown.classList.add('open');
-            loadNotifications();
-        } else {
-            dropdown.classList.remove('open');
-        }
-    }
-
-    document.addEventListener('click', function(e) {
-        if (profileOpen) {
-            var trigger = document.getElementById('profileTrigger');
-            var dropdown = document.getElementById('profileDropdown');
-            if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
-                profileOpen = false;
-                dropdown.classList.remove('open');
-                trigger.classList.remove('open');
-            }
-        }
-        if (notifOpen) {
-            var notifBtn = document.getElementById('notifBtn');
-            var notifDropdown = document.getElementById('notifDropdown');
-            if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
-                notifOpen = false;
-                notifDropdown.classList.remove('open');
-            }
-        }
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            if (profileOpen) {
-                profileOpen = false;
-                document.getElementById('profileDropdown').classList.remove('open');
-                document.getElementById('profileTrigger').classList.remove('open');
-            }
-            if (notifOpen) {
-                notifOpen = false;
-                document.getElementById('notifDropdown').classList.remove('open');
-            }
-        }
-    });
-
-    /* ===== NOTIFICATIONS ===== (same as dashboard) */
-    function loadNotifications() {
-        var list = document.getElementById('notifList');
-        list.innerHTML = '<div class="notif-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading notifications...</p></div>';
-        fetch('/get_notifications')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    renderNotifications(data.notifications);
-                    updateBadge(data.notifications);
-                } else {
-                    list.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i><p>Failed to load notifications</p></div>';
-                }
-            })
-            .catch(() => {
-                list.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i><p>Error loading notifications</p></div>';
-            });
-    }
-
-    function renderNotifications(notifications) {
-        var list = document.getElementById('notifList');
-        if (!notifications || notifications.length === 0) {
-            list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No notifications yet</p></div>';
-            return;
-        }
-        var html = '';
-        notifications.forEach(function(notif) {
-            var unreadClass = notif.is_read ? '' : 'unread';
-            var readBtn = notif.is_read ? '' :
-                '<button class="notif-read-btn" onclick="markRead(' + notif.id + ')"><i class="fas fa-check"></i> Mark as read</button>';
-            var scoreMatch = notif.message.match(/score of (\d+)\/(\d+)/);
-            var scoreHtml = scoreMatch ? '<span class="score-badge">' + scoreMatch[1] + '/' + scoreMatch[2] + ' pts</span>' : '';
-            html += '<div class="notif-item ' + unreadClass + '" id="notif-' + notif.id + '">' +
-                    '<div class="notif-title">' + esc(notif.title) + '</div>' +
-                    '<div class="notif-message">' + esc(notif.message) + '</div>' +
-                    scoreHtml +
-                    '<span class="notif-time">' + getTimeAgo(notif.created_at) + '</span>' +
-                    readBtn + '</div>';
-        });
-        list.innerHTML = html;
-    }
-
-    function updateBadge(notifications) {
-        var unread = notifications ? notifications.filter(n => !n.is_read).length : 0;
-        setBadge(unread);
-    }
-
-    function setBadge(count) {
-        var badge = document.getElementById('notifBadge');
-        if (!badge) return;
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
-        notificationCount = count;
-    }
-
-    function markRead(notificationId) {
-        fetch('/mark_notification_read', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ notification_id: notificationId })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                var item = document.getElementById('notif-' + notificationId);
-                if (item) {
-                    item.classList.remove('unread');
-                    var btn = item.querySelector('.notif-read-btn');
-                    if (btn) btn.remove();
-                }
-                setBadge(Math.max(0, notificationCount - 1));
-                showToast('Notification marked as read');
-            }
-        })
-        .catch(err => console.error('Error:', err));
-    }
-
-    function markAllRead() {
-        fetch('/mark_all_notifications_read', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.notif-item.unread').forEach(function(item) {
-                    item.classList.remove('unread');
-                    var btn = item.querySelector('.notif-read-btn');
-                    if (btn) btn.remove();
-                });
-                setBadge(0);
-                showToast('All notifications marked as read');
-            }
-        })
-        .catch(err => console.error('Error:', err));
-    }
-
-    function loadUnreadCount() {
-        fetch('/get_unread_count')
-            .then(r => r.json())
-            .then(data => { if (data.success) setBadge(data.count); })
-            .catch(() => {});
-    }
-
-    setInterval(loadUnreadCount, 10000);
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) loadUnreadCount();
-    });
-
-    /* ===== HELPERS ===== */
-    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-    function getTimeAgo(dateStr) {
-        if (!dateStr) return 'Just now';
-        var diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
-        if (diff < 60) return 'Just now';
-        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-        return new Date(dateStr).toLocaleDateString();
-    }
-
-    function showToast(msg) {
-        var box = document.getElementById('toastBox');
-        var t = document.createElement('div');
-        t.className = 'toast-msg';
-        t.innerHTML = '<i class="fas fa-circle-info"></i> ' + esc(msg);
-        box.appendChild(t);
-        setTimeout(function() { t.classList.add('out'); setTimeout(function() { t.remove(); }, 300); }, 2500);
-    }
-
-    /* ================================================================ */
-    /* ===== FAQ DATA (items 1-4 from your original; 5+ REBUILT) ======= */
-    /* ================================================================ */
-    const faqData = [
+    // ===== FAQ DATA + RENDER =====
+    const FAQ_DATA = [
         {
-            id: 1,
-            question: 'How do I get started with BlockLearn?',
-            answer: 'To get started with BlockLearn, simply log in to your student account. From the Dashboard, you can access different activity categories: Python, JavaScript, and HTML. Each category has guided activities that will teach you programming concepts step by step. Start with the "Getting Started" activities and work your way up!',
-            category: 'getting-started',
-            tag: 'getting-started',
-            tagLabel: 'Getting Started'
+            category: 'getting-started', tag: 'GETTING STARTED',
+            q: 'How do I start my first activity?',
+            a: 'Open <strong>Activities</strong> in the sidebar, choose PHP, JavaScript, or C++, then select an activity. Build your solution with blocks and use <strong>Run</strong> to check its output.'
         },
         {
-            id: 2,
-            question: 'What is Blockly and how does it work?',
-            answer: 'Blockly is a visual programming tool that lets you code by dragging and dropping blocks. Each block represents a piece of code (like a print statement, variable, or condition). You can connect blocks together to build programs without typing code. When you click "Run Code", Blockly converts your blocks into actual Python, JavaScript, or HTML code and executes it.',
-            category: 'getting-started',
-            tag: 'getting-started',
-            tagLabel: 'Getting Started'
+            category: 'getting-started', tag: 'GETTING STARTED',
+            q: 'What are block-based activities?',
+            a: 'Instead of typing code, you assemble ready-made blocks like puzzle pieces. Each block represents a real command (loops, variables, conditionals). It teaches the same logic as real programming.'
         },
         {
-            id: 3,
-            question: 'How do I use the PRINT block in Python?',
-            answer: 'To use the PRINT block in Python:<br><br>1. Find the "Output" category in the toolbox (left side).<br>2. Drag the "print" block into the workspace.<br>3. Drag a "text" block from the Output category and connect it inside the print block.<br>4. Click the text block and type your message.<br>5. Click "Run Code" to see the output.<br><br>Example: <div class="code-example">print("Hello, World!")</div>',
-            category: 'python',
-            tag: 'python',
-            tagLabel: 'Python'
+            category: 'assessments', tag: 'ASSESSMENTS',
+            q: 'How do I open an assessment or module?',
+            a: 'Open <strong>Assessments &amp; Modules</strong> from the sidebar. Choose Python or Java for assessments. Use the <strong>Modules</strong> button to browse lessons and module assessments.'
         },
         {
-            id: 4,
-            question: 'How do I create a variable in JavaScript?',
-            answer: 'To create a variable in JavaScript using blocks:<br><br>1. Find the "VARIABLES" category in the toolbox.<br>2. Drag the "var myVar =" block into the workspace.<br>3. Change "myVar" to your desired variable name (e.g., "name").<br>4. Drag a "text" block from BASIC and connect it to the value slot.<br>5. Type your value in the text block.<br>6. To use the variable, drag the "variable_get" block and select your variable name.<br><br>Example: <div class="code-example">var name = "Juan";<br>console.log(name);</div>',
-            category: 'javascript',
-            tag: 'javascript',
-            tagLabel: 'JavaScript'
-        },
-        /* ⚠️ REBUILT: dito naputol yung paste mo (item 5 pababa).
-           Ginawa ko yung HTML heading answer base sa simula na nakita ko,
-           plus troubleshooting/general items para sa mga category cards mo.
-           PALITAN ng totoong FAQ content niyo. */
-        {
-            id: 5,
-            question: 'How do I create an HTML heading?',
-            answer: 'To create an HTML heading using blocks:<br><br>1. Find the "Headings" category in the toolbox.<br>2. Drag the heading block (h1-h6) into the workspace.<br>3. Type your heading text inside the block.<br>4. Click "Run Code" to render the page preview.<br><br>Example: <div class="code-example">&lt;h1&gt;Welcome to BlockLearn!&lt;/h1&gt;</div>',
-            category: 'html',
-            tag: 'html',
-            tagLabel: 'HTML'
+            category: 'assessments', tag: 'ASSESSMENTS',
+            q: 'What is the difference between an assessment and a module?',
+            a: 'Language assessments are separate graded tasks listed by number. Modules are guided lessons with an intro, lesson sections, a knowledge check, and a final assessment. Module results are stored separately from language assessment scores.'
         },
         {
-            id: 6,
-            question: 'My code is not running. What should I do?',
-            answer: 'If your code is not running:<ul><li>Make sure all blocks are snapped together properly (no loose blocks).</li><li>Check for incomplete blocks (missing values or connections).</li><li>Refresh the page and try again.</li><li>Check the error message in the output console — it usually tells you which line has a problem.</li></ul>If the issue persists, contact support using the button below.',
-            category: 'troubleshooting',
-            tag: 'troubleshooting',
-            tagLabel: 'Troubleshooting'
+            category: 'python', tag: 'PYTHON',
+            q: 'Which Python blocks should I use for loops?',
+            a: 'Open the <strong>LOOPS</strong> drawer and follow the task instructions. For the Python Loops module, the final task expects the numbers 1 through 5, each on its own line.',
+            code: 'for i in range(1, 6):\n    print(i)'
         },
         {
-            id: 7,
-            question: 'How do I check my progress and scores?',
-            answer: 'Go to the <strong>Progress</strong> page from the sidebar to see your overall completion, activity scores, and recent activity history. Your dashboard also shows your overall progress percentage and completed activities count in real time.',
-            category: 'general',
-            tag: 'general',
-            tagLabel: 'General'
+            category: 'javascript', tag: 'JAVASCRIPT',
+            q: 'Why is my JS block output empty?',
+            a: 'Common causes: (1) missing the <strong>print/log</strong> block at the end, (2) blocks are not snapped together, (3) a red warning block upstream stopped execution. Check the console panel below the workspace.'
         },
         {
-            id: 8,
-            question: 'Can I redo a completed activity?',
-            answer: 'Yes! You can reopen any completed activity from the Activities page. Simply click the activity card and start coding again. Your best score is always saved.',
-            category: 'general',
-            tag: 'general',
-            tagLabel: 'General'
+            category: 'html', tag: 'HTML',
+            q: 'How do I preview my HTML blocks?',
+            a: 'Click the <strong>Preview</strong> button on the top-right of the workspace. The result panel renders your block structure as a live webpage.'
+        },
+        {
+            category: 'troubleshooting', tag: 'TROUBLESHOOTING',
+            q: 'My activity progress was not saved. What do I do?',
+            a: 'Running code checks its output; it does not always submit or save a completed result. Finish the activity or use <strong>Submit Assessment</strong> for graded tasks, then check your score or notifications. If the result still does not appear, contact support.'
+        },
+        {
+            category: 'troubleshooting', tag: 'TROUBLESHOOTING',
+            q: 'The page looks broken or unstyled.',
+            a: 'Try a hard refresh (Ctrl+Shift+R). If you are on school Wi-Fi, some CDN assets may be blocked — ask your teacher to whitelist the site resources.'
+        },
+        {
+            category: 'scores', tag: 'SCORES',
+            q: 'How are language assessment scores calculated?',
+            a: 'Each language assessment is worth up to <strong>10 points</strong>. The automatic check compares your program output with the expected output. A correct match earns 10/10; a mismatch is recorded as 0/10 and shown as Not Passed. The score panel lists Assessments #1–#5 and a total out of 50.'
+        },
+        {
+            category: 'scores', tag: 'SCORES',
+            q: 'Where can I view my assessment scores?',
+            a: 'On the Python or Java Assessments page, select <strong>View Score</strong> below Modules. The panel shows each assessment out of 10 and the total out of 50.'
+        },
+        {
+            category: 'scores', tag: 'SCORES',
+            q: 'How are activity scores grouped?',
+            a: 'The Activities <strong>View Score</strong> panel groups completed activities by difficulty: Easy out of 20, Medium out of 20, and Hard out of 10, for a total of 50 points. Each activity can contribute up to 10 points.'
+        },
+        {
+            category: 'scores', tag: 'SCORES',
+            q: 'Does the system keep my best attempt?',
+            a: 'No. A new submission for the same assessment or activity replaces the previously saved result. The displayed score reflects the latest saved submission, not the best attempt.'
+        },
+        {
+            category: 'notifications', tag: 'NOTIFICATIONS',
+            q: 'What notifications will I receive?',
+            a: 'Notifications can report assessment results, activity completion, module assessment results, teacher feedback, and support ticket receipts or status updates. Use the filters to view categories, and select <strong>Mark all as read</strong> to clear the unread count.'
+        },
+        {
+            category: 'notifications', tag: 'NOTIFICATIONS',
+            q: 'Do notifications include announcements or due-date reminders?',
+            a: 'Not currently. The system does not yet have an announcement or deadline feature that sends those notifications.'
+        },
+        {
+            category: 'general', tag: 'GENERAL',
+            q: 'Can I redo a completed activity or assessment?',
+            a: 'Yes. Submit it again from its activity or assessment page. The latest submission replaces the previously saved result.'
         }
     ];
 
-    /* ===== ⚠️ REBUILT: FAQ RENDER / FILTER / SEARCH LOGIC ===== */
-    var currentCategory = 'all';
+    const TAG_CLASS = {
+        'GETTING STARTED': 'tag-getting-started',
+        'PYTHON': 'tag-python',
+        'JAVASCRIPT': 'tag-javascript',
+        'HTML': 'tag-html',
+        'ASSESSMENTS': 'tag-assessments',
+        'SCORES': 'tag-scores',
+        'NOTIFICATIONS': 'tag-notifications',
+        'GENERAL': 'tag-general',
+        'TROUBLESHOOTING': 'tag-troubleshooting'
+    };
+
+    let activeCategory = 'all';
 
     function renderFAQ() {
-        var list = document.getElementById('faqList');
-        var items = faqData.filter(function(f) {
-            return currentCategory === 'all' || f.category === currentCategory;
-        });
-
-        var countBadge = document.getElementById('faqCount');
-        if (countBadge) countBadge.textContent = items.length + ' question' + (items.length !== 1 ? 's' : '');
-
-        if (items.length === 0) {
-            list.innerHTML = '<div class="notif-empty" style="padding: 2rem;"><i class="fas fa-file-circle-question"></i><p>No questions found in this category.</p></div>';
-            return;
+        const list = document.getElementById('faqList');
+        const items = FAQ_DATA.filter(f =>
+            activeCategory === 'all' || f.category === activeCategory
+        );
+        if (!items.length) {
+            list.innerHTML = '<div class="faq-empty"><i class="fas fa-magnifying-glass"></i> No questions found. Try another keyword or category.</div>';
+        } else {
+            list.innerHTML = items.map((f, i) => `
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                        <span class="q-text"><span class="q-tag ${TAG_CLASS[f.tag] || 'tag-general'}">${f.tag}</span>${f.q}</span>
+                        <i class="fas fa-chevron-down q-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>${f.a}</p>
+                        ${f.code ? `<pre class="code-example">${f.code}</pre>` : ''}
+                    </div>
+                </div>`).join('');
         }
-
-        var html = '';
-        items.forEach(function(f) {
-            html += '<div class="faq-item" data-faq-id="' + f.id + '">' +
-                    '<button class="faq-question" onclick="toggleFAQ(' + f.id + ')">' +
-                    '<span class="q-text">' + esc(f.question) + '</span>' +
-                    '<span class="q-tag tag-' + f.tag + '">' + esc(f.tagLabel) + '</span>' +
-                    '<i class="fas fa-chevron-down q-icon"></i>' +
-                    '</button>' +
-                    '<div class="faq-answer" id="faq-answer-' + f.id + '"><p>' + f.answer + '</p></div>' +
-                    '</div>';
-        });
-        list.innerHTML = html;
+        document.getElementById('faqCount').textContent = `${items.length} question${items.length === 1 ? '' : 's'}`;
     }
 
-    function toggleFAQ(id) {
-        var item = document.querySelector('[data-faq-id="' + id + '"]');
-        if (!item) return;
-        var answer = document.getElementById('faq-answer-' + id);
-        var isOpen = item.classList.contains('open');
-        // Close all others
-        document.querySelectorAll('.faq-item.open').forEach(function(other) {
-            other.classList.remove('open');
-            var otherAnswer = other.querySelector('.faq-answer');
-            if (otherAnswer) otherAnswer.classList.remove('open');
-        });
-        if (!isOpen) {
-            item.classList.add('open');
-            if (answer) answer.classList.add('open');
-        }
+    function toggleFaq(btn) {
+        const item = btn.closest('.faq-item');
+        const answer = item.querySelector('.faq-answer');
+        const isOpen = item.classList.toggle('open');
+        answer.classList.toggle('open', isOpen);
+        btn.setAttribute('aria-expanded', isOpen);
     }
 
-    function filterCategory(category) {
-        currentCategory = category;
-        document.querySelectorAll('.help-cat').forEach(function(cat) {
-            cat.classList.toggle('active', cat.getAttribute('data-category') === category);
-        });
+    function filterCategory(cat) {
+        activeCategory = cat;
+        document.querySelectorAll('.help-cat').forEach(c =>
+            c.classList.toggle('active', c.dataset.category === cat));
         renderFAQ();
     }
 
-    function searchFAQ() {
-        var query = '';
-        var bannerSearch = document.getElementById('searchInput');
-        var topSearch = document.getElementById('topSearchInput');
-        if (bannerSearch && document.activeElement === bannerSearch) {
-            query = bannerSearch.value.trim().toLowerCase();
-        } else if (topSearch && document.activeElement === topSearch) {
-            query = topSearch.value.trim().toLowerCase();
-            if (bannerSearch) bannerSearch.value = query; // sync both
-        } else if (bannerSearch && bannerSearch.value.trim()) {
-            query = bannerSearch.value.trim().toLowerCase();
-        } else if (topSearch && topSearch.value.trim()) {
-            query = topSearch.value.trim().toLowerCase();
-        }
-
-        var list = document.getElementById('faqList');
-        var countBadge = document.getElementById('faqCount');
-
-        if (!query) {
-            renderFAQ();
-            return;
-        }
-
-        var results = faqData.filter(function(f) {
-            var plainAnswer = f.answer.replace(/<[^>]+>/g, ' ');
-            return f.question.toLowerCase().includes(query) || plainAnswer.toLowerCase().includes(query);
-        });
-
-        if (countBadge) countBadge.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
-
-        if (results.length === 0) {
-            list.innerHTML = '<div class="notif-empty" style="padding: 2rem;"><i class="fas fa-magnifying-glass"></i><p>No results found for "' + esc(query) + '"</p></div>';
-            return;
-        }
-
-        var html = '';
-        results.forEach(function(f) {
-            html += '<div class="faq-item" data-faq-id="' + f.id + '">' +
-                    '<button class="faq-question" onclick="toggleFAQ(' + f.id + ')">' +
-                    '<span class="q-text">' + esc(f.question) + '</span>' +
-                    '<span class="q-tag tag-' + f.tag + '">' + esc(f.tagLabel) + '</span>' +
-                    '<i class="fas fa-chevron-down q-icon"></i>' +
-                    '</button>' +
-                    '<div class="faq-answer" id="faq-answer-' + f.id + '"><p>' + f.answer + '</p></div>' +
-                    '</div>';
-        });
-        list.innerHTML = html;
-    }
-
-    /* Init */
-    document.addEventListener('DOMContentLoaded', function() {
-        renderFAQ();
-        loadUnreadCount();
-    });
+    renderFAQ();
 </script>
 </body>
 </html>

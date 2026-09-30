@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+df7xc/ .y'yuierx<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
 
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -61,7 +61,6 @@
             --chart-grid: #e8f0ec;
             --chart-tick: #a8bfb4;
             --greeting-overlay: rgba(255,255,255,0.1);
-            --search-bg: var(--card-white);
             --dropdown-z-index: 99999;
         }
 
@@ -102,7 +101,6 @@
             --chart-grid: #1e3a2e;
             --chart-tick: #5a7a6d;
             --greeting-overlay: rgba(255,255,255,0.06);
-            --search-bg: #1a3329;
         }
 
         body {
@@ -345,26 +343,6 @@
             position: relative;
             z-index: 200;
         }
-
-        /* Search */
-        .top-search { position: relative; display: flex; align-items: center; }
-        .top-search i {
-            position: absolute; left: 11px; color: var(--stone-light);
-            font-size: 0.8rem; pointer-events: none; transition: color 0.2s;
-        }
-        .top-search input {
-            width: 200px; padding: 0.45rem 0.7rem 0.45rem 2.2rem;
-            border: 1.5px solid var(--border-fresh); border-radius: 10px;
-            font-size: 0.78rem; font-family: inherit; background: var(--search-bg);
-            color: var(--text-primary); transition: all 0.25s ease;
-        }
-        .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
-        .top-search input:focus {
-            outline: none; border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);
-            width: 240px;
-        }
-        .top-search:focus-within i { color: var(--green-main); }
 
         /* ===== NOTIFICATION BUTTON ===== */
         .notif-btn {
@@ -626,13 +604,10 @@
         .pd-link i { width: 18px; text-align: center; font-size: 0.8rem; color: var(--stone); transition: color 0.2s; }
         .pd-link:hover i { color: var(--green-main); }
         .pd-sep { height: 1px; background: var(--pd-sep); margin: 0.3rem 0; transition: background 0.4s ease; }
-        .pd-link.logout { color: var(--coral); }
-        .pd-link.logout i { color: var(--coral); }
-        .pd-link.logout:hover { background: var(--coral-soft); color: #b33a2a; }
 
         /* ===== GREETING ===== */
         .greeting-banner {
-            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #145a42 100%);
             border-radius: var(--radius-xl); padding: 1.6rem 2rem;
             margin-bottom: 1.6rem; position: relative; overflow: hidden;
             color: white; box-shadow: var(--shadow-lg);
@@ -843,8 +818,6 @@
             .greeting-banner { padding: 1.3rem; }
             .greeting-banner h1 { font-size: 1.15rem; }
             .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
-            .top-search input { width: 130px; }
-            .top-search input:focus { width: 160px; }
             .profile-trigger-info { display: none; }
             .profile-dropdown { right: 0; left: auto; min-width: 200px; }
             .notif-dropdown { width: 320px; right: 0; left: auto; }
@@ -855,8 +828,6 @@
             .stat-value { font-size: 1.5rem; }
             .top-bar { flex-wrap: wrap; gap: 8px; }
             .top-bar-right { margin-left: auto; flex-wrap: wrap; }
-            .top-search { order: 10; width: 100%; }
-            .top-search input { width: 100% !important; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
             .notif-dropdown { width: 290px; right: 0; left: auto; }
         }
@@ -961,8 +932,6 @@
                     <div class="pd-links">
                         <a href="/teacher_profile" class="pd-link"><i class="fas fa-circle-user"></i> My Profile</a>
                         <a href="/teacher_settings" class="pd-link"><i class="fas fa-sliders"></i> Settings</a>
-                        <div class="pd-sep"></div>
-                        <a href="/logout" class="pd-link logout"><i class="fas fa-arrow-right-from-bracket"></i> Sign Out</a>
                     </div>
                 </div>
             </div>
@@ -983,7 +952,6 @@
         <section class="submissions-card fu e2">
             <div class="panel-head">
                 <h3><i class="fas fa-user-graduate"></i>Student List</h3>
-                <input type="search" id="studentSearch" placeholder="Search name or Student LRN..." aria-label="Search students">
             </div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0" id="studentsTable">
@@ -1273,18 +1241,6 @@
             .catch(err => console.error('Error loading unread count:', err));
     }
 
-    /* ===== SEARCH ===== */
-    const topSearchInput = document.getElementById('topSearchInput');
-    if (topSearchInput) {
-        topSearchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && this.value.trim()) {
-                showToast('Search: "' + this.value.trim() + '"');
-                this.value = '';
-                this.blur();
-            }
-        });
-    }
-
     /* ===== HELPERS ===== */
     function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     function showToast(msg) {
@@ -1303,10 +1259,7 @@
     let students = [];
 
     function renderStudents() {
-        const query = document.getElementById('studentSearch').value.trim().toLowerCase();
-        const visible = students.filter(student =>
-            `${student.full_name || ''} ${student.lrn || ''} ${student.grade_level || ''}`.toLowerCase().includes(query)
-        );
+        const visible = students;
         const list = document.getElementById('studentList');
         if (!visible.length) {
             list.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No students found.</td></tr>';
@@ -1341,7 +1294,6 @@
         }
     }
 
-    document.getElementById('studentSearch').addEventListener('input', renderStudents);
     loadStudents();
     setInterval(loadStudents, 10000);
 

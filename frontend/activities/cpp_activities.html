@@ -13,7 +13,7 @@
 
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -260,6 +260,23 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-radius: var(--radius-sm);
         }
         .nav-link-custom.active i { color: var(--cpp-color); }
+        .nav-group-toggle {
+            width: calc(100% - 0.8rem); margin: 0 0.4rem 2px; padding: 0.55rem 0.9rem;
+            display: flex; align-items: center; gap: 13px; color: var(--sidebar-text);
+            background: transparent; border: 0; border-radius: var(--radius-sm);
+            font: inherit; font-size: 0.86rem; font-weight: 650; text-align: left;
+            cursor: pointer; transition: all 0.25s ease;
+        }
+        .nav-group-toggle:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
+        .nav-group-toggle iconify-icon { width: 22px; flex-shrink: 0; font-size: 0.95rem; }
+        .nav-group-toggle .nav-group-chevron { margin-left: auto; transition: transform 0.25s ease; }
+        .nav-group-toggle[aria-expanded="true"] .nav-group-chevron { transform: rotate(180deg); }
+        .nav-subnav { display: flex; flex-direction: column; gap: 2px; padding-left: 0.7rem; }
+        .nav-subnav.collapsed { display: none; }
+        .nav-subnav .nav-link-custom { font-size: 0.8rem; padding-left: 1rem; }
+        .sidebar.collapsed .nav-group-toggle { justify-content: center; width: calc(100% - 0.6rem); margin: 0 0.3rem 2px; padding: 0.55rem 0; }
+        .sidebar.collapsed .nav-group-toggle .nav-group-chevron { display: none; }
+        .sidebar.collapsed .nav-subnav { display: none; }
         .nav-badge {
             position: absolute; top: 5px; left: 24px;
             width: 7px; height: 7px; background: var(--coral);
@@ -786,11 +803,19 @@
         <div class="hamburger-wrap"><button class="hamburger-btn" onclick="expandSidebar()" aria-label="Expand sidebar"><i class="fas fa-bars"></i></button></div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
+            <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
             <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
-            <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <button type="button" class="nav-group-toggle" id="activitiesNavToggle" aria-expanded="true" aria-controls="activitiesSubnav" onclick="toggleActivitiesNav()">
+                <iconify-icon icon="lucide:layout-grid"></iconify-icon>
+                <span class="nav-text">Activities</span>
+                <iconify-icon class="nav-group-chevron" icon="lucide:chevron-down"></iconify-icon>
+            </button>
+            <div class="nav-subnav" id="activitiesSubnav">
+                <div class="nav-item"><a href="/student_activities" class="nav-link-custom"><iconify-icon icon="lucide:layers"></iconify-icon><span class="nav-text">All Activities</span></a></div>
+                <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+                <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+                <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom active" aria-current="page"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
+            </div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
             <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
             <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
@@ -806,9 +831,8 @@
 
     <main class="main-content" id="mainContent">
         <header class="top-bar fu e1">
-            <div><h1 class="page-title"><iconify-icon icon="logos:cplusplus"></iconify-icon>C++ Activities</h1></div>
+            <div><h1 class="page-title"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon>C++ Activities</h1></div>
             <div class="top-bar-right">
-                <div class="top-search"><input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search"><i class="fas fa-search"></i></div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <i class="fas fa-moon icon-moon"></i><i class="fas fa-sun icon-sun"></i>
                 </button>
@@ -842,11 +866,15 @@
                 <i class="fas fa-clipboard-list"></i> Assessments &amp; Quizzes
                 <span class="badge-count">5</span>
             </button>
+            <div class="activity-language-score">
             <nav class="language-tabs" aria-label="Programming language">
-                <a href="/student_activities_php" class="lang-tab"><i class="fab fa-php"></i> PHP</a>
-                <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js"></i> JavaScript</a>
-                <a href="/student_activities_cpp" class="lang-tab active"><iconify-icon icon="logos:cplusplus"></iconify-icon> C++</a>
+                <a href="/student_activities_php" class="lang-tab"><iconify-icon icon="logos:php"></iconify-icon> PHP</a>
+                <a href="/student_activities_javascript" class="lang-tab"><iconify-icon icon="logos:javascript"></iconify-icon> JavaScript</a>
+                <a href="/student_activities_cpp" class="lang-tab active"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon> C++</a>
             </nav>
+                {% set score_language = 'cpp' %}{% set score_language_name = 'C++' %}
+                {% include 'activities/activity_score_panel.html' %}
+            </div>
         </div>
 
         <!-- Easy Level -->
@@ -995,6 +1023,13 @@
 <script>
     function collapseSidebar() { document.getElementById('sidebar').classList.add('collapsed'); document.getElementById('mainContent').classList.add('shifted'); }
     function expandSidebar() { document.getElementById('sidebar').classList.remove('collapsed'); document.getElementById('mainContent').classList.remove('shifted'); }
+    function toggleActivitiesNav() {
+        const toggle = document.getElementById('activitiesNavToggle');
+        const subnav = document.getElementById('activitiesSubnav');
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        subnav.classList.toggle('collapsed', expanded);
+    }
     function checkSidebarState() {
         if (window.innerWidth <= 768) {
             document.getElementById('sidebar').classList.add('collapsed');
@@ -1181,6 +1216,7 @@
     function loadActivityStatuses() {
         fetch('/get_activities').then(r => r.json()).then(data => {
             if (data.success && data.activities) {
+                if (window.updateActivityScoreSummary) window.updateActivityScoreSummary(data.activities);
                 const m = { 'Hello, C++!': 'status-hellocpp', 'Store an Age': 'status-storeage', 'Multiply Two Numbers': 'status-multiply', 'Less Than': 'status-lessthan', 'Display Numbers 1 to 5': 'status-displaynumbers' };
                 data.activities.forEach(a => {
                     const id = m[a.name];
@@ -1204,7 +1240,7 @@
     function loadUserInfo() {
         fetch('/student_profile_data').then(r => r.json()).then(d => {
             if (d.success) {
-                const n = d.full_name || d.lrn || 'Student', i = n.charAt(0).toUpperCase(), g = d.grade_level || 'Grade 11';
+                const n = d.full_name || 'Student', i = n.charAt(0).toUpperCase(), g = d.grade_level || 'Grade 11';
                 document.getElementById('sidebarAvatar').innerText = i;
                 document.getElementById('sidebarName').innerText = n;
                 document.getElementById('sidebarGrade').innerText = g + ' - ICT';

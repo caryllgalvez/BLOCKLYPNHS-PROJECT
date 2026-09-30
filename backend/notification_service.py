@@ -56,12 +56,47 @@ def notify_assessment_checked(student_id, assessment_name, score, feedback, subm
     )
 
 
+def notify_student_assessment_result(student_id, assessment_name, score, max_points, status, submission_id):
+    result_text = 'completed' if status == 'completed' else 'submitted for review'
+    return _insert_notification(
+        'assessment_result',
+        'Assessment Result',
+        f'{assessment_name} was {result_text}. Score: {score}/{max_points}.',
+        user_id=student_id,
+        target_role='student',
+        related_id=submission_id,
+    )
+
+
+def notify_module_assessment_result(student_id, module_title, points, max_points, status):
+    result_text = 'passed' if status == 'passed' else 'submitted'
+    return _insert_notification(
+        'module_assessment_result',
+        'Module Assessment Result',
+        f'{module_title} was {result_text}. Score: {points}/{max_points} points.',
+        user_id=student_id,
+        target_role='student',
+        related_id=None,
+    )
+
+
 def notify_new_support_ticket(ticket_number, subject, ticket_id):
     return _insert_notification(
         'support_ticket_created',
         'New Support Ticket',
         f'{ticket_number}: {subject}',
         target_role='ict',
+        related_id=ticket_id,
+    )
+
+
+def notify_student_ticket_received(student_id, ticket_number, subject, ticket_id):
+    return _insert_notification(
+        'support_ticket_received',
+        'Support Ticket Received',
+        f'{ticket_number}: {subject} was sent to the support team.',
+        user_id=student_id,
+        target_role='student',
         related_id=ticket_id,
     )
 
@@ -102,7 +137,7 @@ def get_notifications_for_user(user_id, role):
         )
         rows = cursor.fetchall()
         for row in rows:
-            if row['type'] == 'assessment_checked':
+            if row['type'] in ('assessment_checked', 'activity_checked'):
                 row['title'] = 'Activity Checked' if row['type'] == 'activity_checked' else 'Assessment Checked'
                 score_match = re.search(r'Score:\s*(\d+)%', row['message'] or '')
                 max_points = row.get('max_points')

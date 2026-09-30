@@ -13,7 +13,7 @@
 
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -271,7 +271,7 @@
         .lb-pill.color-3 { background: linear-gradient(135deg, #ffc107 0%, #ffd54f 100%); }
         .lb-pill.color-4 { background: linear-gradient(135deg, #ec4dd1 0%, #f783d7 100%); }
         .lb-pill.color-5 { background: linear-gradient(135deg, #9c27e0 0%, #b866f0 100%); }
-        .lb-pill.color-6 { background: linear-gradient(135deg, #1f8a64 0%, #28a87a 100%); }
+        .lb-pill.color-6 { background: linear-gradient(135deg, #145a42 0%, #28a87a 100%); }
         .lb-pill.color-7 { background: linear-gradient(135deg, #4a90d9 0%, #6ba8e8 100%); }
         .lb-pill.color-8 { background: linear-gradient(135deg, #e06050 0%, #f08070 100%); }
 
@@ -536,18 +536,18 @@
 
             top.forEach(function(s, i) {
                 var colorNum = (i % 8) + 1;
-                var name = s.student_name || s.name || 'Student';
+                var lrn = s.student_lrn || s.lrn || 'LRN unavailable';
                 var completed = s.activities_completed || s.completed || 0;
-                var average = s.average_score || s.avg_score || 0;
-                var sub = `${ordinal(i + 1)} Place · ${completed} Activities · ${average}% avg`;
-                var score = `${average}%`;
+                var activityPercentage = Number(s.activity_percentage) || 0;
+                var sub = `${ordinal(i + 1)} Place · ${completed}/15 Activities completed`;
+                var score = `${activityPercentage.toFixed(1)}%`;
 
                 html += `
                     <div class="lb-pill color-${colorNum}">
-                        <div class="lb-pill-av">${lbInitials(name)}</div>
+                        <div class="lb-pill-av">LRN</div>
                         <div class="lb-pill-info">
                             <div class="lb-pill-name">
-                                ${esc(name)}
+                                ${esc(lrn)}
                             </div>
                             <div class="lb-pill-sub">${sub}</div>
                         </div>

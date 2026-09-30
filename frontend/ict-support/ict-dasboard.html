@@ -10,7 +10,7 @@
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-        --green-deep:#145a42; --green-main:#1f8a64; --green-light:#28a87a; --green-soft:#e2f3ed;
+        --green-deep:#145a42; --green-main:#145a42; --green-light:#28a87a; --green-soft:#e2f3ed;
         --gold-warm:#e8a838; --gold-light:#fce9c5; --coral:#e06050; --coral-soft:#fce8e5;
         --blue:#4a90d9; --blue-soft:#e4eefb;
         --stone:#7f9e92; --stone-light:#a8bfb4;
@@ -141,9 +141,6 @@
     }
     .nav-link-custom.active .nav-badge { border-color:var(--card-white); }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5); opacity:.6} }
-    .nav-link-custom.logout { color:rgba(224,96,80,.75); margin-top:.6rem; }
-    .nav-link-custom.logout:hover { background:rgba(224,96,80,.12); color:#f08070; }
-
     .sidebar-user {
         display:none !important; align-items:center; gap:11px;
         border-top:1px solid rgba(255,255,255,.07);
@@ -173,10 +170,77 @@
         padding:.5rem 1rem .5rem 1.4rem; margin-bottom:1.1rem;
         display:flex; justify-content:space-between; align-items:center;
         box-shadow:var(--sh-sm); transition:background .4s, border-color .4s;
+        position:relative; z-index:500; /* ← FIX: same as ICT Tickets, para hindi ma-overlap ng panels ang dropdown */
     }
     .page-title { font-size:1.05rem; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:9px; }
     .page-title iconify-icon { color:var(--gold-warm); font-size:17px; }
     .top-bar-right { display:flex; align-items:center; gap:10px; }
+
+    /* ═══ USER MENU (upper right — same UI as ICT Tickets) ═══ */
+    .user-menu-wrap { position:relative; }
+    .user-pill {
+        display:flex; align-items:center; gap:10px;
+        background:var(--card-white); border:1.5px solid var(--border-fresh);
+        border-radius:999px; padding:4px 14px 4px 4px; cursor:pointer;
+        font:inherit; color:inherit; transition:all .25s;
+    }
+    .user-pill:hover { border-color:var(--green-main); transform:translateY(-1px); box-shadow:var(--sh-sm); }
+    .user-menu-wrap.open .user-pill { border-color:var(--green-main); box-shadow:var(--sh-sm); }
+    .up-avatar {
+        width:36px; height:36px; border-radius:12px; flex-shrink:0;
+        background:linear-gradient(135deg, var(--green-main), var(--green-deep));
+        color:#fff; display:flex; align-items:center; justify-content:center;
+        font-size:.75rem; font-weight:800;
+        box-shadow:0 2px 8px rgba(20,90,66,.25);
+    }
+    .up-avatar iconify-icon { font-size:20px; }
+    .up-info { display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; }
+    .up-info strong { font-size:.78rem; font-weight:800; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .up-info small { font-size:.62rem; color:var(--stone-light); font-weight:600; }
+    .user-pill .chev { font-size:16px; color:var(--stone); transition:transform .3s; }
+    .user-menu-wrap.open .user-pill .chev { transform:rotate(180deg); }
+
+    .user-dropdown {
+        position:absolute; top:calc(100% + 10px); right:0; width:256px;
+        background:var(--card-white); border:1px solid var(--border-fresh);
+        border-radius:18px; box-shadow:var(--sh-lg); overflow:hidden;
+        opacity:0; transform:translateY(-8px) scale(.97); transform-origin:top right;
+        pointer-events:none; transition:all .25s cubic-bezier(.4,0,.2,1);
+        z-index:99999; /* ← laging nasa itaas */
+    }
+    .user-menu-wrap.open .user-dropdown { opacity:1; transform:none; pointer-events:auto; }
+
+    .ud-head {
+        display:flex; align-items:center; gap:12px;
+        padding:.85rem .95rem; border-bottom:1px solid var(--border-fresh);
+    }
+    .ud-head .up-avatar { width:42px; height:42px; border-radius:13px; }
+    .ud-head .up-avatar iconify-icon { font-size:23px; }
+    .ud-head strong { display:block; font-size:.85rem; font-weight:800; line-height:1.3; }
+    .ud-head small { font-size:.66rem; color:var(--stone-light); font-weight:600; }
+
+    .ud-body { padding:.45rem; }
+    .ud-item {
+        display:flex; align-items:center; gap:12px;
+        padding:.62rem .75rem; border-radius:12px;
+        color:var(--text-secondary); text-decoration:none;
+        font-size:.8rem; font-weight:600; transition:all .2s;
+    }
+    .ud-item iconify-icon { font-size:17px; color:var(--stone); transition:color .2s; }
+    .ud-item:hover { background:var(--green-soft); color:var(--text-primary); }
+    .ud-item:hover iconify-icon { color:var(--green-main); }
+    [data-theme="dark"] .ud-item:hover { color:#4ad9a0; }
+
+    .ud-signout {
+        display:flex; align-items:center; gap:12px;
+        padding:.78rem .95rem; margin-top:.35rem;
+        border-top:1px solid var(--border-fresh);
+        background:var(--coral-soft); color:var(--coral);
+        text-decoration:none; font-size:.8rem; font-weight:700; transition:filter .2s;
+    }
+    .ud-signout iconify-icon { font-size:17px; }
+    .ud-signout:hover { filter:brightness(.95); color:var(--coral); }
+
     .icon-btn {
         width:36px; height:36px; border-radius:11px; border:1.5px solid var(--border-fresh);
         background:var(--card-white); color:var(--stone); cursor:pointer;
@@ -197,7 +261,7 @@
 
     /* ═══ HERO ═══ */
     .hero {
-        background:linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+        background:linear-gradient(135deg, #14423a 0%, #1a6850 50%, #145a42 100%);
         border-radius:28px; padding:1.5rem 1.8rem; margin-bottom:1.2rem;
         position:relative; overflow:hidden; color:#fff; box-shadow:var(--sh-lg);
     }
@@ -433,6 +497,11 @@
         .sidebar .nav-badge { left:auto; right:8px; top:4px; }
         .main-content, .main-content.shifted { margin-left:var(--sidebar-collapsed-w); padding:16px 14px 32px; }
     }
+    @media (max-width:520px) {
+        .up-info { display:none; }
+        .user-pill { padding:4px; border-radius:12px; }
+        .user-pill .chev { display:none; }
+    }
     @media (prefers-reduced-motion:reduce) {
         *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
     }
@@ -480,13 +549,16 @@
         <a href="/ict_support_reports" class="nav-link-custom" data-tip="Reports">
             <iconify-icon icon="lucide:file-text"></iconify-icon><span class="nav-text">Reports</span>
         </a>
+        <a href="/ict_feedback_analytics" class="nav-link-custom" data-tip="Feedback Analytics">
+            <iconify-icon icon="lucide:message-square-more"></iconify-icon><span class="nav-text">Feedback Analytics</span>
+        </a>
+        <a href="/ict_support_audit_logs" class="nav-link-custom" data-tip="Audit Logs">
+            <iconify-icon icon="lucide:scroll-text"></iconify-icon><span class="nav-text">Audit Logs</span>
+        </a>
 
         <p class="nav-section-label">System</p>
         <a href="/ict_support_settings" class="nav-link-custom" data-tip="Settings">
             <iconify-icon icon="lucide:settings"></iconify-icon><span class="nav-text">Settings</span>
-        </a>
-        <a href="/logout" class="nav-link-custom logout" data-tip="Logout">
-            <iconify-icon icon="lucide:log-out"></iconify-icon><span class="nav-text">Logout</span>
         </a>
     </nav>
 
@@ -513,6 +585,39 @@
                 <iconify-icon icon="lucide:bell"></iconify-icon>
                 <span class="dot"></span>
             </button>
+
+            <!-- ═══ USER PILL + DROPDOWN (same UI as ICT Tickets) ═══ -->
+            <div class="user-menu-wrap" id="userMenuWrap">
+                <button class="user-pill" id="userPill" aria-haspopup="true" aria-expanded="false">
+                    <span class="up-avatar">{{ (full_name or username or 'U')[:1]|upper }}</span>
+                    <span class="up-info">
+                        <strong>{{ full_name or username or 'ICT Support' }}</strong>
+                        <small>ICT Tech Support</small>
+                    </span>
+                    <iconify-icon icon="lucide:chevron-down" class="chev"></iconify-icon>
+                </button>
+
+                <div class="user-dropdown" role="menu">
+                    <div class="ud-head">
+                        <span class="up-avatar">{{ (full_name or username or 'U')[:1]|upper }}</span>
+                        <div>
+                            <strong>{{ full_name or username or 'ICT Support' }}</strong>
+                            <small>ICT Tech Support</small>
+                        </div>
+                    </div>
+                    <div class="ud-body">
+                        <a href="#" class="ud-item" role="menuitem">
+                            <iconify-icon icon="lucide:user-round"></iconify-icon>My Profile
+                        </a>
+                        <a href="/ict_support_settings" class="ud-item" role="menuitem">
+                            <iconify-icon icon="lucide:sliders-horizontal"></iconify-icon>Settings
+                        </a>
+                    </div>
+                    <a href="/logout" class="ud-signout" role="menuitem">
+                        <iconify-icon icon="lucide:log-out"></iconify-icon>Sign Out
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -606,6 +711,11 @@
                 <div class="qa-info"><p>View Reports</p><span>Analytics &amp; insights</span></div>
                 <iconify-icon icon="lucide:arrow-right" class="qa-arrow"></iconify-icon>
             </a>
+            <a href="/ict_feedback_analytics" class="qa-row qa-blue">
+                <div class="qa-icon"><iconify-icon icon="lucide:message-square-more"></iconify-icon></div>
+                <div class="qa-info"><p>Feedback Analytics</p><span>Review technical feedback from students</span></div>
+                <iconify-icon icon="lucide:arrow-right" class="qa-arrow"></iconify-icon>
+            </a>
         </section>
     </div>
 
@@ -633,6 +743,21 @@ const getInitials = name => String(name || '?').split(' ').filter(Boolean).slice
 const applyTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('bl-theme', t); };
 applyTheme(localStorage.getItem('bl-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
  $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+/* ── User dropdown (upper right — same as ICT Tickets) ── */
+const userMenuWrap = $('userMenuWrap');
+const userPill = $('userPill');
+const closeUserMenu = () => {
+    userMenuWrap.classList.remove('open');
+    userPill.setAttribute('aria-expanded', 'false');
+};
+userPill.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = userMenuWrap.classList.toggle('open');
+    userPill.setAttribute('aria-expanded', open);
+});
+document.addEventListener('click', e => { if (!userMenuWrap.contains(e.target)) closeUserMenu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUserMenu(); });
 
 /* ── Sidebar collapse ── */
 const applySidebar = collapsed => {

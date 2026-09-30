@@ -12,22 +12,35 @@ var SECTION_ORDER = ['intro','objectives','prereq','lesson','worked','guided','i
 var state = { completed:{}, quizAnswers:{}, quizScore:0, assessmentScore:null, assessmentStatus:null, completedAt:null, attempts:[] };
 
 function saveState(){ try{ localStorage.setItem(CONFIG.storageKey, JSON.stringify(state)); }catch(e){} }
-function loadState(){ try{ var r = localStorage.getItem(CONFIG.storageKey); if(r){ Object.assign(state, JSON.parse(r)); } }catch(e){} }
+function loadState(){
+    try{
+        var r = localStorage.getItem(CONFIG.storageKey);
+        if(!r) return;
+        var saved = JSON.parse(r);
+        if(!saved || typeof saved !== 'object') return;
+        Object.assign(state, saved);
+        var normalized = {};
+        for(var i=0; i<SECTION_ORDER.length; i++){
+            if(saved.completed && saved.completed[SECTION_ORDER[i]]) normalized[SECTION_ORDER[i]] = true;
+            else break;
+        }
+        state.completed = normalized;
+        saveState();
+    }catch(e){}
+}
 
 function updateProgressTracker(){
     var steps = document.querySelectorAll('.progress-step');
+    var nextIndex = SECTION_ORDER.findIndex(function(sid){ return !state.completed[sid]; });
+    if(nextIndex < 0) nextIndex = SECTION_ORDER.length;
     steps.forEach(function(s){
         var sid = s.getAttribute('data-step');
-        if(state.completed[sid]){ s.classList.add('done'); s.classList.remove('current'); }
-        else { s.classList.remove('done'); }
+        var index = SECTION_ORDER.indexOf(sid);
+        s.classList.toggle('done', !!state.completed[sid]);
+        s.classList.toggle('current', index === nextIndex);
+        s.classList.toggle('locked', index > nextIndex);
+        s.setAttribute('aria-disabled', index > nextIndex ? 'true' : 'false');
     });
-    for(var i=0;i<steps.length;i++){
-        var sid = steps[i].getAttribute('data-step');
-        if(!state.completed[sid]){ steps[i].classList.add('current'); break; }
-    }
-    if(Object.keys(state.completed).length === SECTION_ORDER.length){
-        steps.forEach(function(s){ s.classList.remove('current'); });
-    }
     updateSectionLocks();
 }
 function updateSectionLocks(){
@@ -58,6 +71,19 @@ window.scrollToSection = function(sid){
     var el = document.getElementById('section-'+sid);
     if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
 };
+function bindProgressNavigation(){
+    document.querySelectorAll('.progress-step').forEach(function(step){
+        step.addEventListener('click', function(){
+            var sid = step.getAttribute('data-step');
+            var index = SECTION_ORDER.indexOf(sid);
+            if(index > 0 && !state.completed[SECTION_ORDER[index - 1]]){
+                showToast('Complete the previous section first.');
+                return;
+            }
+            window.scrollToSection(sid);
+        });
+    });
+}
 window.toggleGuidedStep = function(id){
     var el = document.querySelector('[data-step="'+id+'"]');
     if(el) el.classList.toggle('done');
@@ -446,6 +472,7 @@ window.addEventListener('pageshow', function(event){
 
 document.addEventListener('DOMContentLoaded', function(){
     loadState();
+    bindProgressNavigation();
     updateProgressTracker();
     Object.keys(state.completed).forEach(function(sid){
         document.querySelectorAll('[data-section="'+sid+'"].btn-mark-complete').forEach(function(b){

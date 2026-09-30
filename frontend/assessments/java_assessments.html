@@ -13,7 +13,7 @@
 
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -611,7 +611,6 @@
             border-radius: 20px;
         }
         .status-passed { background: var(--green-soft); color: var(--green-deep); }
-        .status-done { background: var(--green-soft); color: var(--green-deep); }
         .status-failed { background: var(--coral-soft); color: var(--coral); }
         .status-in-progress { background: var(--gold-light); color: #9a7020; }
         .status-not-started { background: #e5e7eb; color: #6b7280; }
@@ -877,10 +876,6 @@
                 <h1 class="page-title"><i class="fab fa-java"></i>Java Assessments</h1>
             </div>
             <div class="top-bar-right">
-                <div class="top-search">
-                    <input type="text" placeholder="Search assessments..." id="topSearchInput" aria-label="Search assessments">
-                    <i class="fas fa-search"></i>
-                </div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <i class="fas fa-moon icon-moon"></i>
                     <i class="fas fa-sun icon-sun"></i>
@@ -939,15 +934,19 @@
                 <a href="/assessments_java" class="lang-tab active"><i class="fab fa-java"></i> Java</a>
             </div>
 
-            <button class="activities-btn" onclick="window.location.href='/student_modules/java/1'">
-                <i class="fas fa-puzzle-piece"></i>
-                Modules
-                <span class="badge-count">6</span>
-            </button>
+            <div class="assessment-header-actions">
+                <button class="activities-btn" onclick="window.location.href='/student_modules/java/1'">
+                    <i class="fas fa-puzzle-piece"></i>
+                    Modules
+                    <span class="badge-count">6</span>
+                </button>
+                {% set score_language = 'java' %}{% set score_language_name = 'Java' %}
+                {% include 'assessments/assessment_score_panel.html' %}
+            </div>
         </div>
 
         <!-- Stats -->
-        <div class="stats-grid fu e3" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.6rem;">
+        <div class="stats-grid fu e3" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.6rem;">
             <div class="stat-card" style="background:var(--card-glass); backdrop-filter:blur(12px); border-radius:var(--radius-md); padding:1rem 1.2rem; border:1px solid var(--glass-border); box-shadow:var(--shadow-sm);">
                 <div class="label" style="font-size:0.65rem; font-weight:600; color:var(--stone-light); text-transform:uppercase; letter-spacing:0.5px;">Total Assessments</div>
                 <div class="value" style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-top:2px;"><span id="totalAssessments" style="color:var(--blue);">0</span></div>
@@ -1186,7 +1185,7 @@
             .then(r => r.json())
             .then(d => {
                 if (d.success) {
-                    const name = d.full_name || d.lrn || 'Student';
+                    const name = d.full_name || 'Student';
                     const initial = name.charAt(0).toUpperCase();
                     const grade = d.grade_level || 'Grade 11';
                     document.getElementById('sidebarAvatar').innerText = initial;
@@ -1221,8 +1220,8 @@
     }
 
     function renderAssessmentStatuses(statuses) {
-        const statusLabels = { passed: 'Passed', done: 'Passed', in_progress: 'In Progress', not_started: 'Not Started' };
-        const statusIcons = { passed: 'fa-check-circle', done: 'fa-check-circle', in_progress: 'fa-spinner' };
+        const statusLabels = { passed: 'Passed', failed: 'Not Passed', in_progress: 'In Progress', not_started: 'Not Started' };
+        const statusIcons = { passed: 'fa-check-circle', failed: 'fa-times-circle', in_progress: 'fa-spinner' };
 
         statuses.forEach(item => {
             const card = document.querySelector(`[data-assessment-number="${item.assessment_number}"]`);
@@ -1237,9 +1236,10 @@
             badge.innerHTML = statusIcons[status]
                 ? `<i class="fas ${statusIcons[status]} me-1"></i> ${statusLabels[status]}`
                 : statusLabels[status];
-            if (fill) fill.style.width = status === 'passed' || status === 'done' ? '100%' : '0%';
-            if (footerText) footerText.innerHTML = status === 'passed' || status === 'done'
+            if (fill) fill.style.width = status === 'passed' || status === 'failed' ? '100%' : '0%';
+            if (footerText) footerText.innerHTML = status === 'passed'
                 ? 'Passed'
+                : status === 'failed' ? 'Not passed'
                 : status === 'in_progress' ? 'In progress' : 'Ready to start';
             if (button) {
                 button.className = 'btn-assessment';

@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Support Tickets · BlockLearn</title>
+<title>Support Center · BlockLearn</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-        --green-deep:#145a42; --green-main:#1f8a64; --green-light:#28a87a; --green-soft:#e2f3ed;
+        --green-deep:#145a42; --green-main:#145a42; --green-light:#28a87a; --green-soft:#e2f3ed;
         --gold-warm:#e8a838; --gold-light:#fce9c5; --coral:#e06050; --coral-soft:#fce8e5;
         --blue:#4a90d9; --blue-soft:#e4eefb;
         --stone:#7f9e92; --stone-light:#a8bfb4;
@@ -37,7 +37,6 @@
         transition: background .4s, color .4s;
     }
 
-    /* Background (same sa dashboard) */
     .bg-layer { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
     .bg-layer::before {
         content:''; position:absolute; inset:0;
@@ -78,27 +77,19 @@
         display:flex; align-items:center; justify-content:center; transition:all .25s;
     }
     .theme-btn:hover { border-color:var(--gold-warm); color:var(--gold-warm); transform:translateY(-1px); }
-    .theme-btn:active { transform:scale(.92); }
     .theme-btn .icon-sun { display:none; }
     [data-theme="dark"] .theme-btn .icon-sun { display:inline; }
     [data-theme="dark"] .theme-btn .icon-moon { display:none; }
 
     /* Hero */
     .hero {
-        background:linear-gradient(135deg,#14423a 0%, #1a6850 50%, #1f8a64 100%);
+        background:linear-gradient(135deg,#14423a 0%, #1a6850 50%, #145a42 100%);
         border-radius:28px; padding:1.5rem 1.8rem; margin-bottom:1.2rem;
         position:relative; overflow:hidden; color:#fff; box-shadow:var(--sh-lg);
     }
     .hero::before {
         content:''; position:absolute; top:-40%; right:-8%; width:280px; height:280px; border-radius:50%;
         background:radial-gradient(circle, rgba(232,168,56,.18), transparent 65%);
-    }
-    .hero-dots {
-        position:absolute; inset:0; pointer-events:none;
-        background-image:radial-gradient(rgba(255,255,255,.08) 1.2px, transparent 1.2px);
-        background-size:24px 24px;
-        -webkit-mask-image:linear-gradient(115deg, transparent 25%, #000 75%);
-        mask-image:linear-gradient(115deg, transparent 25%, #000 75%);
     }
     .hero-ring {
         position:absolute; right:46px; top:50%; transform:translateY(-50%);
@@ -125,13 +116,39 @@
     .chip i { font-size:.66rem; }
     .chip strong { font-weight:800; font-variant-numeric:tabular-nums; }
 
+    /* Main tabs */
+    .main-tabs {
+        display:flex; gap:6px; padding:6px;
+        background:rgba(255,255,255,.85); backdrop-filter:blur(12px);
+        border:1px solid rgba(255,255,255,.6); border-radius:18px;
+        margin-bottom:1.2rem; box-shadow:var(--sh-sm);
+        overflow-x:auto;
+    }
+    [data-theme="dark"] .main-tabs { background:rgba(22,43,34,.85); border-color:rgba(40,70,55,.6); }
+    .main-tab {
+        flex:1; min-width:140px;
+        border:0; background:transparent; border-radius:12px;
+        padding:.7rem 1rem; font:inherit; font-size:.8rem; font-weight:700;
+        color:var(--stone); cursor:pointer; transition:all .25s;
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        white-space:nowrap;
+    }
+    .main-tab:hover { color:var(--text-primary); background:var(--nested); }
+    .main-tab.active {
+        background:linear-gradient(135deg, var(--green-main), var(--green-light));
+        color:#fff; box-shadow:0 4px 14px rgba(31,138,100,.25);
+    }
+    .main-tab i { font-size:.78rem; }
+
+    .tab-pane { display:none; }
+    .tab-pane.active { display:block; animation: fuA .4s cubic-bezier(.4,0,.2,1) both; }
+
     /* Grid + panels */
     .grid { display:grid; grid-template-columns:360px 1fr; gap:1.1rem; align-items:start; }
     .panel {
         background:rgba(255,255,255,.8); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
         border:1px solid rgba(255,255,255,.6); border-radius:24px;
         padding:1.3rem 1.4rem; box-shadow:var(--sh-sm);
-        transition:background .4s, border-color .4s;
     }
     [data-theme="dark"] .panel { background:rgba(22,43,34,.85); border-color:rgba(40,70,55,.6); }
     .panel--form { position:sticky; top:24px; }
@@ -220,7 +237,7 @@
         border-left:3px solid var(--accent, var(--stone-light));
         border-radius:18px; padding:1rem 1.1rem; margin-bottom:.7rem; transition:all .25s;
     }
-    .ticket:hover { transform:translateY(-2px); box-shadow:var(--sh-md); border-color:var(--border-fresh); }
+    .ticket:hover { transform:translateY(-2px); box-shadow:var(--sh-md); }
     .ticket.p-low { --accent:var(--blue); }
     .ticket.p-medium { --accent:var(--gold-warm); }
     .ticket.p-high { --accent:var(--coral); }
@@ -263,6 +280,58 @@
         background:var(--green-soft); border-radius:10px; padding:.4rem .7rem; width:fit-content;
     }
     [data-theme="dark"] .tk-resolved { color:#4ad9a0; }
+
+    /* ===== FEEDBACK RATING STARS ===== */
+    .star-rating {
+        display:flex; gap:8px; justify-content:center;
+        padding:.9rem; background:var(--nested);
+        border:1.5px solid var(--border-fresh); border-radius:14px;
+        margin-bottom:.5rem;
+    }
+    .star-btn {
+        width:48px; height:48px; border-radius:12px;
+        border:1.5px solid var(--border-fresh); background:var(--card-white);
+        color:var(--stone-light); font-size:1.4rem; cursor:pointer;
+        transition:all .2s ease; display:flex; align-items:center; justify-content:center;
+        font-family:inherit;
+    }
+    .star-btn:hover { transform:scale(1.08); border-color:var(--gold-warm); }
+    .star-btn.active {
+        background:linear-gradient(135deg, var(--gold-warm), #f0c060);
+        color:#fff; border-color:var(--gold-warm);
+        box-shadow:0 4px 14px rgba(232,168,56,.35);
+    }
+    .rating-hint {
+        text-align:center; font-size:.68rem; color:var(--stone-light);
+        margin-bottom:1rem;
+    }
+    .rating-hint b { color:var(--gold-warm); font-weight:800; }
+
+    /* Feedback item cards (student's own feedback) */
+    .fb-own-item {
+        background:var(--nested); border:1px solid var(--border-fresh);
+        border-radius:16px; padding:1rem 1.1rem; margin-bottom:.7rem;
+        transition:all .25s;
+    }
+    .fb-own-item:hover { transform:translateY(-2px); box-shadow:var(--sh-md); }
+    .fb-own-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:.5rem; }
+    .fb-own-stars { color:var(--gold-warm); font-size:.85rem; letter-spacing:2px; }
+    .fb-own-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:.6rem; }
+    .fb-own-tag {
+        font-size:.62rem; font-weight:700; padding:.22rem .65rem;
+        border-radius:20px; background:var(--green-soft); color:var(--green-deep);
+    }
+    [data-theme="dark"] .fb-own-tag { color:#4ad9a0; }
+    .fb-own-tag.tech { background:var(--coral-soft); color:var(--coral); }
+    .fb-own-tag.gold { background:var(--gold-light); color:#9a7020; }
+    .fb-own-comment {
+        font-size:.78rem; color:var(--text-secondary); line-height:1.5;
+        margin-bottom:.4rem;
+    }
+    .fb-own-time {
+        font-size:.62rem; color:var(--stone-light);
+        display:flex; align-items:center; gap:5px;
+    }
 
     /* Skeleton / empty / error */
     .skel-line {
@@ -326,6 +395,8 @@
         .search { min-width:0; }
         .toast-box { left:12px; right:12px; bottom:12px; }
         .toast-msg { justify-content:center; }
+        .main-tab { min-width:120px; font-size:.74rem; }
+        .star-btn { width:42px; height:42px; font-size:1.2rem; }
     }
     @media (prefers-reduced-motion:reduce) {
         *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
@@ -351,75 +422,163 @@
     </nav>
 
     <header class="hero fu e2">
-        <span class="hero-dots"></span>
         <div class="hero-ring"><i class="fas fa-headset"></i></div>
         <h1>Support <em>Center</em></h1>
-        <p>Submit a ticket and track your requests here. Our team usually responds within 24 hours.</p>
+        <p>Submit tickets and share your feedback. Your voice helps us improve BlockLearn.</p>
         <div class="hero-chips">
-            <span class="chip"><i class="fas fa-inbox"></i>Total <strong id="statTotal">0</strong></span>
+            <span class="chip"><i class="fas fa-ticket"></i>Tickets <strong id="statTotal">0</strong></span>
             <span class="chip"><i class="fas fa-hourglass-half"></i>Open <strong id="statOpen">0</strong></span>
-            <span class="chip"><i class="fas fa-circle-check"></i>Resolved <strong id="statResolved">0</strong></span>
+            <span class="chip"><i class="fas fa-comments"></i>My Feedback <strong id="statFeedback">0</strong></span>
         </div>
     </header>
 
-    <div class="grid">
-        <section class="panel panel--form fu e3">
-            <h2><i class="fas fa-paper-plane"></i>Submit a Ticket</h2>
-            <form id="ticketForm">
-                <div class="field">
-                    <label for="subject">Subject</label>
-                    <input id="subject" required maxlength="255" placeholder="What do you need help with?">
-                </div>
-                <div class="field">
-                    <label for="category">Category</label>
-                    <select id="category">
-                        <option value="technical">Technical Issue</option>
-                        <option value="account">Account &amp; Login</option>
-                        <option value="grades">Grades &amp; Assessments</option>
-                        <option value="content">Course Content</option>
-                        <option value="other" selected>Other</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Priority</label>
-                    <div class="seg" id="prioritySeg">
-                        <button type="button" data-value="low" class="v-low"><i class="fas fa-arrow-down"></i>Low</button>
-                        <button type="button" data-value="medium" class="v-medium active"><i class="fas fa-equals"></i>Medium</button>
-                        <button type="button" data-value="high" class="v-high"><i class="fas fa-arrow-up"></i>High</button>
-                    </div>
-                    <input type="hidden" id="priority" value="medium">
-                </div>
-                <div class="field">
-                    <label for="messageInput">Message</label>
-                    <textarea id="messageInput" required maxlength="1000" placeholder="Describe the issue in detail…"></textarea>
-                    <div class="char-row"><span>Be as specific as possible</span><span><b id="charCount">0</b>/1000</span></div>
-                </div>
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    <span class="spinner"></span>
-                    <i class="fas fa-paper-plane btn-icon"></i>
-                    <span class="btn-label">Submit Ticket</span>
-                </button>
-            </form>
-        </section>
+    <!-- ===== MAIN TABS ===== -->
+    <div class="main-tabs fu e3">
+        <button class="main-tab active" data-pane="tickets">
+            <i class="fas fa-ticket"></i> Tickets
+        </button>
+        <button class="main-tab" data-pane="feedback">
+            <i class="fas fa-comment-dots"></i> Send Feedback
+        </button>
+    </div>
 
-        <section class="panel fu e4">
-            <div class="list-head">
-                <h2><i class="fas fa-ticket"></i>My Tickets</h2>
-                <button class="refresh-btn" id="refreshBtn" title="Refresh" aria-label="Refresh tickets"><i class="fas fa-rotate"></i></button>
-            </div>
-            <div class="list-tools">
-                <div class="tabs" id="tabs">
-                    <button class="tab active" data-filter="all">All<span class="cnt" id="cntAll">0</span></button>
-                    <button class="tab" data-filter="open">Open<span class="cnt" id="cntOpen">0</span></button>
-                    <button class="tab" data-filter="resolved">Resolved<span class="cnt" id="cntResolved">0</span></button>
+    <!-- ============================================================ -->
+    <!-- PANE 1: TICKETS                                              -->
+    <!-- ============================================================ -->
+    <div class="tab-pane active" id="pane-tickets">
+        <div class="grid">
+            <section class="panel panel--form">
+                <h2><i class="fas fa-paper-plane"></i>Submit a Ticket</h2>
+                <form id="ticketForm">
+                    <div class="field">
+                        <label for="subject">Subject</label>
+                        <input id="subject" required maxlength="255" placeholder="What do you need help with?">
+                    </div>
+                    <div class="field">
+                        <label for="category">Category</label>
+                        <select id="category">
+                            <option value="technical">Technical Issue</option>
+                            <option value="account">Account &amp; Login</option>
+                            <option value="grades">Grades &amp; Assessments</option>
+                            <option value="content">Course Content</option>
+                            <option value="other" selected>Other</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Priority</label>
+                        <div class="seg" id="prioritySeg">
+                            <button type="button" data-value="low" class="v-low"><i class="fas fa-arrow-down"></i>Low</button>
+                            <button type="button" data-value="medium" class="v-medium active"><i class="fas fa-equals"></i>Medium</button>
+                            <button type="button" data-value="high" class="v-high"><i class="fas fa-arrow-up"></i>High</button>
+                        </div>
+                        <input type="hidden" id="priority" value="medium">
+                    </div>
+                    <div class="field">
+                        <label for="messageInput">Message</label>
+                        <textarea id="messageInput" required maxlength="1000" placeholder="Describe the issue in detail…"></textarea>
+                        <div class="char-row"><span>Be as specific as possible</span><span><b id="charCount">0</b>/1000</span></div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="spinner"></span>
+                        <i class="fas fa-paper-plane btn-icon"></i>
+                        <span class="btn-label">Submit Ticket</span>
+                    </button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <div class="list-head">
+                    <h2><i class="fas fa-ticket"></i>My Tickets</h2>
+                    <button class="refresh-btn" id="refreshBtn" title="Refresh"><i class="fas fa-rotate"></i></button>
                 </div>
-                <div class="search">
-                    <i class="fas fa-magnifying-glass"></i>
-                    <input id="ticketSearch" placeholder="Search subject, message, or ticket #">
+                <div class="list-tools">
+                    <div class="tabs" id="tabs">
+                        <button class="tab active" data-filter="all">All<span class="cnt" id="cntAll">0</span></button>
+                        <button class="tab" data-filter="open">Open<span class="cnt" id="cntOpen">0</span></button>
+                        <button class="tab" data-filter="resolved">Resolved<span class="cnt" id="cntResolved">0</span></button>
+                    </div>
                 </div>
-            </div>
-            <div id="ticketList"></div>
-        </section>
+                <div id="ticketList"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PANE 2: SEND FEEDBACK                                        -->
+    <!-- ============================================================ -->
+    <div class="tab-pane" id="pane-feedback">
+        <div class="grid">
+            <section class="panel panel--form">
+                <h2><i class="fas fa-comment-dots"></i>Share Your Feedback</h2>
+                <p style="font-size:.76rem;color:var(--stone-light);margin-bottom:1rem;line-height:1.5;">
+                    Your feedback helps us improve the learning experience for everyone. Salamat!
+                </p>
+
+                <form id="feedbackForm">
+                    <div class="field">
+                        <label>Your Rating</label>
+                        <div class="star-rating" id="starRating">
+                            <button type="button" class="star-btn" data-star="1" aria-label="1 star">★</button>
+                            <button type="button" class="star-btn" data-star="2" aria-label="2 stars">★</button>
+                            <button type="button" class="star-btn" data-star="3" aria-label="3 stars">★</button>
+                            <button type="button" class="star-btn" data-star="4" aria-label="4 stars">★</button>
+                            <button type="button" class="star-btn" data-star="5" aria-label="5 stars">★</button>
+                        </div>
+                        <div class="rating-hint" id="ratingHint">Tap a star to rate</div>
+                        <input type="hidden" id="fbRating" value="0">
+                    </div>
+
+                    <div class="field">
+                        <label for="fbType">Feedback Type</label>
+                        <select id="fbType">
+                            <option value="learning" selected>Learning (content, difficulty, activities)</option>
+                            <option value="technical">Technical (bugs, login, errors)</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="fbCategory">Category</label>
+                        <select id="fbCategory">
+                            <!-- options filled via JS -->
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="fbLanguage">Related Language <span style="text-transform:none;font-weight:500;color:var(--stone-light);">(optional)</span></label>
+                        <select id="fbLanguage">
+                            <option value="">— None —</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="cpp">C++</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="php">PHP</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="fbComment">Comment <span style="text-transform:none;font-weight:500;color:var(--stone-light);">(optional)</span></label>
+                        <textarea id="fbComment" maxlength="1000" placeholder="Tell us what you think…" style="min-height:90px;"></textarea>
+                        <div class="char-row"><span>Share details to help us improve</span><span><b id="fbCharCount">0</b>/1000</span></div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="feedbackSubmitBtn">
+                        <span class="spinner"></span>
+                        <i class="fas fa-paper-plane btn-icon"></i>
+                        <span class="btn-label">Submit Feedback</span>
+                    </button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <div class="list-head">
+                    <h2><i class="fas fa-history"></i>My Recent Feedback</h2>
+                    <button class="refresh-btn" id="fbRefreshBtn" title="Refresh"><i class="fas fa-rotate"></i></button>
+                </div>
+                <div id="fbMyList">
+                    <div class="empty"><i class="fas fa-spinner fa-spin"></i><p>Loading your feedback…</p></div>
+                </div>
+            </section>
+        </div>
     </div>
 </main>
 
@@ -432,9 +591,9 @@ const $ = id => document.getElementById(id);
 /* ── Theme ── */
 const applyTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('bl-theme', t); };
 applyTheme(localStorage.getItem('bl-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
- $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+$('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 
-/* ── Status / priority / category maps (match sa DB columns) ── */
+/* ── Status / priority maps ── */
 const STATUS_META = {
     pending:     { label:'Pending',     cls:'st-pending', icon:'fa-clock' },
     open:        { label:'Open',        cls:'st-pending', icon:'fa-clock' },
@@ -452,10 +611,17 @@ const CATEGORY_LABELS = {
     technical:'Technical', account:'Account', grades:'Grades', content:'Content', other:'Other'
 };
 
+const LEARNING_CATEGORIES = [
+    'Difficulty', 'Learning Experience', 'Usability', 'Content', 'Activity', 'Other'
+];
+const TECHNICAL_CATEGORIES = [
+    'Login Problem', 'System Error', 'Page/Interface Problem',
+    'Performance Problem', 'Activity/Module Technical Issue', 'Other'
+];
+
 const normStatus = s => String(s || 'pending').toLowerCase().replace(/\s+/g, '_');
 const catLabel = c => CATEGORY_LABELS[String(c).toLowerCase()] || String(c).charAt(0).toUpperCase() + String(c).slice(1);
 
-/* ── Time helpers (handles "YYYY-MM-DD HH:MM:SS" galing MySQL) ── */
 const parseDate = s => { if (!s) return null; const d = new Date(String(s).replace(' ', 'T')); return isNaN(d) ? null : d; };
 function timeAgo(s) {
     const d = parseDate(s); if (!d) return '';
@@ -469,9 +635,9 @@ function timeAgo(s) {
 }
 const fullDate = s => { const d = parseDate(s); return d ? d.toLocaleString() : ''; };
 
-/* ── State ── */
 let allTickets = [];
 let activeFilter = 'all';
+let selectedRating = 0;
 
 /* ── Toast ── */
 function toast(msg, type = 'success') {
@@ -482,31 +648,40 @@ function toast(msg, type = 'success') {
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 350); }, 3200);
 }
 
-/* ── Render ── */
+/* ── MAIN TABS ── */
+document.querySelectorAll('.main-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const pane = document.getElementById('pane-' + tab.dataset.pane);
+        if (pane) pane.classList.add('active');
+
+        if (tab.dataset.pane === 'feedback') {
+            loadMyFeedback();
+        }
+    });
+});
+
+/* ============================================================ */
+/* TICKETS                                                      */
+/* ============================================================ */
 function renderTickets() {
     const list = $('ticketList');
-    const q = $('ticketSearch').value.trim().toLowerCase();
 
-    // Counts muna (para sa chips + tab counts)
     const total = allTickets.length;
     const open = allTickets.filter(t => !['resolved', 'closed'].includes(normStatus(t.status))).length;
     const resolved = allTickets.filter(t => normStatus(t.status) === 'resolved').length;
-    $('statTotal').textContent = total; $('statOpen').textContent = open; $('statResolved').textContent = resolved;
+    $('statTotal').textContent = total; $('statOpen').textContent = open;
     $('cntAll').textContent = total; $('cntOpen').textContent = open; $('cntResolved').textContent = resolved;
 
-    // Filter + search
     let items = allTickets.filter(t => {
         const st = normStatus(t.status);
         if (activeFilter === 'open' && ['resolved', 'closed'].includes(st)) return false;
         if (activeFilter === 'resolved' && st !== 'resolved') return false;
-        if (q) {
-            const hay = `${t.subject || ''} ${t.description || t.message || ''} ${t.ticket_number || t.id || ''}`.toLowerCase();
-            if (!hay.includes(q)) return false;
-        }
         return true;
     });
 
-    // Newest first
     items.sort((a, b) => (parseDate(b.created_at) || 0) - (parseDate(a.created_at) || 0));
 
     if (!items.length) {
@@ -517,7 +692,6 @@ function renderTickets() {
     }
 
     list.innerHTML = items.map(t => {
-        // DB fields: description, pero fallback sa message para backwards-compatible
         const desc = t.description ?? t.message ?? '';
         const num = String(t.ticket_number ?? t.id ?? '');
         const displayNum = /^\d+$/.test(num) ? '#' + num : num;
@@ -543,7 +717,6 @@ function renderTickets() {
     }).join('');
 }
 
-/* ── Load ── */
 async function loadTickets() {
     const list = $('ticketList'), refresh = $('refreshBtn');
     refresh.classList.add('spinning');
@@ -564,20 +737,15 @@ async function loadTickets() {
     }
 }
 
-/* ── Priority segmented control ── */
- $('prioritySeg').querySelectorAll('button').forEach(btn => {
+$('prioritySeg').querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
         $('prioritySeg').querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         $('priority').value = btn.dataset.value;
     });
 });
-
-/* ── Char counter ── */
- $('messageInput').addEventListener('input', () => { $('charCount').textContent = $('messageInput').value.length; });
-
-/* ── Tabs + search ── */
- $('tabs').querySelectorAll('.tab').forEach(tab => {
+$('messageInput').addEventListener('input', () => { $('charCount').textContent = $('messageInput').value.length; });
+$('tabs').querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
         $('tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
@@ -585,11 +753,9 @@ async function loadTickets() {
         renderTickets();
     });
 });
- $('ticketSearch').addEventListener('input', renderTickets);
- $('refreshBtn').addEventListener('click', loadTickets);
+$('refreshBtn').addEventListener('click', loadTickets);
 
-/* ── Submit ── */
- $('ticketForm').addEventListener('submit', async event => {
+$('ticketForm').addEventListener('submit', async event => {
     event.preventDefault();
     const btn = $('submitBtn');
     const subject = $('subject').value.trim();
@@ -602,7 +768,6 @@ async function loadTickets() {
         const response = await fetch('/submit_ticket', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // description + message pareho ang value — kung alsa backend ang gamit mo, gagana pa rin
             body: JSON.stringify({ subject, priority, category, message, description: message })
         });
         const data = await response.json();
@@ -624,6 +789,148 @@ async function loadTickets() {
 });
 
 loadTickets();
+
+/* ============================================================ */
+/* FEEDBACK FORM (STUDENT)                                      */
+/* ============================================================ */
+function fbRefreshCategoryOptions() {
+    const type = $('fbType').value;
+    const list = type === 'learning' ? LEARNING_CATEGORIES : TECHNICAL_CATEGORIES;
+    const sel = $('fbCategory');
+    sel.innerHTML = list.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+}
+fbRefreshCategoryOptions();
+$('fbType').addEventListener('change', fbRefreshCategoryOptions);
+
+function fbUpdateStars() {
+    document.querySelectorAll('.star-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.star) <= selectedRating);
+    });
+    const hint = $('ratingHint');
+    const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+    hint.innerHTML = selectedRating
+        ? `<b>${labels[selectedRating]}</b> &mdash; ${selectedRating} out of 5`
+        : 'Tap a star to rate';
+}
+
+document.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        selectedRating = parseInt(btn.dataset.star);
+        $('fbRating').value = selectedRating;
+        fbUpdateStars();
+    });
+    btn.addEventListener('mouseenter', () => {
+        const hoverVal = parseInt(btn.dataset.star);
+        document.querySelectorAll('.star-btn').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.star) <= hoverVal);
+        });
+    });
+});
+$('starRating').addEventListener('mouseleave', fbUpdateStars);
+
+$('fbComment').addEventListener('input', () => {
+    $('fbCharCount').textContent = $('fbComment').value.length;
+});
+
+$('feedbackForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const btn = $('feedbackSubmitBtn');
+
+    const rating = parseInt($('fbRating').value);
+    if (!rating || rating < 1 || rating > 5) {
+        toast('Please select a rating first.', 'error');
+        return;
+    }
+
+    const payload = {
+        rating: rating,
+        category: $('fbCategory').value,
+        comment: $('fbComment').value.trim(),
+        feedback_type: $('fbType').value,
+        language: $('fbLanguage').value || null,
+        // Optional context — pwede mong i-link kung galing sa assessment page
+        assessment_id: null,
+        activity_id: null,
+        module_id: null,
+    };
+
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+        const response = await fetch('/submit_feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (data.success) {
+            toast(data.message || 'Feedback submitted — thank you! 💚');
+            // Reset form
+            event.target.reset();
+            selectedRating = 0;
+            $('fbRating').value = 0;
+            $('fbCharCount').textContent = '0';
+            fbUpdateStars();
+            fbRefreshCategoryOptions();
+            loadMyFeedback();
+        } else {
+            toast(data.message || 'Unable to submit feedback.', 'error');
+        }
+    } catch {
+        toast('Network error. Please try again.', 'error');
+    } finally {
+        btn.classList.remove('loading'); btn.disabled = false;
+    }
+});
+
+/* ============================================================ */
+/* MY FEEDBACK (own only)                                       */
+/* ============================================================ */
+async function loadMyFeedback() {
+    const box = $('fbMyList');
+    box.innerHTML = `<div class="empty"><i class="fas fa-spinner fa-spin"></i><p>Loading your feedback…</p></div>`;
+    try {
+        const r = await fetch('/get_my_feedback');
+        const d = await r.json();
+        if (!d.success) {
+            box.innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><p>${escapeHtml(d.message || 'Unable to load your feedback.')}</p></div>`;
+            return;
+        }
+        const items = d.feedback || [];
+        $('statFeedback').textContent = items.length;
+
+        if (!items.length) {
+            box.innerHTML = `<div class="empty"><i class="fas fa-comment-slash"></i><p>No feedback yet.</p><small>Your submitted feedback will appear here.</small></div>`;
+            return;
+        }
+
+        box.innerHTML = items.map(f => {
+            const stars = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+            const typeClass = f.feedback_type === 'technical' ? 'tech' : '';
+            return `<div class="fb-own-item">
+                <div class="fb-own-head">
+                    <span class="fb-own-stars">${stars}</span>
+                </div>
+                <div class="fb-own-tags">
+                    <span class="fb-own-tag ${typeClass}">
+                        <i class="fas ${f.feedback_type === 'technical' ? 'fa-bug' : 'fa-graduation-cap'}"></i>
+                        ${escapeHtml(f.category)}
+                    </span>
+                    ${f.language ? `<span class="fb-own-tag gold"><i class="fas fa-code"></i> ${escapeHtml(String(f.language).toUpperCase())}</span>` : ''}
+                </div>
+                ${f.comment ? `<div class="fb-own-comment">${escapeHtml(f.comment)}</div>` : ''}
+                <div class="fb-own-time">
+                    <i class="far fa-clock"></i>
+                    ${escapeHtml(timeAgo(f.created_at) || f.created_at || '')}
+                </div>
+            </div>`;
+        }).join('');
+    } catch (e) {
+        console.error(e);
+        box.innerHTML = `<div class="empty"><i class="fas fa-wifi"></i><p>Network error.</p></div>`;
+    }
+}
+
+$('fbRefreshBtn').addEventListener('click', loadMyFeedback);
 </script>
 </body>
 </html>

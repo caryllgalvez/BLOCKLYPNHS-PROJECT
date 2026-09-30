@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Logs · ICT Tech Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+        --green-deep:#145a42; --green-main:#1f8a64; --green-light:#28a87a; --green-soft:#e2f3ed;
+        --gold-warm:#e8a838; --gold-light:#fce9c5; --coral:#e06050; --coral-soft:#fce8e5;
+        --blue:#4a90d9; --blue-soft:#e4eefb;
+        --stone:#7f9e92; --stone-light:#a8bfb4;
+        --border-fresh:#dde9e3; --card-white:#fff; --bg-main:#f0f6f3;
+        --text-primary:#1a463a; --text-secondary:#4a6b5e;
+        --nested:rgba(255,255,255,.55); --chart-grid:#e8f0ec;
+        --grid-line:rgba(170,210,195,.3); --blob-opacity:.3;
+        --glass-bg:rgba(255,255,255,.75); --glass-border:rgba(255,255,255,.6);
+        --sh-xs:0 2px 8px rgba(20,90,66,.04); --sh-sm:0 4px 16px rgba(20,90,66,.06);
+        --sh-md:0 8px 28px rgba(20,90,66,.08); --sh-lg:0 16px 48px rgba(20,90,66,.12);
+        --sidebar-w:256px; --sidebar-collapsed-w:72px;
+        --sidebar-text:#b5d9cb; --sidebar-hover-bg:rgba(255,255,255,.08);
+        --sidebar-icon-toggle:rgba(255,255,255,.08);
+    }
+    [data-theme="dark"] {
+        --bg-main:#0f1f19; --text-primary:#d8ede5; --text-secondary:#a8c4b8;
+        --border-fresh:#1e3a2e; --card-white:#162b22;
+        --nested:rgba(255,255,255,.045); --chart-grid:#1e3a2e;
+        --green-soft:#163328; --gold-light:#2e2510; --coral-soft:#2e1a16; --blue-soft:#152535;
+        --stone-light:#5a7a6d; --grid-line:rgba(40,80,60,.25); --blob-opacity:.15;
+        --glass-bg:rgba(22,43,34,.8); --glass-border:rgba(40,70,55,.6);
+        --sh-xs:0 2px 8px rgba(0,0,0,.15); --sh-sm:0 4px 16px rgba(0,0,0,.2);
+        --sh-md:0 8px 28px rgba(0,0,0,.25); --sh-lg:0 16px 48px rgba(0,0,0,.3);
+    }
+    body { font-family:'Inter', system-ui, sans-serif; background:var(--bg-main); color:var(--text-primary); line-height:1.6; overflow-x:hidden; transition:background .4s, color .4s; }
+    ::selection { background:var(--green-main); color:#fff; }
+    ::-webkit-scrollbar { width:9px; }
+    ::-webkit-scrollbar-thumb { background:var(--stone-light); border-radius:10px; border:2px solid var(--bg-main); }
+    ::-webkit-scrollbar-thumb:hover { background:var(--green-main); }
+    a:focus-visible, button:focus-visible { outline:2px solid var(--green-main); outline-offset:2px; }
+
+    .bg-layer { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .bg-layer::before { content:''; position:absolute; inset:0;
+        background-image:linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size:48px 48px; }
+    .bg-blob { position:absolute; border-radius:50%; filter:blur(90px); opacity:var(--blob-opacity); animation:drift 22s ease-in-out infinite alternate; }
+    .bg-blob--1 { width:440px; height:440px; top:-12%; right:-6%; background:radial-gradient(circle, rgba(40,168,122,.4), transparent 70%); }
+    .bg-blob--2 { width:340px; height:340px; bottom:-10%; left:6%; background:radial-gradient(circle, rgba(232,168,56,.25), transparent 70%); animation-duration:28s; animation-delay:-6s; }
+    @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(25px,-30px) scale(1.04)} }
+
+    /* SIDEBAR */
+    .sidebar { width:var(--sidebar-w); background:linear-gradient(175deg,#14423a 0%, #185a48 40%, #1a6850 100%); color:#d8efe5; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; overflow-y:auto; overflow-x:hidden; border-right:1px solid rgba(255,255,255,.06); box-shadow:4px 0 32px rgba(0,0,0,.08); z-index:1000; transition:width .35s cubic-bezier(.4,0,.2,1); scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.1) transparent; }
+    .sidebar::-webkit-scrollbar { width:3px; } .sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:10px; }
+    .sidebar-logo { display:flex; align-items:center; gap:0; border-bottom:1px solid rgba(255,255,255,.07); padding:1rem .4rem; min-height:64px; overflow:hidden; justify-content:space-between; transition:all .35s ease; }
+    .logo-image { width:70px; height:70px; object-fit:contain; flex-shrink:0; }
+    .logo-full { display:flex; flex-direction:column; flex:1; min-width:0; }
+    .logo-full h2 { font-size:1.2rem; font-weight:800; letter-spacing:-.5px; white-space:nowrap; color:#fff; margin:0; }
+    .logo-full h2 em { font-style:normal; color:var(--gold-warm); }
+    .logo-full p { font-size:.56rem; opacity:.4; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; margin:1px 0 0; }
+    .toggle-btn, .hamburger-btn { background:var(--sidebar-icon-toggle); border:1px solid rgba(255,255,255,.06); color:#d8efe5; width:28px; height:28px; border-radius:8px; cursor:pointer; margin-right:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s; }
+    .toggle-btn iconify-icon, .hamburger-btn iconify-icon { font-size:14px; }
+    .toggle-btn:hover, .hamburger-btn:hover { background:rgba(255,255,255,.18); }
+    .toggle-btn:hover { transform:rotate(90deg); }
+    .hamburger-wrap { display:none; padding:.4rem 0 .2rem; justify-content:center; }
+    .sidebar.collapsed { width:var(--sidebar-collapsed-w); }
+    .sidebar.collapsed .sidebar-logo { justify-content:center; padding:1rem .5rem; }
+    .sidebar.collapsed .logo-full, .sidebar.collapsed .toggle-btn { display:none; }
+    .sidebar.collapsed .hamburger-wrap { display:flex; }
+    .sidebar.collapsed .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
+    .sidebar.collapsed .nav-text { display:none !important; }
+    .sidebar.collapsed .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
+    .nav-section-label { font-size:.55rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:rgba(216,239,229,.35); white-space:nowrap; padding:1.1rem 1.1rem .35rem; transition:all .3s; }
+    .sidebar-nav { flex:1; padding:.4rem 0 1rem; }
+    .nav-link-custom { display:flex; align-items:center; gap:13px; color:var(--sidebar-text); text-decoration:none; border-radius:12px; font-size:.84rem; font-weight:500; padding:.55rem .9rem; margin:0 .4rem 2px; position:relative; white-space:nowrap; transition:all .25s; }
+    .nav-link-custom iconify-icon { font-size:17px; width:22px; flex-shrink:0; transition:transform .25s; }
+    .nav-link-custom:hover { background:var(--sidebar-hover-bg); color:#fff; }
+    .nav-link-custom:hover iconify-icon { transform:scale(1.12); }
+    .nav-link-custom::after { content:''; position:absolute; left:0; top:50%; width:3px; height:55%; border-radius:0 4px 4px 0; background:var(--gold-warm); transform:translateY(-50%) scaleY(0); transition:transform .28s cubic-bezier(.4,0,.2,1); }
+    .nav-link-custom.active::after { transform:translateY(-50%) scaleY(1); }
+    .sidebar.collapsed .nav-link-custom::after { display:none; }
+    .nav-link-custom.active { background:var(--card-white); color:var(--green-deep); font-weight:650; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+    [data-theme="dark"] .nav-link-custom.active { color:#4ad9a0; }
+
+    /* MAIN */
+    .main-content { margin-left:var(--sidebar-w); padding:26px 32px 44px; min-height:100vh; position:relative; z-index:1; transition:margin-left .35s cubic-bezier(.4,0,.2,1); }
+    .main-content.shifted { margin-left:var(--sidebar-collapsed-w); }
+    .top-bar { background:var(--glass-bg); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:24px; padding:.5rem 1rem .5rem 1.4rem; margin-bottom:1.1rem; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--sh-sm); position:relative; z-index:20; }
+    .page-title { font-size:1.05rem; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:9px; }
+    .page-title iconify-icon { color:var(--gold-warm); font-size:17px; }
+    .top-bar-right { display:flex; align-items:center; gap:10px; }
+    .account-menu { position:relative; }
+    .account-trigger { display:flex; align-items:center; gap:8px; min-height:40px; padding:4px 8px 4px 5px; border:1px solid var(--green-main); border-radius:14px; background:var(--card-white); color:var(--text-primary); cursor:pointer; font:inherit; text-align:left; transition:all .2s; }
+    .account-trigger:hover, .account-trigger[aria-expanded="true"] { box-shadow:var(--sh-xs); }
+    .account-avatar, .account-menu-avatar { display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:10px; background:linear-gradient(135deg,var(--green-main),var(--green-deep)); color:#fff; font-weight:800; }
+    .account-avatar { width:29px; height:29px; font-size:.72rem; }
+    .account-trigger-copy { display:flex; flex-direction:column; min-width:0; }
+    .account-trigger-name { max-width:135px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.7rem; font-weight:800; line-height:1.2; }
+    .account-trigger-role { color:var(--stone-light); font-size:.58rem; line-height:1.2; }
+    .account-chevron { color:var(--stone); font-size:12px; transition:transform .2s; }
+    .account-trigger[aria-expanded="true"] .account-chevron { transform:rotate(180deg); }
+    .account-dropdown { display:none; position:absolute; z-index:1200; top:calc(100% + 10px); right:0; width:min(250px,calc(100vw - 24px)); overflow:hidden; background:var(--card-white); border:1px solid var(--border-fresh); border-radius:16px; box-shadow:var(--sh-lg); }
+    .account-dropdown.open { display:block; animation:accountDrop .18s ease-out; }
+    @keyframes accountDrop { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+    .account-dropdown-head { display:flex; align-items:center; gap:10px; padding:14px; border-bottom:1px solid var(--border-fresh); }
+    .account-menu-avatar { width:38px; height:38px; font-size:.85rem; }
+    .account-menu-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.78rem; font-weight:800; }
+    .account-menu-link { display:flex; align-items:center; gap:10px; min-height:40px; padding:9px 14px; color:var(--text-secondary); text-decoration:none; font-size:.75rem; font-weight:650; }
+    .account-menu-link:hover { background:var(--green-soft); color:var(--green-deep); }
+    .account-menu-link iconify-icon { width:17px; font-size:15px; }
+    .account-menu-link.logout { border-top:1px solid var(--border-fresh); color:var(--coral); }
+    .account-menu-link.logout:hover { background:var(--coral-soft); color:var(--coral); }
+    .icon-btn { width:36px; height:36px; border-radius:11px; border:1.5px solid var(--border-fresh); background:var(--card-white); color:var(--stone); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .25s; position:relative; }
+    .icon-btn iconify-icon { font-size:17px; }
+    .icon-btn:hover { border-color:var(--green-main); color:var(--green-main); transform:translateY(-1px); }
+    .icon-btn:active { transform:scale(.92); }
+    .icon-btn.spinning iconify-icon { animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .theme-btn .icon-sun { display:none; }
+    [data-theme="dark"] .theme-btn .icon-sun { display:flex; }
+    [data-theme="dark"] .theme-btn .icon-moon { display:none; }
+    .icon-btn .icon-sun, .icon-btn .icon-moon { display:flex; }
+
+    /* HERO */
+    .hero { background:linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%); border-radius:28px; padding:1.5rem 1.8rem; margin-bottom:1.2rem; position:relative; overflow:hidden; color:#fff; box-shadow:var(--sh-lg); }
+    .hero::before { content:''; position:absolute; top:-40%; right:-8%; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle, rgba(232,168,56,.18), transparent 65%); }
+    .hero-dots { position:absolute; inset:0; pointer-events:none; background-image:radial-gradient(rgba(255,255,255,.08) 1.2px, transparent 1.2px); background-size:24px 24px; -webkit-mask-image:linear-gradient(115deg, transparent 25%, #000 75%); mask-image:linear-gradient(115deg, transparent 25%, #000 75%); }
+    .hero-ring { position:absolute; right:46px; top:50%; transform:translateY(-50%); width:82px; height:82px; border-radius:50%; border:1.5px solid rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; }
+    .hero-ring::before { content:''; position:absolute; inset:-9px; border-radius:50%; border:1.5px dashed rgba(232,168,56,.4); animation:ringspin 26s linear infinite; }
+    .hero-ring iconify-icon { font-size:30px; color:var(--gold-warm); }
+    @keyframes ringspin { to { transform:rotate(360deg); } }
+    .hero h1 { font-size:1.4rem; font-weight:800; letter-spacing:-.5px; position:relative; z-index:1; }
+    .hero h1 em { font-style:normal; color:var(--gold-warm); }
+    .hero p { font-size:.84rem; opacity:.75; max-width:520px; margin-top:.2rem; position:relative; z-index:1; }
+    .hero-chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:1rem; position:relative; z-index:1; }
+    .chip { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.08); padding:5px 14px; border-radius:20px; font-size:.72rem; font-weight:600; }
+    .chip iconify-icon { font-size:13px; color:var(--gold-warm); }
+    .chip strong { font-weight:800; font-variant-numeric:tabular-nums; }
+
+    /* STATS */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(215px, 1fr)); gap:1rem; margin-bottom:1.2rem; }
+    .stat-card { background:var(--glass-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--glass-border); border-radius:22px; padding:1.1rem 1.3rem; position:relative; overflow:hidden; box-shadow:var(--sh-sm); transition:all .35s cubic-bezier(.4,0,.2,1), background .4s, border-color .4s; }
+    .stat-card:hover { transform:translateY(-4px); border-color:var(--green-main); box-shadow:var(--sh-lg); }
+    .stat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.7rem; }
+    .stat-header span { font-size:.6rem; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--stone); }
+    .stat-icon { width:36px; height:36px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:transform .35s; }
+    .stat-icon iconify-icon { font-size:18px; }
+    .sc-green .stat-icon { background:var(--green-soft); color:var(--green-main); }
+    .sc-gold  .stat-icon { background:var(--gold-light); color:#c48a20; }
+    .sc-blue  .stat-icon { background:var(--blue-soft); color:var(--blue); }
+    .sc-coral .stat-icon { background:var(--coral-soft); color:var(--coral); }
+    .stat-card:hover .stat-icon { transform:scale(1.08) rotate(-3deg); }
+    .stat-value { font-size:1.9rem; font-weight:900; letter-spacing:-1px; line-height:1.1; font-variant-numeric:tabular-nums; }
+    .stat-sub { color:var(--stone-light); font-size:.68rem; font-weight:500; }
+
+    /* PANEL */
+    .panel { background:var(--glass-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--glass-border); border-radius:22px; padding:1.25rem 1.35rem; box-shadow:var(--sh-sm); margin-bottom:1.2rem; }
+    .panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.9rem; gap:10px; flex-wrap:wrap; }
+    .panel-head h3 { font-size:.92rem; font-weight:800; }
+    .panel-head h3 iconify-icon { color:var(--gold-warm); font-size:15px; margin-right:7px; }
+    .panel-head .sub { font-size:.66rem; color:var(--stone-light); margin-top:.15rem; }
+
+    /* FILTERS */
+    .filters { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; margin-bottom:1rem; }
+    .filter-group { display:flex; flex-direction:column; gap:4px; }
+    .filter-group label { font-size:.6rem; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--stone); }
+    .filter-group input, .filter-group select { border:1.5px solid var(--border-fresh); border-radius:10px; padding:.48rem .7rem; font:inherit; font-size:.76rem; background:var(--card-white); color:var(--text-primary); transition:all .25s; }
+    .filter-group input:focus, .filter-group select:focus { outline:none; border-color:var(--green-main); box-shadow:0 0 0 3px rgba(31,138,100,.12); }
+    .filter-actions { display:flex; gap:8px; align-items:flex-end; }
+    .btn-primary, .btn-ghost { border-radius:10px; padding:.5rem 1rem; font:inherit; font-size:.74rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .2s; }
+    .btn-primary { border:0; background:linear-gradient(135deg, var(--green-main), var(--green-light)); color:#fff; box-shadow:0 4px 14px rgba(31,138,100,.25); }
+    .btn-primary:hover { transform:translateY(-1px); filter:brightness(1.05); }
+    .btn-ghost { border:1.5px solid var(--border-fresh); background:var(--card-white); color:var(--stone); }
+    .btn-ghost:hover { border-color:var(--stone-light); color:var(--text-primary); }
+    .btn-primary iconify-icon, .btn-ghost iconify-icon { font-size:14px; }
+
+    /* TABLE */
+    .log-table-wrap { overflow-x:auto; border-radius:14px; border:1px solid var(--border-fresh); }
+    .log-table { width:100%; border-collapse:collapse; font-size:.76rem; min-width:900px; }
+    .log-table th { text-align:left; font-size:.58rem; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:var(--stone); padding:.7rem .8rem; background:var(--nested); border-bottom:1px solid var(--border-fresh); white-space:nowrap; }
+    .log-table td { padding:.7rem .8rem; border-bottom:1px solid var(--border-fresh); vertical-align:top; }
+    .log-table tr:last-child td { border-bottom:none; }
+    .log-table tr:hover { background:rgba(31,138,100,.04); }
+    .log-table .col-time { font-variant-numeric:tabular-nums; color:var(--stone); font-size:.7rem; white-space:nowrap; }
+    .log-table .col-actor { font-weight:700; }
+    .log-table .col-actor small { display:block; color:var(--stone-light); font-weight:500; font-size:.62rem; margin-top:1px; }
+    .log-table .col-action code { background:var(--nested); padding:2px 8px; border-radius:6px; font-size:.68rem; font-family:ui-monospace, monospace; color:var(--green-deep); border:1px solid var(--border-fresh); }
+    [data-theme="dark"] .log-table .col-action code { color:#4ad9a0; }
+    .log-table .col-entity { font-size:.68rem; color:var(--text-secondary); }
+    .log-table .col-details { font-size:.68rem; color:var(--stone); max-width:280px; word-break:break-word; }
+
+    .role-badge { display:inline-flex; align-items:center; gap:5px; font-size:.58rem; font-weight:800; text-transform:uppercase; letter-spacing:.6px; padding:3px 9px; border-radius:20px; }
+    .role-student { background:var(--blue-soft); color:var(--blue); }
+    .role-teacher { background:var(--gold-light); color:#9a7020; }
+    .role-ict { background:var(--green-soft); color:var(--green-deep); }
+    .role-unknown { background:var(--nested); color:var(--stone); border:1px solid var(--border-fresh); }
+    [data-theme="dark"] .role-student { color:#6ba8e8; }
+    [data-theme="dark"] .role-teacher { color:#e8c568; }
+    [data-theme="dark"] .role-ict { color:#4ad9a0; }
+
+    /* PAGINATION */
+    .pagination { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:1rem; flex-wrap:wrap; }
+    .pagination-info { font-size:.72rem; color:var(--stone); }
+    .pagination-controls { display:flex; gap:6px; align-items:center; }
+    .page-btn { min-width:34px; height:34px; border-radius:10px; border:1.5px solid var(--border-fresh); background:var(--card-white); color:var(--stone); font:inherit; font-size:.74rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:all .2s; padding:0 10px; }
+    .page-btn:hover:not(:disabled) { border-color:var(--green-main); color:var(--green-main); }
+    .page-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .page-btn.active { background:var(--green-main); border-color:var(--green-main); color:#fff; }
+
+    .skel-line { height:10px; border-radius:6px; margin-bottom:9px; background:linear-gradient(90deg, var(--chart-grid) 25%, var(--nested) 50%, var(--chart-grid) 75%); background-size:200% 100%; animation:sk 1.2s infinite; }
+    @keyframes sk { to { background-position:-200% 0; } }
+    .state-box { padding:3rem 1rem; text-align:center; }
+    .state-box iconify-icon { font-size:2.2rem; color:var(--border-fresh); margin-bottom:.6rem; display:block; }
+    .state-box p { font-size:.8rem; color:var(--stone-light); }
+    .state-box .small { font-size:.66rem; opacity:.7; margin-top:.2rem; }
+    .retry-btn { margin-top:1rem; border:1.5px solid var(--border-fresh); background:var(--card-white); color:var(--green-main); border-radius:12px; padding:.5rem 1rem; font:inherit; font-size:.74rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .2s; }
+    .retry-btn:hover { border-color:var(--green-main); background:var(--green-soft); }
+
+    .fu { opacity:0; transform:translateY(16px); animation:fuA .5s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes fuA { to { opacity:1; transform:none; } }
+    .e1{animation-delay:.05s} .e2{animation-delay:.12s} .e3{animation-delay:.2s} .e4{animation-delay:.28s}
+
+    @media (max-width:768px) {
+        .sidebar { width:var(--sidebar-collapsed-w); }
+        .sidebar .logo-full, .sidebar .toggle-btn { display:none !important; }
+        .sidebar .hamburger-wrap { display:flex !important; }
+        .sidebar .sidebar-logo { justify-content:center; padding:1rem .5rem; }
+        .sidebar .nav-link-custom { justify-content:center; padding:.55rem 0; margin:0 .3rem; }
+        .sidebar .nav-text { display:none !important; }
+        .sidebar .nav-section-label { height:0; padding:0; margin:0; opacity:0; overflow:hidden; }
+        .main-content, .main-content.shifted { margin-left:var(--sidebar-collapsed-w); padding:16px 14px 32px; }
+        .hero-ring { display:none; }
+        .filters { grid-template-columns:1fr; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+        *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+    <div class="bg-blob bg-blob--1"></div>
+    <div class="bg-blob bg-blob--2"></div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
+        <div class="logo-full">
+            <h2>Block<em>Learn</em></h2>
+            <p>PNHS · ICT Studio</p>
+        </div>
+        <button class="toggle-btn" id="toggleSidebar" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
+        </button>
+    </div>
+    <div class="hamburger-wrap">
+        <button class="hamburger-btn" id="hamburgerBtn" title="Expand sidebar" aria-label="Expand sidebar">
+            <iconify-icon icon="lucide:panel-left-open"></iconify-icon>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <p class="nav-section-label">Main</p>
+        <a href="/ict_support_dashboard" class="nav-link-custom" data-tip="Dashboard">
+            <iconify-icon icon="lucide:layout-dashboard"></iconify-icon><span class="nav-text">Dashboard</span>
+        </a>
+
+        <p class="nav-section-label">Operations</p>
+        <a href="/ict_support_tickets" class="nav-link-custom" data-tip="Tickets">
+            <iconify-icon icon="lucide:ticket"></iconify-icon><span class="nav-text">Tickets</span>
+        </a>
+        <a href="/ict_support_students" class="nav-link-custom" data-tip="Users">
+            <iconify-icon icon="lucide:users"></iconify-icon><span class="nav-text">Users</span>
+        </a>
+
+        <p class="nav-section-label">Insights</p>
+        <a href="/ict_support_reports" class="nav-link-custom" data-tip="Reports">
+            <iconify-icon icon="lucide:file-text"></iconify-icon><span class="nav-text">Reports</span>
+        </a>
+        <a href="/ict_feedback_analytics" class="nav-link-custom" data-tip="Feedback Analytics">
+            <iconify-icon icon="lucide:message-square-more"></iconify-icon><span class="nav-text">Feedback Analytics</span>
+        </a>
+
+        <p class="nav-section-label">System</p>
+        <a href="/ict_support_audit_logs" class="nav-link-custom active" data-tip="Audit Logs">
+            <iconify-icon icon="lucide:scroll-text"></iconify-icon><span class="nav-text">Audit Logs</span>
+        </a>
+        <a href="/ict_support_settings" class="nav-link-custom" data-tip="Settings">
+            <iconify-icon icon="lucide:settings"></iconify-icon><span class="nav-text">Settings</span>
+        </a>
+    </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main-content" id="mainContent">
+
+    <div class="top-bar fu e1">
+        <h2 class="page-title"><iconify-icon icon="lucide:scroll-text"></iconify-icon>Audit Logs</h2>
+        <div class="top-bar-right">
+            <button class="icon-btn theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+                <iconify-icon icon="lucide:moon" class="icon-moon"></iconify-icon>
+                <iconify-icon icon="lucide:sun" class="icon-sun"></iconify-icon>
+            </button>
+            <div class="account-menu">
+                <button class="account-trigger" id="accountTrigger" type="button" aria-label="Open account menu" aria-haspopup="true" aria-expanded="false">
+                    <span class="account-avatar">{{ (full_name or username or 'U')[:1]|upper }}</span>
+                    <span class="account-trigger-copy">
+                        <span class="account-trigger-name">{{ full_name or username or 'ICT Support' }}</span>
+                        <span class="account-trigger-role">ICT Tech Support</span>
+                    </span>
+                    <iconify-icon class="account-chevron" icon="lucide:chevron-down"></iconify-icon>
+                </button>
+                <div class="account-dropdown" id="accountDropdown" role="menu">
+                    <div class="account-dropdown-head">
+                        <span class="account-menu-avatar">{{ (full_name or username or 'U')[:1]|upper }}</span>
+                        <span><span class="account-menu-name">{{ full_name or username or 'ICT Support' }}</span></span>
+                    </div>
+                    <a class="account-menu-link" href="/ict_support_settings" role="menuitem">
+                        <iconify-icon icon="lucide:settings-2"></iconify-icon> Settings
+                    </a>
+                    <a class="account-menu-link logout" href="/logout" role="menuitem">
+                        <iconify-icon icon="lucide:log-out"></iconify-icon> Sign Out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="hero fu e2">
+        <span class="hero-dots"></span>
+        <div class="hero-ring"><iconify-icon icon="lucide:scroll-text"></iconify-icon></div>
+        <h1>System <em>Audit Trail</em></h1>
+        <p>Track all significant events across the platform — logins, tickets, assessments, and account changes.</p>
+        <div class="hero-chips">
+            <span class="chip"><iconify-icon icon="lucide:calendar"></iconify-icon><span id="heroDate">—</span></span>
+            <span class="chip"><iconify-icon icon="lucide:clock"></iconify-icon><span id="heroClock">--:--</span></span>
+            <span class="chip"><iconify-icon icon="lucide:activity"></iconify-icon><strong id="heroTotal">0</strong>&nbsp;events</span>
+        </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-grid fu e3">
+        <div class="stat-card sc-green">
+            <div class="stat-header"><span>Total Events</span><div class="stat-icon"><iconify-icon icon="lucide:activity"></iconify-icon></div></div>
+            <p class="stat-value" id="statTotal">0</p>
+            <p class="stat-sub">All time</p>
+        </div>
+        <div class="stat-card sc-blue">
+            <div class="stat-header"><span>Today</span><div class="stat-icon"><iconify-icon icon="lucide:calendar-check"></iconify-icon></div></div>
+            <p class="stat-value" id="statToday">0</p>
+            <p class="stat-sub">Events logged today</p>
+        </div>
+        <div class="stat-card sc-gold">
+            <div class="stat-header"><span>Unique Actors</span><div class="stat-icon"><iconify-icon icon="lucide:users"></iconify-icon></div></div>
+            <p class="stat-value" id="statActors">0</p>
+            <p class="stat-sub">Distinct identities</p>
+        </div>
+        <div class="stat-card sc-coral">
+            <div class="stat-header"><span>Failed Logins</span><div class="stat-icon"><iconify-icon icon="lucide:shield-alert"></iconify-icon></div></div>
+            <p class="stat-value" id="statFailed">0</p>
+            <p class="stat-sub">Security signal</p>
+        </div>
+    </div>
+
+    <!-- FILTERS -->
+    <section class="panel fu e4">
+        <div class="panel-head">
+            <div>
+                <h3><iconify-icon icon="lucide:filter"></iconify-icon>Filter Events</h3>
+                <p class="sub">Narrow down by date, action, role, or search text</p>
+            </div>
+        </div>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="fDateFrom">Date From</label>
+                <input type="date" id="fDateFrom">
+            </div>
+            <div class="filter-group">
+                <label for="fDateTo">Date To</label>
+                <input type="date" id="fDateTo">
+            </div>
+            <div class="filter-group">
+                <label for="fAction">Action</label>
+                <select id="fAction"><option value="">All actions</option></select>
+            </div>
+            <div class="filter-group">
+                <label for="fRole">Role</label>
+                <select id="fRole">
+                    <option value="">All roles</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="ict">ICT Support</option>
+                    <option value="unknown">Unknown</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="fSearch">Search</label>
+                <input type="text" id="fSearch" placeholder="Name, entity, details...">
+            </div>
+            <div class="filter-actions">
+                <button class="btn-primary" id="applyFilters"><iconify-icon icon="lucide:search"></iconify-icon>Apply</button>
+                <button class="btn-ghost" id="resetFilters"><iconify-icon icon="lucide:rotate-ccw"></iconify-icon>Reset</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOG TABLE -->
+    <section class="panel fu e4">
+        <div class="panel-head">
+            <div>
+                <h3><iconify-icon icon="lucide:list"></iconify-icon>Event Log</h3>
+                <p class="sub" id="logSubtitle">Loading…</p>
+            </div>
+            <button class="icon-btn" id="refreshBtn" title="Refresh" aria-label="Refresh">
+                <iconify-icon icon="lucide:rotate-cw"></iconify-icon>
+            </button>
+        </div>
+        <div id="logContainer">
+            <div style="padding:1rem"><div class="skel-line" style="width:40%"></div><div class="skel-line" style="width:90%"></div><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:60%"></div></div>
+        </div>
+        <div class="pagination" id="pagination" style="display:none">
+            <div class="pagination-info" id="paginationInfo"></div>
+            <div class="pagination-controls" id="paginationControls"></div>
+        </div>
+    </section>
+
+    <footer style="margin-top:2rem;text-align:center;font-size:.66rem;color:var(--stone-light);border-top:1px solid var(--border-fresh);padding-top:1.4rem;">PNHS-Main · ICT Tech Support Portal v2.0</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+/* Theme */
+const applyTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('bl-theme', t); };
+applyTheme(localStorage.getItem('bl-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+$('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+/* Sidebar */
+const applySidebar = c => {
+    $('sidebar').classList.toggle('collapsed', c);
+    $('mainContent').classList.toggle('shifted', c);
+    localStorage.setItem('bl-ict-sidebar', c ? '1' : '0');
+};
+applySidebar(localStorage.getItem('bl-ict-sidebar') === '1');
+$('toggleSidebar').addEventListener('click', () => applySidebar(true));
+$('hamburgerBtn').addEventListener('click', () => applySidebar(false));
+
+/* Account menu */
+const at = $('accountTrigger'), ad = $('accountDropdown');
+at.addEventListener('click', () => { const o = ad.classList.toggle('open'); at.setAttribute('aria-expanded', o); });
+document.addEventListener('click', e => { if (!e.target.closest('.account-menu')) { ad.classList.remove('open'); at.setAttribute('aria-expanded','false'); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') ad.classList.remove('open'); });
+
+/* Clock */
+const tick = () => $('heroClock').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+tick(); setInterval(tick, 10000);
+$('heroDate').textContent = new Date().toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+/* State */
+let currentPage = 1;
+const PER_PAGE = 25;
+
+function countUp(el, target) {
+    target = Number(target) || 0;
+    let t0 = null;
+    const step = now => {
+        if (!t0) t0 = now;
+        const p = Math.min((now - t0) / 900, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+const ROLE_META = {
+    student: { label: 'Student', cls: 'role-student', icon: 'lucide:graduation-cap' },
+    teacher: { label: 'Teacher', cls: 'role-teacher', icon: 'lucide:user-check' },
+    ict:     { label: 'ICT',     cls: 'role-ict',     icon: 'lucide:wrench' },
+    unknown: { label: 'Unknown', cls: 'role-unknown', icon: 'lucide:help-circle' }
+};
+
+function renderRole(role) {
+    const m = ROLE_META[role] || ROLE_META.unknown;
+    return `<span class="role-badge ${m.cls}"><iconify-icon icon="${m.icon}"></iconify-icon>${m.label}</span>`;
+}
+
+function renderDetails(details) {
+    if (!details) return '<span style="opacity:.5">—</span>';
+    let obj = details;
+    if (typeof details === 'string') {
+        try { obj = JSON.parse(details); } catch { return escapeHtml(details); }
+    }
+    if (!obj || typeof obj !== 'object') return escapeHtml(String(obj));
+    const parts = Object.entries(obj).map(([k, v]) => {
+        const val = (v === null || v === undefined) ? '—' : (typeof v === 'object' ? JSON.stringify(v) : String(v));
+        return `<div><span style="opacity:.6">${escapeHtml(k)}:</span> ${escapeHtml(val)}</div>`;
+    });
+    return parts.join('') || '<span style="opacity:.5">—</span>';
+}
+
+function renderLogs(logs) {
+    if (!logs.length) {
+        $('logContainer').innerHTML = `<div class="state-box">
+            <iconify-icon icon="lucide:inbox"></iconify-icon>
+            <p>No audit events found.</p>
+            <p class="small">Try changing the filters or date range.</p></div>`;
+        return;
+    }
+    const rows = logs.map(l => {
+        const name = l.actor_display_name || 'Unknown';
+        const sub = [];
+        if (l.actor_username) sub.push('@' + l.actor_username);
+        if (l.actor_lrn) sub.push('LRN ' + l.actor_lrn);
+        if (l.actor_grade_level) sub.push(l.actor_grade_level);
+        return `<tr>
+            <td class="col-time">${escapeHtml(l.created_at || '')}</td>
+            <td class="col-actor">${escapeHtml(name)}${sub.length ? `<small>${escapeHtml(sub.join(' · '))}</small>` : ''}</td>
+            <td>${renderRole(l.actor_role)}</td>
+            <td class="col-action"><code>${escapeHtml(l.action || '')}</code></td>
+            <td class="col-entity">${l.entity_type ? escapeHtml(l.entity_type) : '—'}${l.entity_id ? ` #${escapeHtml(l.entity_id)}` : ''}</td>
+            <td class="col-details">${renderDetails(l.details)}</td>
+        </tr>`;
+    }).join('');
+
+    $('logContainer').innerHTML = `<div class="log-table-wrap"><table class="log-table">
+        <thead><tr>
+            <th>Time</th><th>Actor</th><th>Role</th><th>Action</th><th>Entity</th><th>Details</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table></div>`;
+}
+
+function renderPagination(p) {
+    const info = $('paginationInfo'), ctrl = $('paginationControls'), wrap = $('pagination');
+    if (p.total === 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'flex';
+    const start = (p.page - 1) * p.per_page + 1;
+    const end = Math.min(p.page * p.per_page, p.total);
+    info.textContent = `Showing ${start}–${end} of ${p.total} events`;
+
+    const btns = [];
+    btns.push(`<button class="page-btn" ${p.page<=1?'disabled':''} onclick="goToPage(${p.page-1})"><iconify-icon icon="lucide:chevron-left"></iconify-icon></button>`);
+    const maxBtns = 5;
+    let startPage = Math.max(1, p.page - Math.floor(maxBtns / 2));
+    let endPage = Math.min(p.total_pages, startPage + maxBtns - 1);
+    startPage = Math.max(1, endPage - maxBtns + 1);
+    for (let i = startPage; i <= endPage; i++) {
+        btns.push(`<button class="page-btn ${i===p.page?'active':''}" onclick="goToPage(${i})">${i}</button>`);
+    }
+    btns.push(`<button class="page-btn" ${p.page>=p.total_pages?'disabled':''} onclick="goToPage(${p.page+1})"><iconify-icon icon="lucide:chevron-right"></iconify-icon></button>`);
+    ctrl.innerHTML = btns.join('');
+}
+
+function goToPage(p) { currentPage = p; loadLogs(); }
+
+function populateActionDropdown(actions) {
+    const sel = $('fAction');
+    const current = sel.value;
+    const opts = ['<option value="">All actions</option>']
+        .concat(actions.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`));
+    sel.innerHTML = opts.join('');
+    if (current) sel.value = current;
+}
+
+function loadLogs() {
+    const params = new URLSearchParams();
+    params.set('page', currentPage);
+    params.set('per_page', PER_PAGE);
+    const df = $('fDateFrom').value; if (df) params.set('date_from', df);
+    const dt = $('fDateTo').value;   if (dt) params.set('date_to', dt);
+    const ac = $('fAction').value;   if (ac) params.set('action', ac);
+    const rl = $('fRole').value;     if (rl) params.set('role', rl);
+    const sq = $('fSearch').value.trim(); if (sq) params.set('search', sq);
+
+    $('refreshBtn').classList.add('spinning');
+    $('logContainer').innerHTML = `<div style="padding:1rem"><div class="skel-line" style="width:40%"></div><div class="skel-line" style="width:90%"></div><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:60%"></div></div>`;
+
+    fetch('/get_audit_logs?' + params.toString(), { headers: { 'Accept': 'application/json' } })
+        .then(r => { if (r.status === 403) throw new Error('Access denied'); if (!r.ok) throw new Error('Server error'); return r.json(); })
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Failed to load logs');
+            countUp($('statTotal'), data.stats.total);
+            countUp($('statToday'), data.stats.today);
+            countUp($('statActors'), data.stats.unique_actors);
+            countUp($('statFailed'), data.stats.failed_logins);
+            $('heroTotal').textContent = data.stats.total;
+            $('logSubtitle').textContent = `${data.pagination.total} event${data.pagination.total === 1 ? '' : 's'} found`;
+            populateActionDropdown(data.actions || []);
+            renderLogs(data.logs || []);
+            renderPagination(data.pagination);
+        })
+        .catch(err => {
+            $('logContainer').innerHTML = `<div class="state-box">
+                <iconify-icon icon="lucide:triangle-alert"></iconify-icon>
+                <p>${escapeHtml(err.message || 'Unable to load audit logs.')}</p>
+                <button class="retry-btn" onclick="loadLogs()"><iconify-icon icon="lucide:rotate-cw"></iconify-icon>Try Again</button></div>`;
+        })
+        .finally(() => $('refreshBtn').classList.remove('spinning'));
+}
+
+$('applyFilters').addEventListener('click', () => { currentPage = 1; loadLogs(); });
+$('resetFilters').addEventListener('click', () => {
+    $('fDateFrom').value = ''; $('fDateTo').value = ''; $('fAction').value = '';
+    $('fRole').value = ''; $('fSearch').value = '';
+    currentPage = 1; loadLogs();
+});
+$('refreshBtn').addEventListener('click', loadLogs);
+$('fSearch').addEventListener('keydown', e => { if (e.key === 'Enter') { currentPage = 1; loadLogs(); } });
+
+document.addEventListener('DOMContentLoaded', loadLogs);
+</script>
+</body>
+</html>

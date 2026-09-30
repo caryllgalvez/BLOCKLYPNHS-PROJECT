@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technical Feedback · ICT · BlockLearn</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green-deep:#145a42;--green-main:#145a42;--green-light:#28a87a;--green-soft:#e2f3ed;
+  --gold-warm:#e8a838;--gold-light:#fce9c5;--coral:#e06050;--coral-soft:#fce8e5;
+  --blue:#4a90d9;--blue-soft:#e4eefb;
+  --stone:#7f9e92;--stone-light:#a8bfb4;--border-fresh:#dde9e3;--card-white:#fff;
+  --bg-main:#f0f6f3;--text-primary:#1a463a;--text-secondary:#4a6b5e;
+  --nested:rgba(255,255,255,.55);--input-bg:#fff;--chart-grid:#e8f0ec;
+  --grid-line:rgba(170,210,195,.3);--blob-opacity:.3;
+  --sh-sm:0 4px 16px rgba(20,90,66,.06);--sh-md:0 8px 28px rgba(20,90,66,.08);
+  --sh-lg:0 16px 48px rgba(20,90,66,.12);
+}
+[data-theme="dark"]{
+  --bg-main:#0f1f19;--text-primary:#d8ede5;--text-secondary:#a8c4b8;
+  --border-fresh:#1e3a2e;--card-white:#162b22;--nested:rgba(255,255,255,.045);
+  --input-bg:#1a3329;--chart-grid:#1e3a2e;--green-soft:#163328;
+  --gold-light:#2e2510;--coral-soft:#2e1a16;--blue-soft:#152535;
+  --stone-light:#5a7a6d;--grid-line:rgba(40,80,60,.25);--blob-opacity:.15;
+  --sh-sm:0 4px 16px rgba(0,0,0,.2);--sh-md:0 8px 28px rgba(0,0,0,.25);
+  --sh-lg:0 16px 48px rgba(0,0,0,.3);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-main);color:var(--text-primary);
+  line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-layer::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:48px 48px}
+.bg-blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:var(--blob-opacity);
+  animation:drift 22s ease-in-out infinite alternate}
+.bg-blob--1{width:420px;height:420px;top:-12%;right:-6%;
+  background:radial-gradient(circle,rgba(31,138,100,.4),transparent 70%)}
+.bg-blob--2{width:340px;height:340px;bottom:-10%;left:6%;
+  background:radial-gradient(circle,rgba(232,168,56,.25),transparent 70%);animation-duration:28s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(25px,-30px) scale(1.04)}}
+main{max-width:1240px;margin:0 auto;padding:26px 20px 48px;position:relative;z-index:1}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;
+  background:rgba(255,255,255,.75);backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.6);border-radius:24px;
+  padding:.55rem 1rem .55rem .7rem;margin-bottom:1.1rem;box-shadow:var(--sh-sm)}
+[data-theme="dark"] .top-bar{background:rgba(22,43,34,.8);border-color:rgba(40,70,55,.6)}
+.back-pill{display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+  color:var(--green-main);font-size:.78rem;font-weight:600;
+  padding:6px 14px 6px 8px;border-radius:12px;transition:background .2s}
+.back-pill:hover{background:var(--green-soft)}
+.back-pill i{width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  background:var(--green-soft);border-radius:9px;font-size:.7rem}
+.theme-btn{width:36px;height:36px;border-radius:11px;border:1.5px solid var(--border-fresh);
+  background:var(--card-white);color:var(--stone);font-size:.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .25s}
+.theme-btn:hover{border-color:var(--green-main);color:var(--green-main)}
+.theme-btn .icon-sun{display:none}
+[data-theme="dark"] .theme-btn .icon-sun{display:inline}
+[data-theme="dark"] .theme-btn .icon-moon{display:none}
+
+.hero{background:linear-gradient(135deg,#145a42 0%,#176f52 50%,#145a42 100%);
+  border-radius:28px;padding:1.5rem 1.8rem;margin-bottom:1.2rem;
+  position:relative;overflow:hidden;color:#fff;box-shadow:var(--sh-lg)}
+.hero::before{content:'';position:absolute;top:-40%;right:-8%;width:280px;height:280px;
+  border-radius:50%;background:radial-gradient(circle,rgba(232,168,56,.25),transparent 65%)}
+.hero h1{font-size:1.45rem;font-weight:800;letter-spacing:-.5px;position:relative;z-index:1}
+.hero h1 em{font-style:normal;color:var(--gold-warm)}
+.hero p{font-size:.85rem;opacity:.85;max-width:560px;position:relative;z-index:1;margin-top:.2rem}
+.hero-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem;position:relative;z-index:1}
+.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);
+  backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);
+  padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:600}
+.chip strong{font-weight:800;font-variant-numeric:tabular-nums}
+
+.filter-bar{background:var(--card-white);border:1px solid var(--border-fresh);
+  border-radius:18px;padding:.9rem 1.1rem;margin-bottom:1.2rem;
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;box-shadow:var(--sh-sm)}
+.filter-bar label{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;
+  font-weight:700;color:var(--stone)}
+.filter-bar input,.filter-bar select{padding:.42rem .7rem;border:1.5px solid var(--border-fresh);
+  border-radius:10px;background:var(--input-bg);color:var(--text-primary);
+  font:inherit;font-size:.74rem}
+.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--green-main);
+  box-shadow:0 0 0 3px rgba(31,138,100,.15)}
+.filter-btn{padding:.45rem 1rem;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--green-main),var(--green-light));
+  color:#fff;font:inherit;font-size:.74rem;font-weight:700;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.filter-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.filter-btn.ghost{background:transparent;border:1.5px solid var(--border-fresh);
+  color:var(--text-secondary)}
+.filter-btn.ghost:hover{border-color:var(--green-main);color:var(--green-main)}
+
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.4rem}
+.summary-card{background:var(--card-white);border:1px solid var(--border-fresh);
+  border-radius:20px;padding:1.2rem 1.3rem;box-shadow:var(--sh-sm);
+  position:relative;overflow:hidden;transition:all .25s}
+.summary-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
+.summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.summary-card:nth-child(1)::before{background:linear-gradient(90deg,var(--green-main),var(--green-light))}
+.summary-card:nth-child(2)::before{background:linear-gradient(90deg,var(--gold-warm),#f0c060)}
+.summary-card:nth-child(3)::before{background:linear-gradient(90deg,var(--coral),#f08070)}
+.summary-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.summary-head span{font-size:.6rem;text-transform:uppercase;font-weight:700;
+  letter-spacing:1px;color:var(--stone)}
+.summary-icon{width:34px;height:34px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:.85rem}
+.summary-card:nth-child(1) .summary-icon{background:var(--green-soft);color:var(--green-main)}
+.summary-card:nth-child(2) .summary-icon{background:var(--gold-light);color:#c48a20}
+.summary-card:nth-child(3) .summary-icon{background:var(--coral-soft);color:var(--coral)}
+.summary-value{font-size:1.9rem;font-weight:900;letter-spacing:-1px;
+  color:var(--text-primary);line-height:1.1}
+.summary-label{font-size:.68rem;color:var(--stone-light);margin-top:2px}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.4rem}
+.chart-card{background:var(--card-white);border:1px solid var(--border-fresh);
+  border-radius:20px;padding:1.3rem 1.4rem;box-shadow:var(--sh-sm)}
+.chart-card h3{font-size:.9rem;font-weight:800;margin-bottom:1rem;
+  display:flex;align-items:center;gap:8px}
+.chart-card h3 i{color:var(--green-main);font-size:.82rem}
+.chart-wrap{position:relative;height:260px}
+
+.list-card{background:var(--card-white);border:1px solid var(--border-fresh);
+  border-radius:20px;padding:1.3rem 1.4rem;box-shadow:var(--sh-sm)}
+.list-card h3{font-size:.9rem;font-weight:800;margin-bottom:1rem;
+  display:flex;align-items:center;gap:8px}
+.list-card h3 i{color:var(--green-main);font-size:.82rem}
+.fb-item{padding:.9rem 0;border-bottom:1px solid var(--border-fresh);
+  display:flex;gap:.9rem;align-items:flex-start}
+.fb-item:last-child{border-bottom:none}
+.fb-avatar{width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(135deg,var(--green-main),var(--green-deep));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.72rem;flex-shrink:0}
+.fb-body{flex:1;min-width:0}
+.fb-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:3px}
+.fb-name{font-size:.78rem;font-weight:750}
+.fb-stars{color:var(--gold-warm);font-size:.7rem;letter-spacing:1px}
+.fb-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:5px;font-size:.62rem}
+.fb-tag{padding:1px 8px;border-radius:20px;background:var(--nested);
+  border:1px solid var(--border-fresh);color:var(--stone);font-weight:700}
+.fb-comment{font-size:.76rem;color:var(--text-secondary);line-height:1.5}
+.fb-time{font-size:.6rem;color:var(--stone-light);margin-top:4px}
+
+.kw-cloud{display:flex;flex-wrap:wrap;gap:6px}
+.kw{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;
+  background:var(--green-soft);color:var(--green-deep);border:1px solid transparent;transition:all .2s}
+.kw:hover{transform:translateY(-1px);box-shadow:var(--sh-sm)}
+.kw.c2{background:var(--coral-soft);color:var(--coral)}
+.kw.c3{background:var(--gold-light);color:#9a7020}
+.kw.c4{background:var(--blue-soft);color:var(--blue)}
+
+.empty{padding:2rem;text-align:center;color:var(--stone-light);font-size:.8rem}
+.empty i{font-size:2rem;color:var(--border-fresh);display:block;margin-bottom:.5rem}
+.loading{padding:1.5rem;text-align:center;color:var(--stone-light);font-size:.78rem}
+.loading i{animation:spin 1s linear infinite;margin-right:6px;color:var(--green-main)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+  .summary-grid{grid-template-columns:1fr}
+  .chart-grid{grid-template-columns:1fr}
+}
+@media(max-width:576px){
+  main{padding:16px 12px 32px}
+  .hero{padding:1.2rem 1.3rem}
+  .hero h1{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-blob bg-blob--1"></div>
+  <div class="bg-blob bg-blob--2"></div>
+</div>
+
+<main>
+  <nav class="top-bar">
+    <a class="back-pill" href="/ict_support_dashboard"><i class="fas fa-arrow-left"></i>Back to ICT Dashboard</a>
+    <button class="theme-btn" id="themeBtn" title="Toggle theme">
+      <i class="fas fa-moon icon-moon"></i><i class="fas fa-sun icon-sun"></i>
+    </button>
+  </nav>
+
+  <header class="hero">
+    <h1>Technical <em>Feedback Analytics</em></h1>
+    <p>System issues, login problems, at technical feedback mula sa students.</p>
+    <div class="hero-chips">
+      <span class="chip"><i class="fas fa-bug"></i>Total <strong id="chipTotal">0</strong></span>
+      <span class="chip"><i class="fas fa-star"></i>Avg Rating <strong id="chipAvg">0.0</strong></span>
+      <span class="chip"><i class="fas fa-exclamation-triangle"></i>Top Issue <strong id="chipCat">—</strong></span>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <label>Filter</label>
+    <select id="fCat">
+      <option value="">All Issues</option>
+      <option>Login Problem</option>
+      <option>System Error</option>
+      <option>Page/Interface Problem</option>
+      <option>Performance Problem</option>
+      <option>Activity/Module Technical Issue</option>
+      <option>Other</option>
+    </select>
+    <input type="date" id="fFrom" title="From">
+    <input type="date" id="fTo" title="To">
+    <button class="filter-btn" id="applyBtn"><i class="fas fa-filter"></i> Apply</button>
+    <button class="filter-btn ghost" id="clearBtn"><i class="fas fa-times"></i> Clear</button>
+  </div>
+
+  <section class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-head"><span>Total Technical Feedback</span>
+        <div class="summary-icon"><i class="fas fa-bug"></i></div></div>
+      <div class="summary-value" id="sumTotal">0</div>
+      <div class="summary-label">reported items</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-head"><span>Average Rating</span>
+        <div class="summary-icon"><i class="fas fa-star"></i></div></div>
+      <div class="summary-value" id="sumAvg">0.0</div>
+      <div class="summary-label">out of 5.0</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-head"><span>Most Common Issue</span>
+        <div class="summary-icon"><i class="fas fa-exclamation-triangle"></i></div></div>
+      <div class="summary-value" id="sumCat" style="font-size:1.1rem">—</div>
+      <div class="summary-label">top reported problem</div>
+    </div>
+  </section>
+
+  <section class="chart-grid">
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-bar"></i> Rating Distribution</h3>
+      <div class="chart-wrap"><canvas id="ratingChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-pie"></i> Issue Categories</h3>
+      <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-tags"></i> Common Keywords</h3>
+      <div class="kw-cloud" id="kwCloud">
+        <div class="loading"><i class="fas fa-spinner"></i>Loading keywords…</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-clock-rotate-left"></i> Recent Reports</h3>
+      <div id="recentList" style="max-height:260px;overflow-y:auto">
+        <div class="loading"><i class="fas fa-spinner"></i>Loading recent…</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const escapeHtml = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+const applyTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('bl-theme', t); };
+applyTheme(localStorage.getItem('bl-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+$('themeBtn').addEventListener('click', () =>
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+function buildQuery() {
+  const p = new URLSearchParams();
+  if ($('fCat').value) p.set('category', $('fCat').value);
+  if ($('fFrom').value) p.set('date_from', $('fFrom').value);
+  if ($('fTo').value) p.set('date_to', $('fTo').value);
+  const q = p.toString();
+  return q ? '?' + q : '';
+}
+
+let ratingChart, catChart;
+function initCharts() {
+  ratingChart = new Chart($('ratingChart'), {
+    type: 'bar',
+    data: { labels: ['1★','2★','3★','4★','5★'], datasets: [{
+      data: [0,0,0,0,0],
+      backgroundColor: ['#e06050','#e8a838','#8ebf5a','#28a87a','#145a42'],
+      borderRadius: 8, barThickness: 40,
+    }]},
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: '#e8f0ec' } }, x: { grid: { display: false } } } },
+  });
+  catChart = new Chart($('catChart'), {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: ['#145a42','#e06050','#e8a838','#4a90d9','#28a87a','#a8bfb4'] }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } } },
+  });
+}
+initCharts();
+
+async function loadSummary() {
+  const r = await fetch('/api/ict/feedback/summary' + buildQuery());
+  const d = await r.json();
+  if (!d.success) return;
+  $('sumTotal').textContent = d.total;
+  $('sumAvg').textContent = d.avg_rating.toFixed(1);
+  $('sumCat').textContent = d.most_common_issue || '—';
+  $('chipTotal').textContent = d.total;
+  $('chipAvg').textContent = d.avg_rating.toFixed(1);
+  $('chipCat').textContent = d.most_common_issue || '—';
+  ratingChart.data.datasets[0].data = [
+    d.distribution['1'], d.distribution['2'], d.distribution['3'],
+    d.distribution['4'], d.distribution['5'],
+  ];
+  ratingChart.update();
+}
+
+async function loadCategories() {
+  const r = await fetch('/api/ict/feedback/by-category' + buildQuery());
+  const d = await r.json();
+  if (!d.success || !d.categories.length) {
+    catChart.data.labels = ['No data'];
+    catChart.data.datasets[0].data = [1];
+    catChart.data.datasets[0].backgroundColor = ['#dde9e3'];
+    catChart.update();
+    return;
+  }
+  catChart.data.labels = d.categories.map(x => x.category);
+  catChart.data.datasets[0].data = d.categories.map(x => x.count);
+  catChart.data.datasets[0].backgroundColor = ['#145a42','#e06050','#e8a838','#4a90d9','#28a87a','#a8bfb4'];
+  catChart.update();
+}
+
+async function loadKeywords() {
+  const r = await fetch('/api/ict/feedback/keywords' + buildQuery());
+  const d = await r.json();
+  const box = $('kwCloud');
+  if (!d.success || !d.keywords.length) {
+    box.innerHTML = '<div class="empty"><i class="fas fa-tag"></i>No keywords yet</div>';
+    return;
+  }
+  box.innerHTML = d.keywords.map((k, i) =>
+    `<span class="kw c${(i % 4) + 1}" title="${k.count}x">${escapeHtml(k.word)} <strong>${k.count}</strong></span>`
+  ).join('');
+}
+
+async function loadRecent() {
+  const r = await fetch('/api/ict/feedback/recent' + buildQuery());
+  const d = await r.json();
+  const box = $('recentList');
+  if (!d.success || !d.feedback.length) {
+    box.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i>No technical feedback yet</div>';
+    return;
+  }
+  box.innerHTML = d.feedback.map(f => {
+    const stars = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+    const initials = (f.student_name || 'Anonymous').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    return `<div class="fb-item">
+      <div class="fb-avatar">${escapeHtml(initials)}</div>
+      <div class="fb-body">
+        <div class="fb-head">
+          <span class="fb-name">${escapeHtml(f.student_name || 'Anonymous')}</span>
+          <span class="fb-stars">${stars}</span>
+        </div>
+        <div class="fb-meta"><span class="fb-tag">${escapeHtml(f.category)}</span></div>
+        ${f.comment ? `<div class="fb-comment">${escapeHtml(f.comment)}</div>` : ''}
+        <div class="fb-time"><i class="far fa-clock"></i> ${escapeHtml(f.created_at)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAll() {
+  await Promise.all([loadSummary(), loadCategories(), loadKeywords(), loadRecent()]);
+}
+
+$('applyBtn').addEventListener('click', loadAll);
+$('clearBtn').addEventListener('click', () => {
+  $('fCat').value = ''; $('fFrom').value = ''; $('fTo').value = '';
+  loadAll();
+});
+
+loadAll();
+</script>
+</body>
+</html>

@@ -69,27 +69,26 @@ def test_init_database_removes_duplicate_assessment_rows_before_seed(monkeypatch
     init_database()
 
     assert any('DELETE t1' in query and 'assessment_number = t2.assessment_number' in query for query in query_log)
+    assert any(
+        'UPDATE assessment_attempts a' in query and 'teacher_score IS NULL' in query
+        for query in query_log
+    )
 
 
-def test_init_database_does_not_reinsert_assessments_when_records_exist(monkeypatch):
+def test_init_database_upserts_assessments_when_records_exist(monkeypatch):
     insert_calls = []
+    python_fundamentals_updates = []
 
     class FakeCursor:
         def __init__(self):
             self._fetchone_result = None
 
-        def execute(self, query, params=()):
-            nonlocal insert_calls
-            if 'INSERT INTO assessments' in query:
-                insert_calls.append(query)
-                if 'ON DUPLICATE KEY UPDATE' not in query:
-                    raise AssertionError('Assessment seed insert was not idempotent')
-                self._fetchone_result = None
-                return
+        def executemany(self, query, params):
+            insert_calls.append((query, list(params)))
 
-            if "SELECT COUNT(*) AS total FROM assessments" in query:
-                self._fetchone_result = {'total': 1}
-                return
+        def execute(self, query, params=()):
+            if 'UPDATE assessments' in query and "WHERE language = 'python' AND assessment_number = 1" in query:
+                python_fundamentals_updates.append(params)
 
             if "SELECT id, password, status FROM ict_support" in query:
                 self._fetchone_result = {'id': 1, 'password': 'abc', 'status': 'active'}
@@ -141,4 +140,11 @@ def test_init_database_does_not_reinsert_assessments_when_records_exist(monkeypa
 
     init_database()
 
-    assert insert_calls == []
+    assert insert_calls
+    assert all('ON DUPLICATE KEY UPDATE' in query for query, _ in insert_calls)
+    default_rows = next(rows for query, rows in insert_calls if "VALUES (%s, %s, %s" in query)
+    assert any(row[0:3] == ('python', 1, 'Python Fundamentals') for row in default_rows)
+    assert any('Write a Python program that prints exactly:' in row[3] for row in default_rows)
+    assert any(row[0:3] == ('java', 3, 'Conditional Statements') and 'score to 80' in row[3] for row in default_rows)
+    assert python_fundamentals_updates
+    assert python_fundamentals_updates[0][1] == 'Write a Python program that prints exactly: Hello, World!'

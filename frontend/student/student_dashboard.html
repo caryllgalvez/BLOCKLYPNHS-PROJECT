@@ -6,13 +6,14 @@
     <title>BlockLearn · Student Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -174,9 +175,8 @@
             transition: all 0.35s ease;
             overflow: hidden; min-height: 64px;
         }
-        .logo-image {
-            width: 70px; height: 70px; object-fit: contain; flex-shrink: 0;
-        }
+        .logo-image { width: 70px; height: 70px; object-fit: contain; flex-shrink: 0; }
+        .sidebar.collapsed .logo-image { display: none; }
         .logo-full {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
             transition: opacity 0.2s ease;
@@ -194,13 +194,12 @@
         .logo-mono {
             display: none; width: 100%; text-align: center; flex-shrink: 0;
         }
-        .logo-mono .logo-image { width: 70px; height: 70px; }
         .logo-mono span { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
         .logo-mono span em { font-style: normal; color: var(--gold-warm); }
 
         .toggle-btn {
             background: var(--sidebar-icon-toggle); border: 1px solid rgba(255,255,255,0.06);
-            color: #d8efe5; font-size: 0.9rem; width: 28px; height: 28px;
+            color: #d8efe5; font-size: 0.9rem; width: 34px; height: 34px;
             border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
@@ -219,7 +218,6 @@
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
         .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 1rem 0.5rem; }
-        .sidebar.collapsed .sidebar-logo > .logo-image { display: none; }
         .sidebar.collapsed .logo-full { display: none; }
         .sidebar.collapsed .logo-mono { display: block; }
         .sidebar.collapsed .toggle-btn { display: none; }
@@ -276,6 +274,7 @@
             text-decoration: none; border-radius: 8px; font-size: 0.76rem;
             transition: all 0.2s ease;
         }
+        .activities-submenu iconify-icon { width: 16px; height: 16px; margin-right: 8px; vertical-align: -3px; }
         .activities-submenu a:hover { background: var(--sidebar-hover-bg); color: var(--sidebar-text-hover); }
         .sidebar.collapsed .activities-submenu { display: none !important; }
         .sidebar.collapsed .activities-chevron { display: none; }
@@ -351,26 +350,6 @@
             position: relative;
             z-index: 200;
         }
-
-        /* Search */
-        .top-search { position: relative; display: flex; align-items: center; }
-        .top-search i {
-            position: absolute; left: 11px; color: var(--stone-light);
-            font-size: 0.8rem; pointer-events: none; transition: color 0.2s;
-        }
-        .top-search input {
-            width: 200px; padding: 0.45rem 0.7rem 0.45rem 2.2rem;
-            border: 1.5px solid var(--border-fresh); border-radius: 10px;
-            font-size: 0.78rem; font-family: inherit; background: var(--search-bg);
-            color: var(--text-primary); transition: all 0.25s ease;
-        }
-        .top-search input::placeholder { color: var(--stone-light); font-weight: 400; }
-        .top-search input:focus {
-            outline: none; border-color: var(--green-main);
-            box-shadow: 0 0 0 3px rgba(31,138,100,0.1);
-            width: 240px;
-        }
-        .top-search:focus-within i { color: var(--green-main); }
 
         /* ===== NOTIFICATION BUTTON ===== */
         .notif-btn {
@@ -659,7 +638,7 @@
 
         /* ===== GREETING ===== */
         .greeting-banner {
-            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #1f8a64 100%);
+            background: linear-gradient(135deg, #14423a 0%, #1a6850 50%, #145a42 100%);
             border-radius: var(--radius-xl); padding: 1.6rem 2rem;
             margin-bottom: 1.6rem; position: relative; overflow: hidden;
             color: white; box-shadow: var(--shadow-lg);
@@ -1036,8 +1015,6 @@
             .greeting-banner { padding: 1.3rem; }
             .greeting-banner h1 { font-size: 1.15rem; }
             .top-bar { padding: 0.5rem 1rem; border-radius: var(--radius-lg); }
-            .top-search input { width: 130px; }
-            .top-search input:focus { width: 160px; }
             .profile-trigger-info { display: none; }
             .profile-dropdown { right: 0; left: auto; min-width: 200px; }
             .notif-dropdown { width: 320px; right: 0; left: auto; }
@@ -1048,8 +1025,6 @@
             .stat-value { font-size: 1.5rem; }
             .top-bar { flex-wrap: wrap; gap: 8px; }
             .top-bar-right { margin-left: auto; flex-wrap: wrap; }
-            .top-search { order: 10; width: 100%; }
-            .top-search input { width: 100% !important; }
             .profile-dropdown { right: 0; left: auto; min-width: 180px; }
             .notif-dropdown { width: 290px; right: 0; left: auto; }
         }
@@ -1075,11 +1050,11 @@
             <img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image">
             <div class="logo-full">
                 <h2>Block<em>Learn</em></h2>
-                <p>PNHS &middot; ICT STUDIO</p>
+                <p>PNHS &middot; ICT Studio</p>
             </div>
-            <div class="logo-mono"><img src="/static/BL-LOGO.png" alt="BlockLearn Logo" class="logo-image"></div>
+            <div class="logo-mono"><span>B<em>L</em></span></div>
             <button class="toggle-btn" onclick="collapseSidebar()" aria-label="Collapse sidebar">
-                <i class="fas fa-times"></i>
+                <iconify-icon icon="lucide:panel-left-close"></iconify-icon>
             </button>
         </div>
         <div class="hamburger-wrap">
@@ -1090,7 +1065,7 @@
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
             <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom active" aria-current="page"><i class="fas fa-house"></i><span class="nav-text">Dashboard</span></a></div>
-            <div class="nav-item"><a href="/assessments" class="nav-link-custom"><i class="fas fa-clipboard-list"></i><span class="nav-text">Assessment</span></a></div>
+            <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><i class="fas fa-clipboard-list"></i><span class="nav-text">Assessment</span></a></div>
             <div class="nav-item"><a href="/student_modules" class="nav-link-custom"><i class="fas fa-layer-group"></i><span class="nav-text">Modules</span></a></div>
             <div class="nav-item">
                 <button type="button" class="nav-link-custom activities-toggle" id="activitiesToggle" onclick="toggleActivitiesNav()" aria-expanded="false" aria-controls="activitiesSubmenu">
@@ -1099,9 +1074,9 @@
                 <div class="activities-submenu" id="activitiesSubmenu">
                     <a href="/student_activities">All Activities</a>
                     <div class="activities-submenu-label">Languages</div>
-                    <a href="/student_activities_php">PHP</a>
-                    <a href="/student_activities_javascript">JavaScript</a>
-                    <a href="/student_activities_cpp">C++</a>
+                    <a href="/student_activities_php"><iconify-icon icon="logos:php"></iconify-icon>PHP</a>
+                    <a href="/student_activities_javascript"><iconify-icon icon="logos:javascript"></iconify-icon>JavaScript</a>
+                    <a href="/student_activities_cpp"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon>C++</a>
                 </div>
             </div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><i class="fas fa-chart-line"></i><span class="nav-text">Progress</span></a></div>
@@ -1120,10 +1095,6 @@
                 <h1 class="page-title"><i class="fas fa-house"></i>Dashboard</h1>
             </div>
             <div class="top-bar-right">
-                <div class="top-search">
-                    <input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search">
-                    <i class="fas fa-search"></i>
-                </div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
                     <i class="fas fa-moon icon-moon"></i>
                     <i class="fas fa-sun icon-sun"></i>
@@ -1179,7 +1150,7 @@
         </header>
 
         <section class="greeting-banner fu e1">
-            <h1 id="greetingText">Good morning, <em id="greetingName">{{ full_name or username or 'Student' }}</em></h1>
+            <h1><span id="greetingPrefix">Good morning,</span> <em id="greetingName">{{ display_name }}</em></h1>
             <p>Ready to build something amazing today? Keep up the great work on your coding journey.</p>
             <div class="greeting-date"><i class="fas fa-calendar-day"></i><span id="todayDate"></span></div>
         </section>
@@ -1550,21 +1521,11 @@
             .catch(err => console.error('Error loading unread count:', err));
     }
 
-    /* ===== SEARCH ===== */
-    document.getElementById('topSearchInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && this.value.trim()) {
-            showToast('Search: "' + this.value.trim() + '"');
-            this.value = '';
-            this.blur();
-        }
-    });
-
     /* ===== GREETING ===== */
-    var studentName = "{{ full_name or username | e }}";
     (function() {
         var h = new Date().getHours();
-        var g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good Day!';
-        document.getElementById('greetingText').innerHTML = g + ', <em id="greetingName">' + studentName + '</em>';
+        var greeting = h < 12 ? 'Good morning,' : h < 18 ? 'Good afternoon,' : 'Good evening,';
+        document.getElementById('greetingPrefix').textContent = greeting;
         document.getElementById('todayDate').textContent =
             new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     })();
@@ -1606,12 +1567,6 @@
 
     function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-    function leaderboardInitials(name) {
-        return (name || 'Student').trim().split(/\s+/).map(function(word) {
-            return word.charAt(0);
-        }).slice(0, 2).join('').toUpperCase();
-    }
-
     function loadDashboardLeaderboard() {
         var list = document.getElementById('dashboardLeaderboardList');
         if (!list) return;
@@ -1623,15 +1578,15 @@
             }
 
             list.innerHTML = d.leaderboard.slice(0, 10).map(function(student, index) {
-                var name = student.student_name || 'Student';
+                var lrn = student.student_lrn || student.lrn || 'LRN unavailable';
                 var completed = student.activities_completed || 0;
-                var average = student.average_score || 0;
+                var activityPercentage = Number(student.activity_percentage) || 0;
                 return '<div class="leaderboard-row">' +
                     '<div class="leaderboard-rank">#' + (index + 1) + '</div>' +
-                    '<div class="leaderboard-avatar">' + leaderboardInitials(name) + '</div>' +
-                    '<div class="leaderboard-student"><div class="leaderboard-name">' + esc(name) + '</div>' +
-                    '<div class="leaderboard-meta">' + completed + ' activities · ' + average + '% average</div></div>' +
-                    '<div class="leaderboard-score">' + average + '%</div>' +
+                    '<div class="leaderboard-avatar">LRN</div>' +
+                    '<div class="leaderboard-student"><div class="leaderboard-name">' + esc(lrn) + '</div>' +
+                    '<div class="leaderboard-meta">' + completed + '/15 activities completed</div></div>' +
+                    '<div class="leaderboard-score">' + activityPercentage.toFixed(1) + '%</div>' +
                     '</div>';
             }).join('');
         }).catch(function() {

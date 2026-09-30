@@ -13,7 +13,7 @@
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -780,9 +780,9 @@
             <div class="nav-section-label">Main</div>
             <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
             <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
             <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
             <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
@@ -803,7 +803,7 @@
     <main class="main-content" id="mainContent">
         <header class="top-bar fu">
             <div>
-                <h1 class="page-title"><i class="fab fa-js"></i>JavaScript Activities</h1>
+                <h1 class="page-title"><iconify-icon icon="logos:javascript"></iconify-icon>JavaScript Activities</h1>
             </div>
             <div class="top-bar-right">
                 <div class="top-search">
@@ -862,11 +862,15 @@
                 Assessments &amp; Quizzes
                 <span>5</span>
             </button>
+            <div class="activity-language-score">
             <nav class="language-tabs" aria-label="Programming language">
-                <a href="/student_activities_php" class="lang-tab"><i class="fab fa-php"></i> PHP</a>
-                <a href="/student_activities_javascript" class="lang-tab active"><i class="fab fa-js"></i> JavaScript</a>
-                <a href="/student_activities_cpp" class="lang-tab"><i class="fas fa-plus-circle"></i> C++</a>
+                <a href="/student_activities_php" class="lang-tab"><iconify-icon icon="logos:php"></iconify-icon> PHP</a>
+                <a href="/student_activities_javascript" class="lang-tab active"><iconify-icon icon="logos:javascript"></iconify-icon> JavaScript</a>
+                <a href="/student_activities_cpp" class="lang-tab"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon> C++</a>
             </nav>
+                {% set score_language = 'javascript' %}{% set score_language_name = 'JavaScript' %}
+                {% include 'activities/activity_score_panel.html' %}
+            </div>
         </div>
 
         <!-- EASY LEVEL -->
@@ -1255,6 +1259,7 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success && data.activities) {
+                    if (window.updateActivityScoreSummary) window.updateActivityScoreSummary(data.activities);
                     const statusMap = {
                         'Hello, JavaScript!': 'status-hellojs',
                         'Store and Display a Score': 'status-storescore',
@@ -1269,7 +1274,7 @@
                             if (el) {
                                 const done = act.status === 'COMPLETED' || act.status === 'passed' || act.status === 'done';
                                 const available = act.status === 'AVAILABLE';
-                                el.textContent = done ? ` ✓ Completed · ${act.score ?? 0}/${act.max_score || 10}` : available ? ' 🔓 Unlocked' : ' 🔒 Locked';
+                                el.textContent = done ? ' ✓ Passed' : available ? ' 🔓 Unlocked' : ' 🔒 Locked';
                                 el.className = `status-badge ${done ? 'status-completed' : available ? 'status-pending' : 'status-locked'}`;
                                 const card = el.closest('.activity-card');
                                 if (card) {
@@ -1290,7 +1295,7 @@
             .then(r => r.json())
             .then(d => {
                 if (d.success) {
-                    const name = d.full_name || d.lrn || 'Student';
+                    const name = d.full_name || 'Student';
                     const initial = name.charAt(0).toUpperCase();
                     const grade = d.grade_level || 'Grade 11';
                     document.getElementById('sidebarAvatar').innerText = initial;

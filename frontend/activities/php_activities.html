@@ -13,7 +13,7 @@
 
         :root {
             --green-deep: #145a42;
-            --green-main: #1f8a64;
+            --green-main: #145a42;
             --green-light: #28a87a;
             --green-soft: #e2f3ed;
             --gold-warm: #e8a838;
@@ -783,9 +783,9 @@
             <div class="nav-section-label">Main</div>
             <div class="nav-item"><a href="/student_dashboard" class="nav-link-custom active" aria-current="page"><iconify-icon icon="lucide:house"></iconify-icon><span class="nav-text">Dashboard</span></a></div>
             <div class="nav-item"><a href="/module_assessments" class="nav-link-custom"><iconify-icon icon="lucide:clipboard-list"></iconify-icon><span class="nav-text">Assessments &amp; Modules</span></a></div>
-            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
-            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="logos:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-item"><a href="/student_activities_php" class="nav-link-custom"><iconify-icon icon="logos:php"></iconify-icon><span class="nav-text">PHP</span></a></div>
+            <div class="nav-item"><a href="/student_activities_javascript" class="nav-link-custom"><iconify-icon icon="logos:javascript"></iconify-icon><span class="nav-text">JavaScript</span></a></div>
+            <div class="nav-item"><a href="/student_activities_cpp" class="nav-link-custom"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon><span class="nav-text">C++</span></a></div>
             <div class="nav-item"><a href="/student_progress" class="nav-link-custom"><iconify-icon icon="lucide:chart-no-axes-combined"></iconify-icon><span class="nav-text">Progress</span></a></div>
             <div class="nav-item"><a href="/student_profile" class="nav-link-custom"><iconify-icon icon="lucide:circle-user-round"></iconify-icon><span class="nav-text">Profile</span></a></div>
             <div class="nav-item"><a href="/student_settings" class="nav-link-custom"><iconify-icon icon="lucide:sliders-horizontal"></iconify-icon><span class="nav-text">Settings</span></a></div>
@@ -801,9 +801,8 @@
 
     <main class="main-content" id="mainContent">
         <header class="top-bar fu e1">
-            <div><h1 class="page-title"><i class="fab fa-php"></i>PHP Activities</h1></div>
+            <div><h1 class="page-title"><iconify-icon icon="logos:php"></iconify-icon>PHP Activities</h1></div>
             <div class="top-bar-right">
-                <div class="top-search"><input type="text" placeholder="Search..." id="topSearchInput" aria-label="Search"><i class="fas fa-search"></i></div>
                 <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <i class="fas fa-moon icon-moon"></i><i class="fas fa-sun icon-sun"></i>
                 </button>
@@ -837,11 +836,15 @@
                 <i class="fas fa-clipboard-list"></i> Assessments &amp; Quizzes
                 <span class="badge-count">5</span>
             </button>
+            <div class="activity-language-score">
             <nav class="language-tabs" aria-label="Programming language">
-                <a href="/student_activities_php" class="lang-tab active"><i class="fab fa-php"></i> PHP</a>
-                <a href="/student_activities_javascript" class="lang-tab"><i class="fab fa-js"></i> JavaScript</a>
-                <a href="/student_activities_cpp" class="lang-tab"><i class="fas fa-plus-circle"></i> C++</a>
+                <a href="/student_activities_php" class="lang-tab active"><iconify-icon icon="logos:php"></iconify-icon> PHP</a>
+                <a href="/student_activities_javascript" class="lang-tab"><iconify-icon icon="logos:javascript"></iconify-icon> JavaScript</a>
+                <a href="/student_activities_cpp" class="lang-tab"><iconify-icon icon="simple-icons:cplusplus"></iconify-icon> C++</a>
             </nav>
+                {% set score_language = 'php' %}{% set score_language_name = 'PHP' %}
+                {% include 'activities/activity_score_panel.html' %}
+            </div>
         </div>
 
         <!-- Easy Level -->
@@ -1175,6 +1178,7 @@
     function loadActivityStatuses() {
         fetch('/get_activities').then(r => r.json()).then(data => {
             if (data.success && data.activities) {
+                    if (window.updateActivityScoreSummary) window.updateActivityScoreSummary(data.activities);
                 const m = {
                     'Hello, PHP!': 'status-hellophp',
                     'Store a Name': 'status-storename',
@@ -1204,7 +1208,7 @@
     function loadUserInfo() {
         fetch('/student_profile_data').then(r => r.json()).then(d => {
             if (d.success) {
-                const n = d.full_name || d.lrn || 'Student', i = n.charAt(0).toUpperCase(), g = d.grade_level || 'Grade 11';
+                const n = d.full_name || 'Student', i = n.charAt(0).toUpperCase(), g = d.grade_level || 'Grade 11';
                 document.getElementById('sidebarAvatar').innerText = i;
                 document.getElementById('sidebarName').innerText = n;
                 document.getElementById('sidebarGrade').innerText = g + ' - ICT';
