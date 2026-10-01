@@ -186,9 +186,6 @@ def init_database():
             if cursor.fetchone() is None:
                 cursor.execute(f"ALTER TABLE {table} ADD COLUMN staff_code_hash VARCHAR(255) NULL")
 
-        # Keep ICT access limited to the single technician account.
-        cursor.execute("DELETE FROM ict_support WHERE LOWER(username) <> 'ict-tech'")
-
         ict_password = hash_password('Tech123@')
         cursor.execute("SELECT id, password, status FROM ict_support WHERE LOWER(username) = LOWER(%s)", ('ICT-Tech',))
         ict_user = cursor.fetchone()
@@ -206,8 +203,6 @@ def init_database():
             """, (ict_password, ict_user['id']))
             print("ℹ️ ICT-Tech account credentials/status refreshed")
         
-        cursor.execute("DROP TABLE IF EXISTS tickets")
-
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ict_tickets (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -498,9 +493,6 @@ def init_database():
             )
         """)
 
-        # Remove the retired lessons table from databases created by older versions.
-        cursor.execute("DROP TABLE IF EXISTS lessons")
-        
         # CREATE ADMIN/TEACHER ACCOUNT
         cursor.execute("SELECT id FROM teachers WHERE username = 'admin'")
         if not cursor.fetchone():
@@ -2705,8 +2697,6 @@ def get_activity_progress():
             'completed_assessments': completed_assessments,
             'assessments_passed': total_assessments_passed,
             'assessments_pass_total': total_assessments,
-            'assessments_passed': total_assessments_passed,
-            'assessments_pass_total': total_assessments,
             'completed_activities': completed_activities,
             'activities_passed': total_activity_passed,
             'activities_pass_total': total_activities,
@@ -3265,7 +3255,7 @@ def get_performance_reports():
         try:
             cursor.execute("""
                                         SELECT s.id, s.lrn,
-                                            TRIM(CONCAT_WS(' ', s.first_name, s.middle_initial, s.last_name)) AS student_name,
+                                            s.full_name AS student_name,
                                             s.grade_level,
                       COUNT(a.id) as total_activities,
                       IFNULL(ROUND(AVG(a.score), 1), 0) as average_score,
@@ -3826,9 +3816,6 @@ if __name__ == '__main__':
     print(f"Database: {db_config['database']}")
     print(f"Host: {db_config['host']}")
     print('=' * 60)
-    print('Default login credentials:')
-    print('  Teacher: teacher1 / teacher123')
-    print('  Admin: admin / admin123')
     print('Run the app and open http://127.0.0.1:5000')
     print('=' * 60)
     app.run(debug=True, host='127.0.0.1', port=5000)
